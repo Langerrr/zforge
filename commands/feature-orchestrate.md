@@ -82,7 +82,7 @@ Run this as a background task. Then poll for output using TaskOutput with `block
 2. Clean up: `rm -f docs/{feature_name}/05_progress/05_XX_*.md.pid`
 3. Update `05_progress_overview.md` — mark phase complete
 4. Update `05_00_agent_prompts_index.md`
-5. Append review summary to `10_review.md`
+5. Append review summary to `05_progress/review.md`
 6. Check if new phases are now READY (dependencies met)
 7. If yes: spawn agents for newly READY phases (go to Step 2)
 8. Restart monitor

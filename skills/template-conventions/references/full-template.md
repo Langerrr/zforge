@@ -16,7 +16,8 @@ docs/{feature_name}/
 │   ├── 05_00_agent_prompts_index.md  # Phase index and agent rules
 │   ├── 05_01_{phase_name}.md         # Phase 1 progress
 │   ├── 05_02_{phase_name}.md         # Phase 2 progress
-│   └── 05_XX_{phase_name}.md         # Additional phases
+│   ├── 05_XX_{phase_name}.md         # Additional phases
+│   └── review.md                     # Compiled agent reviews (planner append-only)
 ├── 06_post_deployment.md          # Post-deployment checklist
 ├── 07_testing_overview.md         # Testing guidance
 ├── 07_testing/
@@ -25,7 +26,9 @@ docs/{feature_name}/
 │   └── 07_03_test_results.md      # Significant test outcomes
 ├── 08_configuration.md            # Env vars, feature flags, external services
 ├── 09_troubleshooting.md          # Issues, solutions, debug commands
-├── 10_review.md                   # Compiled agent reviews (planner append-only)
+├── 10_refactor_spec.md            # [Refactoring] Requirements, goals, scope
+├── 11_refactor_context.md         # [Refactoring] Current-state audit and dependencies
+├── 12_refactor_plan.md            # [Refactoring] Migration/refactoring steps
 └── _archive/                      # Outdated docs: {name}__{date}.md
 ```
 
@@ -47,7 +50,13 @@ docs/{feature_name}/
 - `07_testing/*.md` — as tests are planned and run
 - `08_configuration.md` — when config is established
 - `09_troubleshooting.md` — as issues are discovered
-- `10_review.md` — as phases complete
+- `05_progress/review.md` — as phases complete
+
+### Created for refactoring workflows (10+)
+- `10_refactor_spec.md` — refactoring requirements and scope
+- `11_refactor_context.md` — current-state audit
+- `12_refactor_plan.md` — migration/refactoring steps
+- Further numbers (13, 14, ...) as needed
 
 ## Ownership Matrix
 
@@ -65,7 +74,10 @@ docs/{feature_name}/
 | `07_*` | All | Mixed | Planner creates, agents update |
 | `08_configuration.md` | All | Planner | Updated as config emerges |
 | `09_troubleshooting.md` | All | Planner | Extracted from agent findings |
-| `10_review.md` | Humans | Planner (append) | Planner appends, never reads back |
+| `05_progress/review.md` | Humans | Planner (append) | Planner appends, never reads back |
+| `10_refactor_spec.md` | All | Planner | [Refactoring] Requirements, goals, scope |
+| `11_refactor_context.md` | All | Planner | [Refactoring] Current-state audit |
+| `12_refactor_plan.md` | All | Planner | [Refactoring] Migration/refactoring steps |
 
 ## Phase File Sections
 
@@ -143,6 +155,7 @@ After writing a signal, the agent STOPS immediately. No more work.
 | Scope change | `01_context.md` + `02_plan.md` | Planner |
 | Step completed | `05_XX_*.md` (own phase) | Agent |
 | Phase completed | `05_progress_overview.md` | Planner |
+| Phase reviewed | `05_progress/review.md` | Planner |
 | Bug found | `05_XX_*.md` (Blocked/Issues) | Agent |
 | Feature deferred | `06_post_deployment.md` | Planner |
 | New env var | `08_configuration.md` | Planner |

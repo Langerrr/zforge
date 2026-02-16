@@ -36,7 +36,8 @@ docs/{feature_name}/
 ├── 05_progress_overview.md        # Phase status summary (planner-owned)
 ├── 05_progress/
 │   ├── 05_00_agent_prompts_index.md  # Agent prompt registry
-│   └── 05_XX_phase_name.md       # Per-phase progress files
+│   ├── 05_XX_phase_name.md       # Per-phase progress files
+│   └── review.md                  # Compiled reviews (planner append-only)
 ├── 06_post_deployment.md          # Post-deployment checklist
 ├── 07_testing_overview.md         # Testing strategy overview
 ├── 07_testing/
@@ -45,7 +46,9 @@ docs/{feature_name}/
 │   └── 07_03_test_results.md      # Test execution results
 ├── 08_configuration.md            # Configuration and environment setup
 ├── 09_troubleshooting.md          # Issues and solutions
-└── 10_review.md                   # Compiled reviews
+├── 10_refactor_spec.md            # [Refactoring] Goals, scope, what's changing
+├── 11_refactor_context.md         # [Refactoring] Current-state audit
+└── 12_refactor_plan.md            # [Refactoring] Migration/refactoring steps
 ```
 
 ## Scaling Model

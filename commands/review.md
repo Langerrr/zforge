@@ -105,7 +105,7 @@ Instruct verifiers to watch for these common false positives:
 - Important issues: {count}
 ```
 
-If reviewing a feature (`--feature`), ask if the user wants findings appended to `docs/{name}/10_review.md`.
+If reviewing a feature (`--feature`), ask if the user wants findings appended to `docs/{name}/05_progress/review.md`.
 
 ## Stage 4: Cost Estimation
 
