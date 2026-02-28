@@ -1,6 +1,6 @@
 #!/bin/bash
 # monitor.sh — watches phase files for agent signals and liveness
-# Usage: monitor.sh <phase_directory> [poll_interval_seconds] [stale_threshold_seconds]
+# Usage: monitor.sh <phase_directory> [poll_interval_seconds] [stale_threshold_seconds] [file_pattern]
 #
 # Signal format (written by impl agents):
 #   <!-- AGENT_SIGNAL:DONE T:2026-02-09T19:30:45Z PID:12345 -->
@@ -21,9 +21,10 @@
 
 set -euo pipefail
 
-PHASE_DIR="${1:?Usage: monitor.sh <phase_directory> [poll_interval] [stale_threshold]}"
+PHASE_DIR="${1:?Usage: monitor.sh <phase_directory> [poll_interval] [stale_threshold] [file_pattern]}"
 POLL_INTERVAL="${2:-30}"
 STALE_THRESHOLD="${3:-300}"  # 5 minutes default
+FILE_PATTERN="${4:-05_*.md}"
 
 if [ ! -d "$PHASE_DIR" ]; then
     echo "ERROR: Directory not found: $PHASE_DIR"
@@ -68,6 +69,11 @@ extract_pid() {
     echo "$1" | grep -o 'PID:[0-9]*' | sed 's/PID://' || true
 }
 
+# Remove all AGENT_SIGNAL lines from a file
+clear_signals() {
+    grep -v '<!-- AGENT_SIGNAL:' "$1" > "$1.tmp" && mv "$1.tmp" "$1"
+}
+
 # --- Snapshot modification times at start using a temp directory ---
 
 MTIME_DIR=$(mktemp -d)
@@ -75,7 +81,7 @@ trap 'rm -rf "$MTIME_DIR"' EXIT
 
 MONITOR_START=$(date +%s)
 
-for f in "$PHASE_DIR"/05_*.md; do
+for f in "$PHASE_DIR"/$FILE_PATTERN; do
     [ -f "$f" ] || continue
     key=$(basename "$f")
     get_mtime "$f" > "$MTIME_DIR/$key"
@@ -88,7 +94,7 @@ while true; do
     ELAPSED=$((ELAPSED + POLL_INTERVAL))
     NOW=$(date +%s)
 
-    for f in "$PHASE_DIR"/05_*.md; do
+    for f in "$PHASE_DIR"/$FILE_PATTERN; do
         [ -f "$f" ] || continue
 
         # Extract the LAST signal line (agent should only write one, but take last to handle doubles)
@@ -111,7 +117,7 @@ while true; do
 
                 if [ "$signal_age" -gt "$STALE_THRESHOLD" ]; then
                     # Stale signal from a previous session — clear it silently
-                    grep -v '<!-- AGENT_SIGNAL:' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+                    clear_signals "$f"
                     continue
                 fi
             fi
@@ -122,13 +128,13 @@ while true; do
                 expected_pid=$(cat "$PID_FILE" 2>/dev/null | tr -d '[:space:]')
                 if [ -n "$expected_pid" ] && [ "$signal_pid" != "$expected_pid" ]; then
                     # Signal from a different agent (stale re-spawn) — clear it
-                    grep -v '<!-- AGENT_SIGNAL:' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+                    clear_signals "$f"
                     continue
                 fi
             fi
 
             # Valid signal — clear ALL signal lines (handles doubles)
-            grep -v '<!-- AGENT_SIGNAL:' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+            clear_signals "$f"
 
             echo "SIGNAL:$signal PHASE:$phase FILE:$f PID:${signal_pid:-unknown} TS:${signal_ts:-unknown}"
             exit 0
@@ -136,7 +142,7 @@ while true; do
     done
 
     # Check for orphaned agents (PID file exists but process dead, no signal)
-    for f in "$PHASE_DIR"/05_*.md; do
+    for f in "$PHASE_DIR"/$FILE_PATTERN; do
         [ -f "$f" ] || continue
         PID_FILE="${f}.pid"
         [ -f "$PID_FILE" ] || continue
@@ -152,7 +158,7 @@ while true; do
 
     # No signal found — check liveness after threshold
     if [ "$ELAPSED" -ge "$STALE_THRESHOLD" ]; then
-        for f in "$PHASE_DIR"/05_*.md; do
+        for f in "$PHASE_DIR"/$FILE_PATTERN; do
             [ -f "$f" ] || continue
             CURRENT_MTIME=$(get_mtime "$f")
             key=$(basename "$f")
