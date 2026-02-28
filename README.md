@@ -9,7 +9,7 @@ Template-aware development workflow plugin for Claude Code.
 | `/plan <name> [--spec file]` | Interactive planning — discovery, codebase exploration, architecture design, writes template files |
 | `/compare <name>` | Parallel architecture comparison — spawns agents with different trade-off focuses |
 | `/plan-status` | Show feature status for all plans under the current workspace |
-| `/review [scope]` | Multi-reviewer code review with two-stage verification and confidence scoring |
+| `/review [--staged \| --feature \| --only] [scope]` | Multi-reviewer code review with spawn/monitor pattern and confidence scoring |
 | `/track <name>` | Show/update progress for a feature |
 | `/feature-resume <name>` | Resume implementation on an existing feature |
 | `/feature-orchestrate <name>` | Autonomous multi-phase execution with signal monitoring |
@@ -63,7 +63,6 @@ docs/{feature_name}/
 ## Installation
 
 ```bash
-claude --plugin-dir /path/to/zforge
+git clone https://github.com/Langerrr/zforge.git
+claude --plugin-dir ./zforge
 ```
-
-Or add to a marketplace for team distribution.
