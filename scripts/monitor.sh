@@ -30,13 +30,55 @@ if [ ! -d "$PHASE_DIR" ]; then
     exit 1
 fi
 
-# Snapshot modification times at start
-declare -A INITIAL_MTIMES
+# --- Cross-platform helpers ---
+
+# Get file modification time as epoch seconds
+get_mtime() {
+    if stat -c %Y "$1" 2>/dev/null; then
+        return
+    fi
+    # macOS / BSD stat
+    stat -f %m "$1" 2>/dev/null || echo 0
+}
+
+# Convert ISO 8601 timestamp to epoch seconds
+iso_to_epoch() {
+    local ts="$1"
+    # GNU date
+    if date -d "$ts" +%s 2>/dev/null; then
+        return
+    fi
+    # macOS date — strip trailing Z and parse
+    local clean="${ts%Z}"
+    date -j -f "%Y-%m-%dT%H:%M:%S" "$clean" +%s 2>/dev/null || echo 0
+}
+
+# Extract a value from a signal line: extract_field "FIELD:" <line>
+# e.g. extract_field "AGENT_SIGNAL:" "<!-- AGENT_SIGNAL:DONE T:... -->"
+# Returns the value immediately after the prefix, up to the next space/dash/end
+extract_signal() {
+    echo "$1" | grep -o 'AGENT_SIGNAL:[A-Za-z_]*' | sed 's/AGENT_SIGNAL://' || true
+}
+
+extract_ts() {
+    echo "$1" | grep -o 'T:[^ ]*' | sed 's/^T://' || true
+}
+
+extract_pid() {
+    echo "$1" | grep -o 'PID:[0-9]*' | sed 's/PID://' || true
+}
+
+# --- Snapshot modification times at start using a temp directory ---
+
+MTIME_DIR=$(mktemp -d)
+trap 'rm -rf "$MTIME_DIR"' EXIT
+
 MONITOR_START=$(date +%s)
 
 for f in "$PHASE_DIR"/05_*.md; do
     [ -f "$f" ] || continue
-    INITIAL_MTIMES["$f"]=$(stat -c %Y "$f" 2>/dev/null || echo 0)
+    key=$(basename "$f")
+    get_mtime "$f" > "$MTIME_DIR/$key"
 done
 
 ELAPSED=0
@@ -54,9 +96,9 @@ while true; do
 
         if [ -n "$signal_line" ]; then
             # Parse signal components
-            signal=$(echo "$signal_line" | grep -oP '(?<=AGENT_SIGNAL:)\w+') || true
-            signal_ts=$(echo "$signal_line" | grep -oP '(?<=T:)[^ ]+') || true
-            signal_pid=$(echo "$signal_line" | grep -oP '(?<=PID:)\d+') || true
+            signal=$(extract_signal "$signal_line")
+            signal_ts=$(extract_ts "$signal_line")
+            signal_pid=$(extract_pid "$signal_line")
 
             [ -z "$signal" ] && continue
 
@@ -64,8 +106,7 @@ while true; do
 
             # Validate signal freshness — ignore signals older than stale threshold
             if [ -n "$signal_ts" ]; then
-                # Convert ISO timestamp to epoch
-                signal_epoch=$(date -d "$signal_ts" +%s 2>/dev/null || echo 0)
+                signal_epoch=$(iso_to_epoch "$signal_ts")
                 signal_age=$((NOW - signal_epoch))
 
                 if [ "$signal_age" -gt "$STALE_THRESHOLD" ]; then
@@ -113,8 +154,9 @@ while true; do
     if [ "$ELAPSED" -ge "$STALE_THRESHOLD" ]; then
         for f in "$PHASE_DIR"/05_*.md; do
             [ -f "$f" ] || continue
-            CURRENT_MTIME=$(stat -c %Y "$f" 2>/dev/null || echo 0)
-            INITIAL_MTIME="${INITIAL_MTIMES[$f]:-0}"
+            CURRENT_MTIME=$(get_mtime "$f")
+            key=$(basename "$f")
+            INITIAL_MTIME=$(cat "$MTIME_DIR/$key" 2>/dev/null || echo 0)
             AGE=$((NOW - CURRENT_MTIME))
 
             phase=$(basename "$f" .md)
