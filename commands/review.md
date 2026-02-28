@@ -17,40 +17,53 @@ Based on `$ARGUMENTS`:
 - **`--feature <name>`**: Review all files listed in `docs/{name}/05_progress_overview.md` under "Files Modified" sections across all phase files. Also check `git diff` for any uncommitted changes to those files.
 - **`<file-or-dir>`**: Review the specified file or all files in the specified directory.
 
-## Gather Context
+## Gather Context (Orchestrator Pre-fetch)
 
-1. Read the files to review (or their diffs).
-2. Check for CLAUDE.md files — in the project root and in directories whose files are being reviewed.
-3. If reviewing a feature (`--feature`), read `01_context.md` and `02_plan.md` for architectural context.
+**IMPORTANT**: The orchestrator must gather ALL data before launching sub-agents. Sub-agents receive everything inline — they do NOT use tools. This avoids permission prompts from sub-agent tool calls.
+
+1. Read the full contents of every file to review.
+2. Run `git diff --cached` and `git diff` to get diffs (if git-based scope).
+3. Check for and read all CLAUDE.md files — in the project root and in directories whose files are being reviewed.
+4. If reviewing a feature (`--feature`), read `01_context.md` and `02_plan.md` for architectural context.
+5. If scope is git-based, run `git blame` and `git log --oneline -20` on each modified file. Store this output.
+
+Store all of the above as text — you will embed it directly into each reviewer's Task prompt.
 
 ## Stage 1: Launch Reviewers
 
-Launch **4 `zforge:code-reviewer` agents in parallel** using the Task tool:
+Launch **4 reviewer agents in parallel** using the Task tool with `subagent_type: "feature-dev:code-reviewer"` and `model: "sonnet"`.
+
+**CRITICAL**: Embed all pre-fetched data (file contents, diffs, CLAUDE.md, git blame/log) directly in each Task prompt. The sub-agents must NOT need to call Read, Grep, Glob, or Bash — all data is provided inline. Include the code-reviewer instructions (confidence scoring, output format) from the `zforge:code-reviewer` agent definition in each prompt.
 
 **Agent 1 — Simplicity & DRY Focus**
-- Provide: the code/diffs to review
+- Include in prompt: the full code/diffs to review
 - Instruct: focus on simplicity, duplication, over-engineering
 
 **Agent 2 — Bugs & Correctness Focus**
-- Provide: the code/diffs to review
+- Include in prompt: the full code/diffs to review
 - Instruct: focus on logic errors, security, null handling, race conditions
 
 **Agent 3 — Conventions & Architecture Focus**
-- Provide: the code/diffs to review + all CLAUDE.md content found
+- Include in prompt: the full code/diffs to review + all CLAUDE.md content
 - Instruct: focus on project conventions, naming, abstractions, test coverage
 
 **Agent 4 — History & Context Focus** (only when scope is git-based: `--staged`, no args, or `--feature`)
-- Provide: the list of modified files
-- Instruct: use `git blame` and `git log` on modified files to find regressions, contradictions with prior intent, code churn patterns, and constraints from previous changes
+- Include in prompt: the full code/diffs + git blame output + git log output for each modified file
+- Instruct: find regressions, contradictions with prior intent, code churn patterns, and constraints from previous changes
 - If scope is a raw file/directory with no git context, skip this agent and run only 3.
 
 ## Stage 2: Independent Verification
 
-After all reviewers return, collect every finding with confidence >= 80. Then for each finding, launch a **parallel Haiku agent** to independently verify it. Each Haiku verifier receives:
+After all reviewers return, collect every finding with confidence >= 80. For each finding, the orchestrator must:
+
+1. Read the actual code at the finding's file:line location (if not already pre-fetched).
+2. Retrieve the git blame for that line range (if available and not already pre-fetched).
+
+Then launch a **parallel Haiku agent** (using `subagent_type: "feature-dev:code-reviewer"` and `model: "haiku"`) to independently verify each finding. Each Haiku verifier receives **inline in the prompt** (no tools needed):
 - The finding (description, file, line, suggested fix)
-- The actual code at that location (read the file)
-- The relevant CLAUDE.md content (if the finding references guidelines)
-- The git blame for that line range (if available)
+- The actual code at that location (embedded as text)
+- The relevant CLAUDE.md content (embedded as text, if the finding references guidelines)
+- The git blame for that line range (embedded as text, if available)
 
 Each Haiku verifier scores the finding 0-100 using this rubric (provide verbatim):
 

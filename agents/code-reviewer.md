@@ -11,7 +11,7 @@ description: >
   assistant: "Launching 4 code-reviewer agents in parallel to review your changes"
   <commentary>The /review command spawns 4 reviewers with different focuses.</commentary>
   </example>
-tools: Glob, Grep, Read, Bash
+tools: Glob, Grep, Read
 model: sonnet
 color: red
 ---
@@ -47,12 +47,14 @@ You will be told which ONE of these focuses to use:
 - Accessibility issues (frontend)
 
 ### Focus: History & Context
-- Run `git blame` on modified files to understand prior intent
-- Run `git log` on modified files to see recent change patterns
+- Analyze the provided `git blame` output to understand prior intent
+- Analyze the provided `git log` output to see recent change patterns
 - Check if changes contradict the original author's design intent
 - Identify regressions — changes that undo or break previous intentional fixes
 - Look for patterns in previous changes that suggest constraints the current PR may violate
 - Note if the same code area has been repeatedly modified (churn indicates fragility)
+
+Note: git blame and git log data is provided inline by the orchestrator — do not run git commands yourself.
 
 ## Confidence Scoring
 
