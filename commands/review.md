@@ -191,38 +191,9 @@ Instruct verifiers to watch for these common false positives:
 
 If reviewing a feature (`--feature`), ask if the user wants findings appended to `docs/{name}/05_progress/review.md`.
 
-## Stage 4: Cost Estimation
-
-After presenting results, estimate the API cost of this review:
-
-1. **Measure inputs**: count total characters across all reviewed files/diffs, divide by 4 to approximate tokens.
-2. **Calculate per-component**:
-   - **Reviewers** (Sonnet): `{num_reviewers}` agents. Each receives the prompt context as input and produces findings as output. Estimate output at ~1000 tokens per reviewer.
-     - Input cost: `num_reviewers × input_tokens × $3 / 1M`
-     - Output cost: `num_reviewers × 1000 × $15 / 1M`
-   - **Verifiers** (Haiku): `{num_verifiers}` agents. Each receives ~500 tokens of finding context + ~1000 tokens of code. Estimate output at ~200 tokens each.
-     - Input cost: `num_verifiers × 1500 × $1 / 1M`
-     - Output cost: `num_verifiers × 200 × $5 / 1M`
-   - **Orchestrator** (Opus): the `/review` command itself. Estimate ~5000 input tokens (instructions + aggregation) and ~2000 output tokens.
-     - Input cost: `5000 × $5 / 1M`
-     - Output cost: `2000 × $25 / 1M`
-3. **Display**:
-
-```
-### Estimated Cost
-| Component | Model | Agents | Input | Output | Cost |
-|-----------|-------|--------|-------|--------|------|
-| Reviewers | Sonnet | {N} | ~{X}K tok | ~{Y}K tok | ~${Z} |
-| Verifiers | Haiku | {N} | ~{X}K tok | ~{Y}K tok | ~${Z} |
-| Orchestrator | Opus | 1 | ~5K tok | ~2K tok | ~${Z} |
-| **Total** | | | | | **~${total}** |
-```
-
-Note: This is a rough estimate. Actual costs depend on prompt caching, context size, and output length.
-
 ## Cleanup
 
-After presenting results and cost estimation, ask the user:
+After presenting results, ask the user:
 "Review complete. Clean up temp files at `$REVIEW_DIR`?"
 
 Only delete after confirmation.
