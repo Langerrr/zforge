@@ -66,7 +66,7 @@ Each prompt includes:
 
 5. **Tool usage instructions** — tell the reviewer to use its tools (Read, Glob, Grep, Bash) to examine source code. For History & Context, instruct to run `git blame` and `git log` on modified files.
 
-8. **Output and signal instructions**:
+6. **Output and signal instructions**:
    ```
    When done, write your findings to: {REVIEW_DIR}/review_{focus_slug}.md
    Then append this signal at the very end of that file:
