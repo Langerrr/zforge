@@ -91,6 +91,38 @@ src/
 
 ---
 
+## Frontend State Management
+
+> Include this section when the feature has a frontend with async data sources (APIs, blockchain, WebSocket, etc.) and no UI mockup is provided. Remove if not applicable.
+
+### Data Sources & Latency
+
+| Source | Write → Read Latency | UI During Gap | Invalidation Strategy |
+|--------|----------------------|---------------|----------------------|
+| {API/chain/cache} | {ms/s/blocks} | {loading/optimistic/disabled} | {poll/refetch/cancel-set/event} |
+
+### Persistence Strategy
+
+| State | Storage | Survives Refresh | Notes |
+|-------|---------|-----------------|-------|
+| {state name} | {memory/sessionStorage/localStorage/server/URL} | {yes/no} | {why} |
+
+### Initialization Order
+
+```
+1. {First available} — {what depends on it}
+2. {Second} — {gated by what}
+3. {Queries enabled after dependencies ready}
+```
+
+### User Action Constraints
+
+| Action | Disabled When | Shows During | Enabled After |
+|--------|--------------|--------------|---------------|
+| {button/action} | {condition} | {loading state} | {confirmation event} |
+
+---
+
 ## Testing Strategy
 
 | Type | Scope | Priority |
