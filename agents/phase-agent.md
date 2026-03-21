@@ -11,7 +11,7 @@ description: >
   <commentary>Each phase gets its own isolated agent that follows the checklist in its phase file.</commentary>
   </example>
 tools: Glob, Grep, Read, Write, Edit, Bash
-model: sonnet
+model: inherit
 color: yellow
 ---
 

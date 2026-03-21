@@ -11,7 +11,7 @@ description: >
   <commentary>The /compare command spawns 2-3 code-architect agents with different trade-off focuses.</commentary>
   </example>
 tools: Glob, Grep, Read, WebFetch, WebSearch
-model: sonnet
+model: inherit
 color: green
 ---
 

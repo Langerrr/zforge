@@ -12,7 +12,7 @@ description: >
   <commentary>The /review command spawns 4 reviewers with different focuses.</commentary>
   </example>
 tools: Glob, Grep, Read, Bash
-model: sonnet
+model: inherit
 color: red
 ---
 
