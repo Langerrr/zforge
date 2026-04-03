@@ -1,7 +1,7 @@
 ---
 description: Interactive feature planning — discovery, codebase exploration, architecture design, writes template files
 argument-hint: <feature-name> [--spec <file>]
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(mkdir:*), Bash(ls:*), Bash(find:*), AskUserQuestion, TodoWrite
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(mkdir:*), Bash(ls:*), Bash(find:*), AskUserQuestion, TodoWrite
 model: opus
 ---
 

@@ -1,7 +1,7 @@
 ---
 description: Resume implementation on an existing feature
 argument-hint: <feature-name>
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task, AskUserQuestion
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(${CLAUDE_PLUGIN_ROOT}/scripts/*), Bash(mkdir:*), Bash(ls:*), Bash(find:*), Bash(cat:*), Bash(cp:*), Bash(mv:*), Bash(touch:*), Bash(date:*), Task, AskUserQuestion
 model: opus
 ---
 

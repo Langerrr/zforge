@@ -11,7 +11,7 @@ description: >
   assistant: "Launching 4 code-reviewer agents in parallel to review your changes"
   <commentary>The /review command spawns 4 reviewers with different focuses.</commentary>
   </example>
-tools: Glob, Grep, Read, Bash
+tools: Glob, Grep, Read, Bash(git diff:*), Bash(git log:*), Bash(git blame:*), Bash(git status:*), Bash(git rev-parse:*), Bash(git show:*), Bash(mkdir:*), Bash(ls:*), Bash(cat /tmp/*), Bash(date:*)
 model: inherit
 color: red
 ---

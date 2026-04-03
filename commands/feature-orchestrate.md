@@ -1,7 +1,7 @@
 ---
 description: Autonomous multi-phase feature execution with signal monitoring
 argument-hint: <feature-name>
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(${CLAUDE_PLUGIN_ROOT}/scripts/*), Bash(rm -f *), Bash(kill:*), Bash(mkdir:*), Bash(ls:*), Bash(find:*), Task
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(${CLAUDE_PLUGIN_ROOT}/scripts/*), Bash(rm -rf /tmp/zforge-*), Bash(rm -f *.pid), Bash(kill:*), Bash(git:*), Bash(date:*), Bash(mkdir:*), Bash(ls:*), Bash(find:*), Task
 model: opus
 ---
 

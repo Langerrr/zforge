@@ -1,7 +1,7 @@
 ---
 description: Parallel architecture comparison — spawns multiple agents with different trade-off focuses
 argument-hint: <feature-name>
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(mkdir:*), Bash(ls:*), Bash(find:*), Task, AskUserQuestion
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(mkdir:*), Bash(ls:*), Bash(find:*), Task, AskUserQuestion
 model: opus
 ---
 

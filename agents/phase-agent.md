@@ -10,7 +10,7 @@ description: >
   assistant: "Spawning phase-agent for 05_01_backend_schema.md"
   <commentary>Each phase gets its own isolated agent that follows the checklist in its phase file.</commentary>
   </example>
-tools: Glob, Grep, Read, Write, Edit, Bash
+tools: Glob, Grep, Read, Write, Edit, Bash(git:*), Bash(${CLAUDE_PLUGIN_ROOT}/scripts/*), Bash(mkdir:*), Bash(ls:*), Bash(find:*), Bash(cat:*), Bash(cp:*), Bash(mv:*), Bash(touch:*), Bash(date:*), Bash(rm -f *.pid)
 model: inherit
 color: yellow
 ---
