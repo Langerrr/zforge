@@ -30,6 +30,8 @@ docs/{feature_name}/
 ├── 10_refactor_spec.md            # [Refactoring] Requirements, goals, scope
 ├── 11_refactor_context.md         # [Refactoring] Current-state audit and dependencies
 ├── 12_refactor_plan.md            # [Refactoring] Migration/refactoring steps
+├── .zforge-retro/                 # Plugin eval artifacts (only if /retro invoked)
+│   └── {session_id}.md            # Per-session retro: scores, findings, suggestions
 └── _archive/                      # Outdated docs: {name}__{date}.md
 ```
 
@@ -78,6 +80,7 @@ docs/{feature_name}/
 | `09_troubleshooting.md` | All | Planner | Extracted from agent findings |
 | `05_progress/review.md` | Humans | Planner (append) | Planner appends, never reads back |
 | `session_log.md` | All | Planner | Tracks which sessions touched this feature |
+| `.zforge-retro/*.md` | All | /retro only | Plugin eval artifacts, created on demand |
 | `10_refactor_spec.md` | All | Planner | [Refactoring] Requirements, goals, scope |
 | `11_refactor_context.md` | All | Planner | [Refactoring] Current-state audit |
 | `12_refactor_plan.md` | All | Planner | [Refactoring] Migration/refactoring steps |

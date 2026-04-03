@@ -26,6 +26,7 @@ Features are documented in `docs/{feature_name}/` using snake_case folder names.
 | 05/ | `05_progress/05_XX_*.md` | Implementation Agent | Per-phase checklist, session log, files modified |
 | 05/ | `05_progress/review.md` | Planner (append-only) | Compiled agent reviews for human reading |
 | — | `session_log.md` | Planner | Session tracking — which Claude Code sessions touched this feature |
+| — | `.zforge-retro/*.md` | /retro only | Plugin eval artifacts — only created when /retro is invoked |
 | 06 | `06_post_deployment.md` | Planner | Smoke tests, deferred features, rollback plan |
 | 07 | `07_testing_overview.md` | Planner | Testing guidance |
 | 07/ | `07_testing/*.md` | Mixed | Test plan, scripts, results |
