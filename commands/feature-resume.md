@@ -21,7 +21,7 @@ Resume work on an existing feature plan. This runs within the current session us
 2. Read `docs/{feature_name}/05_progress_overview.md`. If not found, report error.
 3. Read `docs/{feature_name}/01_context.md` and `docs/{feature_name}/02_plan.md` for full context.
 4. Scan all phase files in `docs/{feature_name}/05_progress/` to determine current state.
-5. Read `docs/{feature_name}/session_log.md`. If the current session ID is not already listed, append a new row with the session ID, today's date, and empty phases/summary (updated as work progresses).
+5. Read `docs/{feature_name}/session_log.md`. If it doesn't exist, create it from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md`. If the current session ID is not already listed, append a new row with the session ID, today's date, and empty phases/summary (updated as work progresses).
 
 ### 2. Identify Next Work
 

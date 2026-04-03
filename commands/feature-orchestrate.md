@@ -19,7 +19,7 @@ Run autonomous multi-phase feature execution. Spawns isolated implementation age
 2. Read `docs/{feature_name}/05_progress_overview.md`. If not found, report error and suggest `/plan`.
 3. Read `docs/{feature_name}/01_context.md` and `docs/{feature_name}/02_plan.md`.
 4. Read `docs/{feature_name}/05_progress/05_00_agent_prompts_index.md`.
-5. Read `docs/{feature_name}/session_log.md`. If the current session ID is not already listed, append a new row with the session ID, today's date, and empty phases/summary (updated as work progresses).
+5. Read `docs/{feature_name}/session_log.md`. If it doesn't exist, create it from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md`. If the current session ID is not already listed, append a new row with the session ID, today's date, and empty phases/summary (updated as work progresses).
 6. Create scratchpad directory: `mkdir -p /tmp/zforge-{feature_name}`
 
 ## Step 1: Assess Phase Readiness
