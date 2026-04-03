@@ -25,6 +25,7 @@ Features are documented in `docs/{feature_name}/` using snake_case folder names.
 | 05 | `05_progress_overview.md` | Planner ONLY | Phase status summary — implementation agents NEVER touch this |
 | 05/ | `05_progress/05_XX_*.md` | Implementation Agent | Per-phase checklist, session log, files modified |
 | 05/ | `05_progress/review.md` | Planner (append-only) | Compiled agent reviews for human reading |
+| — | `session_log.md` | Planner | Session tracking — which Claude Code sessions touched this feature |
 | 06 | `06_post_deployment.md` | Planner | Smoke tests, deferred features, rollback plan |
 | 07 | `07_testing_overview.md` | Planner | Testing guidance |
 | 07/ | `07_testing/*.md` | Mixed | Test plan, scripts, results |
@@ -45,7 +46,7 @@ Further numbers (13, 14, ...) can be added as needed for the specific refactorin
 
 ### Files Created by `/plan`
 
-`/plan` always creates: `00_design_spec.md`, `01_context.md`, `02_plan.md`, `05_progress_overview.md`, `05_progress/05_00_agent_prompts_index.md`
+`/plan` always creates: `00_design_spec.md`, `01_context.md`, `02_plan.md`, `05_progress_overview.md`, `05_progress/05_00_agent_prompts_index.md`, `session_log.md`
 
 Additional files (`03`, `04`, `06`-`10`) are created as needed during implementation.
 

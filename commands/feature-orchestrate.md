@@ -19,7 +19,8 @@ Run autonomous multi-phase feature execution. Spawns isolated implementation age
 2. Read `docs/{feature_name}/05_progress_overview.md`. If not found, report error and suggest `/plan`.
 3. Read `docs/{feature_name}/01_context.md` and `docs/{feature_name}/02_plan.md`.
 4. Read `docs/{feature_name}/05_progress/05_00_agent_prompts_index.md`.
-5. Create scratchpad directory: `mkdir -p /tmp/zforge-{feature_name}`
+5. Read `docs/{feature_name}/session_log.md`. If the current session ID is not already listed, append a new row with the session ID, today's date, and empty phases/summary (updated as work progresses).
+6. Create scratchpad directory: `mkdir -p /tmp/zforge-{feature_name}`
 
 ## Step 1: Assess Phase Readiness
 
@@ -117,13 +118,14 @@ Run this as a background task. Then poll for output using TaskOutput with `block
 
 ## Step 4: Completion
 
-When all phases are complete:
+When all phases are complete or the session is ending:
 1. Update `05_progress_overview.md` with final status for all phases
-2. Create `06_post_deployment.md` if it doesn't exist
-3. Extract troubleshooting notes to `09_troubleshooting.md`
-4. Clean up: `rm -rf /tmp/zforge-{feature_name}`
-5. Remove any remaining `.pid` files
-6. Report summary to user:
+2. Update `session_log.md` — fill in the Phases Touched and Summary columns for the current session's row
+3. Create `06_post_deployment.md` if it doesn't exist
+4. Extract troubleshooting notes to `09_troubleshooting.md`
+5. Clean up: `rm -rf /tmp/zforge-{feature_name}`
+6. Remove any remaining `.pid` files
+7. Report summary to user:
    - Phases completed
    - Total files created/modified (from phase files)
    - Any deferred items

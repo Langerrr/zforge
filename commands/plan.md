@@ -134,6 +134,8 @@ Based on the agreed architecture, write these files using the templates from `${
    - Empty sections for session log, files modified, review, etc.
    - Do NOT fill in the Agent Prompt section yet (that's done at execution time)
 
+7. **`session_log.md`** — Create from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md`. Append the current session as the first entry (Session ID, date, "Planning", summary of what was planned).
+
 
 ## Completion
 

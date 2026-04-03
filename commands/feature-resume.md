@@ -21,6 +21,7 @@ Resume work on an existing feature plan. This runs within the current session us
 2. Read `docs/{feature_name}/05_progress_overview.md`. If not found, report error.
 3. Read `docs/{feature_name}/01_context.md` and `docs/{feature_name}/02_plan.md` for full context.
 4. Scan all phase files in `docs/{feature_name}/05_progress/` to determine current state.
+5. Read `docs/{feature_name}/session_log.md`. If the current session ID is not already listed, append a new row with the session ID, today's date, and empty phases/summary (updated as work progresses).
 
 ### 2. Identify Next Work
 
@@ -76,8 +77,9 @@ After completing a phase:
 
 ### 6. Completion
 
-When all phases are done:
+When all phases are done or the session is ending:
 - Update `05_progress_overview.md` with final status
+- Update `session_log.md` — fill in the Phases Touched and Summary columns for the current session's row
 - Create `06_post_deployment.md` if it doesn't exist
 - Extract any issues to `09_troubleshooting.md`
 - Suggest running `/review --feature {name}` for a final review

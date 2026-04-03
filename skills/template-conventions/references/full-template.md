@@ -11,6 +11,7 @@ docs/{feature_name}/
 ├── 02_plan.md                     # Technical plan: schema, endpoints, phases, file structure
 ├── 03_integration_summary.md      # API types, mapping, frontend files (if frontend involved)
 ├── 04_integration_plan.md         # Step-by-step frontend integration guide
+├── session_log.md                 # Which Claude Code sessions touched this feature
 ├── 05_progress_overview.md        # Phase status summary (PLANNER ONLY)
 ├── 05_progress/
 │   ├── 05_00_agent_prompts_index.md  # Phase index and agent rules
@@ -38,6 +39,7 @@ docs/{feature_name}/
 - `00_design_spec.md` — always
 - `01_context.md` — always
 - `02_plan.md` — always
+- `session_log.md` — always
 - `05_progress_overview.md` — always
 - `05_progress/05_00_agent_prompts_index.md` — always
 - `05_progress/05_XX_*.md` — one per phase
@@ -75,6 +77,7 @@ docs/{feature_name}/
 | `08_configuration.md` | All | Planner | Updated as config emerges |
 | `09_troubleshooting.md` | All | Planner | Extracted from agent findings |
 | `05_progress/review.md` | Humans | Planner (append) | Planner appends, never reads back |
+| `session_log.md` | All | Planner | Tracks which sessions touched this feature |
 | `10_refactor_spec.md` | All | Planner | [Refactoring] Requirements, goals, scope |
 | `11_refactor_context.md` | All | Planner | [Refactoring] Current-state audit |
 | `12_refactor_plan.md` | All | Planner | [Refactoring] Migration/refactoring steps |
