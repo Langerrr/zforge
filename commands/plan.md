@@ -107,9 +107,13 @@ Present your proposed architecture to the user. Include:
 
 Ask the user for feedback. Iterate until they're satisfied with the approach.
 
+**After alignment:** Capture all design decisions and patterns in agent-consumable docs — not just in conversation. Conversational alignment that isn't written down will be lost when agents are spawned. If you aligned on abstraction rules, query patterns, anti-patterns, or mental models, these MUST be captured in a document that agents can read.
+
 ## Phase 4: Write Plan Artifacts
 
 Based on the agreed architecture, write these files using the templates from `${CLAUDE_PLUGIN_ROOT}/templates/`:
+
+### Always created
 
 1. **`01_context.md`** — Feature context, key decisions (including architecture rationale), architecture overview, scope, dependencies.
 
@@ -122,19 +126,32 @@ Based on the agreed architecture, write these files using the templates from `${
    - Async state management (if applicable — see Phase 3 async data flows section)
    - Testing strategy
 
-3. **`03_integration_summary.md`** + **`04_integration_plan.md`** — **Generate when the plan includes both backend and frontend work.** These map the backend API surface to frontend types, components, and integration steps. Skip for backend-only or frontend-only plans.
+3. **`05_progress_overview.md`** — Phase summary table with all phases set to "Pending".
 
-4. **`05_progress_overview.md`** — Phase summary table with all phases set to "Pending".
+4. **`05_progress/05_00_agent_prompts_index.md`** — Index of phases with status.
 
-5. **`05_progress/05_00_agent_prompts_index.md`** — Index of phases with status.
-
-6. **Phase files** — For each phase in the plan, create `05_progress/05_XX_{phase_name}.md` with:
+5. **Phase files** — For each phase in the plan, create `05_progress/05_XX_{phase_name}.md` with:
    - Phase scope
+   - **Required Context table** — fill in the files agents MUST read before starting (architecture docs, patterns docs, external specs). This is critical for correctness. Ask: "What does an agent need to understand about this phase beyond the checklist?"
    - Checklist of tasks
    - Empty sections for session log, files modified, review, etc.
    - Do NOT fill in the Agent Prompt section yet (that's done at execution time)
 
-7. **`session_log.md`** — Create from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md`. Append the current session as the first entry (Session ID, date, "Planning", summary of what was planned).
+6. **`session_log.md`** — Create from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md`. Append the current session as the first entry (Session ID, date, "Planning", summary of what was planned).
+
+### Created when relevant (progressive discovery)
+
+Evaluate each and create ONLY if the feature needs it. Do not create empty placeholder docs.
+
+7. **Core patterns doc** — **Create when the feature changes data models, abstractions, or architectural patterns.** This captures the mental model, query patterns, anti-patterns, and response mapping rules that agents must follow when writing code. Without this, agents will follow the checklist but write structurally wrong code. Name it with the next available number (e.g., `03_core_patterns.md`). Include:
+   - The abstraction model (what the entities are and how they relate)
+   - Rules with code examples (how to query, what goes where)
+   - Anti-patterns table (common mistakes to avoid)
+   - Quick reference mapping (old pattern → new pattern)
+
+8. **`03_integration_summary.md`** + **`04_integration_plan.md`** — **Create when the plan includes both backend and frontend work.** Maps the backend API surface to frontend types, components, and integration steps.
+
+9. **Testing, configuration, troubleshooting, post-deployment docs** (templates 06-09) — **Create only when the feature has specific needs** (e.g., complex deployment, environment-specific config, known gotchas). Do NOT create these as empty placeholders.
 
 
 ## Completion

@@ -35,13 +35,15 @@ For each phase in `05_progress_overview.md`:
 For each READY phase:
 
 1. Read the phase file (`05_progress/05_XX_*.md`)
-2. If `## Agent Prompt` section is empty, fill it in based on `02_plan.md`
-3. Build the full prompt:
+2. Check `## Required Context` section — if it lists files, include read instructions in the prompt
+3. If `## Agent Prompt` section is empty, fill it in based on `02_plan.md`
+4. Build the full prompt:
+   - If Required Context has entries: prepend "Before starting, read these files and briefly confirm your understanding in the ## Review section:" followed by the file paths and their "Why" descriptions
    - Include the phase file content
    - Append orchestration rules suffix (below)
-4. Write prompt to `/tmp/zforge-{feature_name}/05_XX.prompt.md`
-5. Spawn: `${CLAUDE_PLUGIN_ROOT}/scripts/spawn-agent.sh <working_dir> <prompt_file>`
-6. Update `05_00_agent_prompts_index.md` with "In Progress" status
+5. Write prompt to `/tmp/zforge-{feature_name}/05_XX.prompt.md`
+6. Spawn: `${CLAUDE_PLUGIN_ROOT}/scripts/spawn-agent.sh <working_dir> <prompt_file>`
+7. Update `05_00_agent_prompts_index.md` with "In Progress" status
 
 **Orchestration suffix appended to every agent prompt:**
 ```

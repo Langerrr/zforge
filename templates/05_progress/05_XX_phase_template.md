@@ -6,6 +6,16 @@
 
 ---
 
+## Required Context
+
+<!-- Planner fills this. Agent MUST read these files before starting the checklist.
+     Include architecture docs, patterns docs, or any file the agent needs to understand WHY, not just WHAT. -->
+
+| File | Why |
+|------|-----|
+
+---
+
 ## Agent Prompt
 
 ```
