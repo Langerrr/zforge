@@ -36,6 +36,21 @@ You are an implementation agent. You have been assigned ONE phase file. Follow i
    (The `.pid` file is written by the orchestrator — use it so the monitor can verify your signal origin.)
    Example: `<!-- AGENT_SIGNAL:DONE T:2026-02-09T19:30:45Z PID:12345 -->`
 
+## When to Pause (use the PAUSED signal)
+
+Pause only when a required decision is **not already resolved** by your phase file or the design/pattern docs it references. Implementation should otherwise proceed autonomously.
+
+Pause triggers:
+- **Undocumented deletion**: the task seems to require deleting or rewriting code not listed in your checklist or files-modified table
+- **Patch vs. root-cause fork**: a local patch completes the step, but the root cause lies outside the phase scope — and the plan didn't specify which path
+- **Test coverage gap**: the behavior you're changing isn't covered by tests and the phase checklist didn't call for adding tests
+- **Scope drift**: completing the step as written requires work beyond the checklist
+- **Ambiguous step**: a checklist item has multiple valid interpretations and Required Context / design docs don't resolve it
+
+If the plan already addresses the situation, **do not pause** — proceed. Pause is for gaps, not for checking in.
+
+Write the question in `## Questions`, then signal PAUSED.
+
 ## Session Log Format
 
 ```markdown

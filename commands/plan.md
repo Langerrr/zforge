@@ -100,7 +100,11 @@ Without explicit state management design, these decisions will be made ad-hoc du
 
 Present your proposed architecture to the user. Include:
 - High-level approach and rationale
-- Key design decisions with trade-offs considered
+- Key design decisions with trade-offs considered. Explicitly surface these forks if they exist — don't silently pick one side:
+  - **Scope expansion** — exploration revealed work beyond the initial ask; in scope or deferred?
+  - **Patch vs. root-cause** — feature touches code with a pre-existing deeper issue (bad abstraction, tech debt, failing invariant); address the root cause in this plan, or apply a surgical patch? Either is valid, but the choice must be explicit.
+  - **Test coverage gaps** — behavior changes in code not adequately covered by tests; **default: add tests first.** You're already in the code, and missing coverage likely masks pre-existing bugs that the new change could surface or hide. Accepting the gap requires an explicit reason (e.g. the code is being deleted anyway).
+  - **Existing code deletion or rewrite** — each target must be named and confirmed before writing plan artifacts.
 - Component breakdown (for complex features)
 - Files to create/modify
 - Estimated implementation phases
@@ -110,6 +114,8 @@ Ask the user for feedback. Iterate until they're satisfied with the approach.
 **After alignment:** Capture all design decisions and patterns in agent-consumable docs — not just in conversation. Conversational alignment that isn't written down will be lost when agents are spawned. If you aligned on abstraction rules, query patterns, anti-patterns, or mental models, these MUST be captured in a document that agents can read.
 
 ## Phase 4: Write Plan Artifacts
+
+Before writing, load the `template-conventions` skill to confirm file ownership, naming, and what belongs in each file. The skill is the single source of truth for the template structure; this phase only specifies which files to create for a given plan.
 
 Based on the agreed architecture, write these files using the templates from `${CLAUDE_PLUGIN_ROOT}/templates/`:
 
