@@ -1,6 +1,6 @@
 # zforge
 
-Template-aware development workflow plugin for Claude Code.
+Template-aware development workflow plugin for Claude Code and Codex.
 
 ## Commands
 
@@ -66,3 +66,6 @@ docs/{feature_name}/
 git clone https://github.com/Langerrr/zforge.git
 claude --plugin-dir ./zforge
 ```
+
+For Codex, restart the app and install `zforge` from the included
+`zforge Local` marketplace.

@@ -1,0 +1,35 @@
+{
+  "name": "zforge",
+  "version": "2.3.1",
+  "description": "Template-aware development workflow: interactive planning, multi-reviewer code review, progress tracking, and autonomous multi-phase feature orchestration.",
+  "author": {
+    "name": "lan"
+  },
+  "repository": "https://github.com/Langerrr/zforge",
+  "license": "MIT",
+  "keywords": [
+    "planning",
+    "workflow",
+    "review",
+    "orchestration"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "zforge",
+    "shortDescription": "Template-aware planning, review, and orchestration workflows.",
+    "longDescription": "zforge bundles reusable skills and workflow templates for planning, tracking, reviewing, and orchestrating multi-phase engineering work.",
+    "developerName": "lan",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Shell"
+    ],
+    "defaultPrompt": [
+      "Use zforge to plan this feature.",
+      "Use zforge to review this implementation.",
+      "Use zforge to resume this feature plan."
+    ],
+    "brandColor": "#10A37F"
+  }
+}
