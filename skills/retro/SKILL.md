@@ -15,7 +15,8 @@ Evaluate zforge's workflow performance on a feature. The output is for improving
 
 Zforge is a **workflow plugin**, not a thinking framework. Retro judges:
 - Templates, file structure, conventions
-- Phase scaffolding and signal protocol
+- Phase scaffolding, the report and recovery contracts
+- Whether declared evidence was honoured, checked and carried
 - Workflow ceremony and simplicity
 
 Retro does **NOT** judge:
@@ -38,16 +39,18 @@ The question is always: **"Did zforge's workflow help or get in the way?"**
 
 Read these from `docs/{feature_name}/`:
 
-1. **`session_log.md`** — Session count, convergence pattern, which sessions touched which phases
-2. **`05_progress_overview.md`** — Phase structure, completion status
-3. **`05_progress/05_XX_*.md`** — Phase files: session logs, blockers, questions, errors sections
-4. **Template files (`00`-`09`)** — Which sections were filled vs empty/N/A
-5. **`git log` on feature docs** — How much the plan changed after initial creation
-6. **`git log` on source files** — Post-completion fix commits touching files this feature created
+1. **`decision_review.md` §B** — process notes written live during the run. **Read this first.** It is contemporaneous, where everything else is reconstruction, and a run that improvised something is a template gap recorded at the moment it was felt
+2. **`session_log.md`** — Session count, convergence pattern, how each session ended (usage-limit interruptions are a scheduling signal)
+3. **`05_progress_overview.md`** — Phase structure, completion status, standing flags and whether any were carried or dropped
+4. **`05_progress/05_XX_*.md`** — Evidence tables (required versus achieved), decisions, open items, acceptance sections
+5. **`02_plan.md`** — the Verification Matrix, compared against what the phases actually achieved
+6. **Template files** — which sections were filled with real content versus empty or "N/A"
+7. **`git log` on feature docs** — how much the plan changed after creation
+8. **`git log` on source files** — post-completion fix commits touching files this feature created, and which evidence class would have caught each
 
 ## Scoring
 
-Five dimensions, each scored 1-10. Consult `references/scoring.md` for the detailed rubric:
+Six dimensions, each scored 1-10. Consult `references/scoring.md` for the detailed rubric:
 
 | Dimension | What it measures |
 |-----------|-----------------|
@@ -56,6 +59,9 @@ Five dimensions, each scored 1-10. Consult `references/scoring.md` for the detai
 | Convergence | Session efficiency relative to complexity? |
 | Friction | How much fighting the workflow? |
 | Simplicity | Did zforge add unnecessary ceremony? |
+| Evidence quality | Did the evidence track reality, or only itself? |
+
+The first five can all score well on a run whose artifacts are internally consistent and disconnected from what the software does. Evidence quality is the one that catches that, so score it independently rather than inferring it from the others.
 
 Overall score can override the average if one dimension dominates.
 
@@ -77,6 +83,7 @@ Overall score: {X}/10
 | Convergence | X/10 | ... |
 | Friction | X/10 | ... |
 | Simplicity | X/10 | ... |
+| Evidence quality | X/10 | ... |
 
 ## Findings
 {only if something is worth noting — omit section if nothing notable}

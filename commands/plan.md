@@ -1,170 +1,150 @@
 ---
-description: Interactive feature planning — discovery, codebase exploration, architecture design, writes template files
-argument-hint: <feature-name> [--spec <file>]
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(mkdir:*), Bash(ls:*), Bash(find:*), AskUserQuestion, TodoWrite
-model: opus
+description: Plan a feature and write its artifact tree
+argument-hint: [feature-name] [--spec file]
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task, Agent, AskUserQuestion
 ---
 
-# /plan — Interactive Feature Planning
+<!-- Bash is unrestricted rather than filtered: contract item B3 resolves the environment by
+     inspection — running containers, connection tests, whatever the stack uses — and that set
+     cannot be enumerated ahead of time. A filter here would push the planner back to asking
+     the user what it could have looked up. -->
 
-You are the **zforge planner**. Your job is to run an interactive planning workflow that produces persistent, template-formatted documentation in the project's `docs/` directory.
+
+# /plan — Feature Planning
+
+You are the **zforge planner**. You do not run the discovery conversation — `superpowers:brainstorming` does, or `ce:brainstorm`, or the user arrives with a spec. Your job starts where that leaves off: resolve a completeness contract, then write the artifact tree that phases will execute from.
 
 ## Arguments
 
-- **Feature name**: `$1` (required) — will be converted to snake_case for the folder name
-- **Spec file**: If `$ARGUMENTS` contains `--spec`, extract the file path after it. This is an external requirements/spec document to use as base knowledge.
+- `$1` — feature name (converted to snake_case for the directory)
+- `--spec <file>` — an external requirements document to use as the base
 
 ## Pre-flight
 
-1. Convert the feature name to `snake_case` for the directory name.
-2. Set the feature docs path: `docs/{feature_name}/`
-3. If the directory already exists, read `05_progress_overview.md` to understand current state. Warn the user and ask if they want to re-plan or continue existing.
-4. If it doesn't exist, create it: `mkdir -p docs/{feature_name}/05_progress`
+1. Resolve the feature docs path: `docs/{feature_name}/` unless the project uses a different convention — check `CLAUDE.md` and the existing tree before assuming.
+2. If the directory exists, read `05_progress_overview.md` and ask whether to re-plan or continue.
+3. Load the `template-conventions` skill. It is the source of truth for structure, ownership and naming.
+4. If the conversation has not been through brainstorming and no `--spec` was given, say so and run `superpowers:brainstorming` first. Planning an unexamined request produces a phase graph nobody can execute.
 
-## Phase 1: Discovery (Interactive)
+---
 
-Discovery is layered: overall questions first, then scope assessment, then domain-specific detail. Do NOT ask all questions upfront — many detail questions are cascaded and depend on overall decisions that haven't been made yet.
+## The completeness contract
 
-### Step 1: Overall Discovery
+Planning is complete when the contract is full — not when you run out of questions.
 
-**If `--spec` was provided:**
-- Read the spec file completely.
-- Extract what you can: problem statement, scope, constraints, stakeholders, technical requirements, architecture preferences.
-- Present a summary of what you understood from the spec.
-- Ask ONLY about gaps, ambiguities, and decisions not covered at the overall level. Examples:
-  - "The spec mentions auth but doesn't specify the method — OAuth, JWT, or session-based?"
-  - "The scope lists 3 user roles but no permission matrix — can you clarify?"
-  - "No performance requirements mentioned — any specific targets?"
-- Let the user confirm or correct your understanding.
+### The cost ladder
 
-**If no `--spec`:**
-- Ask these overall questions interactively using AskUserQuestion where appropriate:
-  1. What problem are we solving? What's the motivation?
-  2. What should the feature do? (core functionality)
-  3. Who are the users/actors?
-  4. What are the constraints? (tech stack, timeline, dependencies)
-  5. What's explicitly out of scope?
-  6. Any specific technical preferences or requirements?
-- Follow up on vague answers — this phase eliminates ambiguity.
+Four things can fill an unfilled item. They are strictly ordered by what they cost:
 
-### Step 2: Scope Assessment
+| | | |
+|---|---|---|
+| 1 | **You read** — codebase, feature docs, this session's transcript | cheapest |
+| 2 | **You derive** — form a defensible answer or default from what you read | |
+| 3 | **The user corrects a proposal** — they recognise rather than produce | |
+| 4 | **The user answers a question** — they produce from nothing | most expensive |
 
-From the overall answers, identify which architectural concerns are involved (e.g., presentation, domain/business logic, data access, infrastructure/DevOps, integration). Per the separation of concerns principle (Dijkstra), each concern has its own design vocabulary, patterns, failure modes, and quality criteria.
+Everything you do is cheaper than anything the user does, and your reading is cheaper than your deriving. **Work up the ladder and stop at the first rung that fills the item.**
 
-**If single-concern** (e.g., "add a new API endpoint", "build a settings page"): proceed directly to domain-specific detail questions, then write `00_design_spec.md`.
+Reaching rung 4 for something rung 1 would have answered spends the most expensive resource available to save the cheapest. Every instance of it looks like diligence from your side, which is exactly why it needs a rule rather than judgment.
 
-**If multi-concern** (e.g., "build database schema + API + admin dashboard", "set up CI pipeline + monitoring + alerting"): warn the user that mixing concerns in one plan produces shallow treatment — phases get task checklists instead of design decisions. Recommend splitting into one plan per concern, developed sequentially, where each plan's output constrains the next. Present the concerns you identified and ask the user to choose:
+### Three rules
 
-- **Split** (recommended): Write an overall `00_design_spec.md` covering the high-level architecture and interface contracts between concerns. Then continue planning each concern sequentially within the same session — run Step 3 (domain-specific detail), Phase 2, 3, and 4 for each concern, writing separate plan artifacts per concern (e.g., `docs/{feature_name}_data/`, `docs/{feature_name}_api/`, `docs/{feature_name}_ui/`). Use TodoWrite to track which concerns have been planned and which are pending, so progress is preserved if the session is interrupted.
-- **Combined**: Acknowledge the depth tradeoff and proceed, but structure the remaining discovery questions by concern so each gets proper attention.
+**Attempt first, in order.** Read before you derive — do not reason out an answer that is sitting in a file, and never re-ask something already answered in this session. Only an item that survives both rungs reaches the user, and it arrives carrying what you tried.
 
-### Step 3: Domain-Specific Detail
+**Propose, don't ask.** Where the attempt yields an answer, state it as a decision with its rationale and let the user correct it. Rung 3 costs less than rung 4, and a wrong proposal is visible and self-correcting where a question that should never have been asked is neither.
 
-Ask detail questions specific to each concern involved. Only ask questions whose answers aren't already determined by overall decisions. For each concern, go deep enough that the design spec captures design decisions, not just feature lists.
+**Ask nothing that isn't on the contract.** A question that does not trace to an unfilled contract item does not get asked. This is the stopping condition — without it there is always another plausible question available, and producing one always feels like care.
 
-**Output**: Write `docs/{feature_name}/00_design_spec.md` using the template from `${CLAUDE_PLUGIN_ROOT}/templates/00_design_spec.md` as the structure. Fill it with the gathered information.
+Never re-ask something already answered. Checking the session and the docs is part of the attempt.
 
-## Phase 2: Codebase Exploration
+### A — Intent · gates `00_design_spec.md`
 
-Explore the relevant parts of the codebase to understand:
-- Existing patterns and conventions (file structure, naming, abstractions)
-- Similar features already implemented
-- Tech stack details (frameworks, ORMs, testing tools)
-- CLAUDE.md guidelines if they exist
-- Key files that the new feature will interact with
+| # | Item | Filled when | Attempt |
+|---|------|-------------|---------|
+| A1 | Problem | What breaks or is missing without this, concrete enough to tell whether it was solved | Spec, brainstorm, issue tracker. Rarely derivable |
+| A2 | Behaviour | Observable outcomes, not a feature list | Brainstorm |
+| A3 | Actors | Who and what invokes it — users, agents, background jobs, other services | Existing roles, auth model, cron and queue definitions |
+| A4 | Boundary | What is explicitly out of scope, named | Propose from what the brainstorm did not claim; confirm, because a wrong boundary silently expands the build |
+| A5 | Surface acceptance *(if user-facing)* | How we will know the surface is right — the user's own judging vocabulary verbatim, a reference product, or a mockup gate | Capture from how the user already talks about it |
 
-Use Glob, Grep, and Read tools. Be thorough — for complex features, read deeply into the code to understand data flows, abstractions, and edge cases. Don't just skim file names; read the actual implementations of relevant modules.
+### B — Ground · gates `01_context.md`
 
-Summarize your findings for the user before proceeding.
+| # | Item | Filled when | Attempt |
+|---|------|-------------|---------|
+| B1 | Codebase anchors | Existing patterns, similar features and key files this touches are identified | Exploration. Never a question |
+| B2 | Constraints | Stack, compatibility, what must not break | `CLAUDE.md`, manifests, CI config. Ask only for non-code constraints such as timeline |
+| B3 | Environment reality | What actually exists here versus what the plan assumes — services, credentials, data | Inspection: running containers, `.env` presence, a connection test. Should almost never be a question |
+| B4 | Blocking questions owned | Every question gating a phase has an owner, a method and a date | Attempt first; park the rest with their method |
 
-## Phase 3: Architecture Design
+### C — Shape · gates `02_plan.md`
 
-Based on discovery and codebase exploration, design the architecture yourself in a single deep pass. This is a conversational process with the user, not a parallel agent comparison.
+| # | Item | Filled when | Attempt |
+|---|------|-------------|---------|
+| C1 | Concern split | Single-concern, or multi-concern with split-or-combined chosen | Propose from scope; confirm, because it changes the artifact layout |
+| C2 | Decomposition | Every phase has a boundary; dependency edges and collision surfaces stated as data | Propose |
+| C3 | Verification Matrix | Every phase declares a value in every class column, gaps included | Propose from what each phase touches. Never default this silently |
+| C4 | Environment assumptions | Each missing dependency mapped to a substitution and what it defers | Derived from B3 |
+| C5 | Invariants *(if any span phases)* | Each has an owner phase and a re-check phase | Propose |
+| C6 | Async state design *(if async data flows)* | Data-flow map, init order, concurrent timeline trace, persistence boundaries | Propose. This is design work, not a question |
 
-Consider:
-- How the feature fits into the existing codebase patterns
-- What existing code can be reused vs what needs to be created
-- Data model changes and their migration implications
-- API surface, contracts, and integration points
-- Error handling, edge cases, and failure modes
-- Testing strategy
-- For multi-component features: how the components interact, shared interfaces, and build order
+### D — Handoff · gates the phase files
 
-**If the concern involves async data flows** (API calls, database transactions, blockchain, message queues, caches, WebSocket, etc.), explicitly design the state management layer. Do NOT leave this to the implementation phase. For each async data source, work through:
-- Data flow mapping: source of truth, all read paths, write-to-read latency on each path
-- Init order: dependency graph, what must be available before dependent operations run
-- Concurrent timeline trace: after a write, what happens on ALL read paths simultaneously
-- Persistence boundaries: what survives restarts, what the consumer expects to survive
-- For presentation concerns without a UI mockup: what actions are available/disabled during async gaps
-Without explicit state management design, these decisions will be made ad-hoc during implementation and will produce bugs.
+| # | Item | Filled when | Attempt |
+|---|------|-------------|---------|
+| D1 | Required Context per phase | Each phase names the documents and sections its agent must read, and why | Derived from C2 and the Doc Map. Never a question |
 
-Present your proposed architecture to the user. Include:
-- High-level approach and rationale
-- Key design decisions with trade-offs considered. Explicitly surface these forks if they exist — don't silently pick one side:
-  - **Scope expansion** — exploration revealed work beyond the initial ask; in scope or deferred?
-  - **Patch vs. root-cause** — feature touches code with a pre-existing deeper issue (bad abstraction, tech debt, failing invariant); address the root cause in this plan, or apply a surgical patch? Either is valid, but the choice must be explicit.
-  - **Test coverage gaps** — behavior changes in code not adequately covered by tests; **default: add tests first.** You're already in the code, and missing coverage likely masks pre-existing bugs that the new change could surface or hide. Accepting the gap requires an explicit reason (e.g. the code is being deleted anyway).
-  - **Existing code deletion or rewrite** — each target must be named and confirmed before writing plan artifacts.
-- Component breakdown (for complex features)
-- Files to create/modify
-- Estimated implementation phases
+---
 
-Ask the user for feedback. Iterate until they're satisfied with the approach.
+## Staged materialization
 
-**After alignment:** Capture all design decisions and patterns in agent-consumable docs — not just in conversation. Conversational alignment that isn't written down will be lost when agents are spawned. If you aligned on abstraction rules, query patterns, anti-patterns, or mental models, these MUST be captured in a document that agents can read.
+Each group gates one artifact. Write each as its group fills.
 
-## Phase 4: Write Plan Artifacts
+| Group full | Write |
+|---|---|
+| A | `00_design_spec.md` |
+| B | `01_context.md` (including the Doc Map and the open-questions table) |
+| C | `02_plan.md` |
+| D | `05_progress_overview.md`, `05_progress/05_XX_*.md` |
 
-Before writing, load the `template-conventions` skill to confirm file ownership, naming, and what belongs in each file. The skill is the single source of truth for the template structure; this phase only specifies which files to create for a given plan.
+Every file is created from its template in `${CLAUDE_PLUGIN_ROOT}/templates/` — phase files from `templates/05_progress/05_XX_phase_template.md`.
 
-Based on the agreed architecture, write these files using the templates from `${CLAUDE_PLUGIN_ROOT}/templates/`:
+`discussion.md`, `decision_review.md` and `session_log.md` are created at the start and appended throughout.
 
-### Always created
+Create the **core patterns doc** when the feature changes data models, abstractions or architectural patterns: the entity model, the rules with code examples, the anti-patterns table. Without it agents follow the checklist and write structurally wrong code. Name it for what it is, take the next free number, and register it in the Doc Map. The same applies to any other document the feature turns out to need — never create empty placeholders.
 
-1. **`01_context.md`** — Feature context, key decisions (including architecture rationale), architecture overview, scope, dependencies.
+**An item that cannot be filled at all becomes an open question with an owner, a method and a date.** If it gates a phase, write everything up to that group, name the blocker, and stop. Do not block the whole tree on one unknown, and do not paper over it with a guess.
 
-2. **`02_plan.md`** — Technical implementation plan:
-   - Database schema changes (if any)
-   - API endpoints (if any)
-   - File structure (new files to create)
-   - Implementation phases with clear boundaries
-   - Access control / permissions (if relevant)
-   - Async state management (if applicable — see Phase 3 async data flows section)
-   - Testing strategy
+---
 
-3. **`05_progress_overview.md`** — Phase summary table with all phases set to "Pending".
+## Capture while thinking
 
-4. **`05_progress/05_00_agent_prompts_index.md`** — Index of phases with status.
+`discussion.md` takes anything that would change how a reader interprets the decisions but is not itself a decision — grounding by analogy to an existing practice, comparative analysis motivating a feature, framings considered and dropped.
 
-5. **Phase files** — For each phase in the plan, create `05_progress/05_XX_{phase_name}.md` with:
-   - Phase scope
-   - **Required Context table** — fill in the files agents MUST read before starting (architecture docs, patterns docs, external specs). This is critical for correctness. Ask: "What does an agent need to understand about this phase beyond the checklist?"
-   - Checklist of tasks
-   - Empty sections for session log, files modified, review, etc.
-   - Do NOT fill in the Agent Prompt section yet (that's done at execution time)
+**Write before asking the next question.** The material that dies is the material generated between doc writes, so the write belongs to the insight, not to a later tidying pass.
 
-6. **`session_log.md`** — Create from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md`. Append the current session as the first entry (Session ID, date, "Planning", summary of what was planned).
+Rationale states why, never who. `Rationale: not stated` where no reason was given — an unfilled reason should look unfilled rather than being papered over with attribution.
 
-### Created when relevant (progressive discovery)
+---
 
-Evaluate each and create ONLY if the feature needs it. Do not create empty placeholder docs.
+## Output constraints
 
-7. **Core patterns doc** — **Create when the feature changes data models, abstractions, or architectural patterns.** This captures the mental model, query patterns, anti-patterns, and response mapping rules that agents must follow when writing code. Without this, agents will follow the checklist but write structurally wrong code. Name it with the next available number (e.g., `03_core_patterns.md`). Include:
-   - The abstraction model (what the entities are and how they relate)
-   - Rules with code examples (how to query, what goes where)
-   - Anti-patterns table (common mistakes to avoid)
-   - Quick reference mapping (old pattern → new pattern)
+These bind the artifacts regardless of how the conversation went.
 
-8. **`03_integration_summary.md`** + **`04_integration_plan.md`** — **Create when the plan includes both backend and frontend work.** Maps the backend API surface to frontend types, components, and integration steps.
+**Multi-concern features get split.** If the work spans presentation, domain logic, data access, infrastructure and integration, mixing them in one plan produces phases with task checklists instead of design decisions. Recommend one plan per concern, developed sequentially, each constraining the next — an overall `00_design_spec.md` for the interface contracts between them, then separate trees. If the user chooses combined, structure discovery by concern so each still gets depth.
 
-9. **Testing, configuration, troubleshooting, post-deployment docs** (templates 06-09) — **Create only when the feature has specific needs** (e.g., complex deployment, environment-specific config, known gotchas). Do NOT create these as empty placeholders.
+**Async data flows get a designed state layer, not an implementation-time guess.** Where the feature has APIs, transactions, queues, caches, sockets or chains, `02_plan.md` states the data-flow map with write-to-read latency per path, the init order, a concurrent timeline trace of what every read path sees after a write, and what survives a restart. Load `zforge:async-reasoning` for this.
 
+**Surface these forks rather than silently picking a side:**
+
+- **Scope expansion** — exploration revealed work beyond the ask. In scope, or deferred?
+- **Patch vs. root cause** — the feature touches a pre-existing deeper problem. Either choice is valid; the choice must be explicit.
+- **Test coverage gaps** — behaviour is changing in code tests do not cover. **Default: add tests first.** Accepting the gap needs a stated reason.
+- **Deletion or rewrite of existing code** — each target named and confirmed before any artifact is written.
+
+**A phase graph whose Verification Matrix tops out at E1 has planned nothing that would catch a wiring defect.** Say so out loud before finishing, or fix the matrix.
+
+---
 
 ## Completion
 
-Summarize what was created:
-- Feature directory path
-- Number of phases planned
-- Architecture approach
-- Next steps (e.g., "Run `/feature-resume {name}` to start implementation" or "Run `/feature-orchestrate {name}` for autonomous execution")
-- If the user wants to compare alternative approaches before committing, suggest: "Run `/compare {name}` to get parallel architecture proposals with different trade-off focuses"
+Report: the feature directory, the phase count, the approach in a sentence, the Verification Matrix's weakest column, any open question left with an owner, and the next command — `/zforge:feature-orchestrate {name}` for autonomous execution, `/zforge:feature-resume {name}` to work interactively.

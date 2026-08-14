@@ -1,96 +1,91 @@
 ---
 name: template-conventions
 description: >
-  Use when working with zforge feature documentation templates,
-  planning features with /plan, tracking progress with /track,
-  or resuming features with /feature-resume. Provides the standard
-  template structure, file ownership rules, and naming conventions.
+  This skill should be used when the user asks to "plan a feature", "what goes
+  in the phase file", "which file owns this", "what evidence class is this",
+  "where should this doc go", or when writing, reading or updating any zforge
+  feature document under docs/{feature}/. Provides the template structure,
+  file ownership rules, the evidence scale, phase states, and naming
+  conventions.
 ---
 
 # Zforge Template Conventions
 
-## Template Structure
+Features are documented in `docs/{feature_name}/`, snake_case.
 
-Features are documented in `docs/{feature_name}/` using snake_case folder names.
+## Core files
 
-### Core Files
+Always created by `/plan`:
 
-| # | File | Owner | Purpose |
-|---|------|-------|---------|
-| 00 | `00_design_spec.md` | /plan (interactive) | Requirements, architecture, constraints, risks |
-| 01 | `01_context.md` | Planner | Feature context, key decisions, architecture overview |
-| 02 | `02_plan.md` | Planner | Technical plan: schema, endpoints, phases, file structure |
-| 03 | `03_integration_summary.md` | Planner | API types, mapping, frontend files (if frontend involved) |
-| 04 | `04_integration_plan.md` | Planner | Step-by-step frontend integration guide |
-| 05 | `05_progress_overview.md` | Planner ONLY | Phase status summary — implementation agents NEVER touch this |
-| 05/ | `05_progress/05_XX_*.md` | Implementation Agent | Per-phase checklist, session log, files modified |
-| 05/ | `05_progress/review.md` | Planner (append-only) | Compiled agent reviews for human reading |
-| — | `session_log.md` | Planner | Session tracking — which Claude Code sessions touched this feature |
-| — | `.zforge-retro/*.md` | /retro only | Plugin eval artifacts — only created when /retro is invoked |
-| 06 | `06_post_deployment.md` | Planner | Smoke tests, deferred features, rollback plan |
-| 07 | `07_testing_overview.md` | Planner | Testing guidance |
-| 07/ | `07_testing/*.md` | Mixed | Test plan, scripts, results |
-| 08 | `08_configuration.md` | Planner | Env vars, feature flags, external services |
-| 09 | `09_troubleshooting.md` | Planner | Issues, solutions, debug commands |
+| File | Owner | Purpose |
+|------|-------|---------|
+| `00_design_spec.md` | /plan | Problem, actors, requirements, boundary, acceptance vocabulary |
+| `01_context.md` | Planner | Doc Map, key decisions, open questions with owner and method |
+| `02_plan.md` | Planner | Technical plan, phase decomposition, Verification Matrix, environment assumptions, invariants |
+| `discussion.md` | Planner | Reasoning generated during planning — written while thinking, not after |
+| `decision_review.md` | Planner appends · user adjudicates | Decisions made without blocking, awaiting review |
+| `05_progress_overview.md` | **Planner only** | Phase status, standing flags |
+| `05_progress/05_XX_*.md` | One agent each | Per-phase contract, evidence, decisions, work log |
+| `session_log.md` | Planner | Which sessions touched this feature, and how they ended |
 
-### Refactoring Extension (10+)
+Created when the feature needs them, never as empty placeholders:
 
-When the task is a refactoring rather than a new feature, the 10+ range is used:
+| File | When |
+|------|------|
+| Core patterns doc | The feature changes data models, abstractions or architectural patterns. Without it agents follow the checklist and write structurally wrong code |
+| `03_integration_summary.md`, `04_integration_plan.md` | The plan spans backend and frontend |
+| `05_progress/review.md` | `/zforge:review` has findings |
+| `06_post_deployment.md` | At completion |
+| `08_configuration.md`, `09_troubleshooting.md` | Config or gotchas emerge |
+| `10_`–`12_refactor_*` | The task is a refactoring rather than a new feature |
+| `.zforge-retro/*.md` | `/zforge:retro` is invoked |
 
-| # | File | Owner | Purpose |
-|---|------|-------|---------|
-| 10 | `10_refactor_spec.md` | Planner | Refactoring requirements, goals, scope, what's changing and why |
-| 11 | `11_refactor_context.md` | Planner | Current-state audit: existing architecture, code paths, dependencies being refactored |
-| 12 | `12_refactor_plan.md` | Planner | Step-by-step refactoring/migration plan, breaking changes, compatibility notes |
+## Numbering
 
-Further numbers (13, 14, ...) can be added as needed for the specific refactoring scope.
+`00`–`02` and the `05` family have fixed prefixes. **Everything else is named for what it is** and numbered by creation order in whatever slot is free — the name carries the identity, the number only sorts. Register every document in the **Doc Map** in `01_context.md` with its purpose and which phases it binds.
 
-### Files Created by `/plan`
+Running ledgers are unnumbered: `discussion.md`, `decision_review.md`, `session_log.md`. Each has a distinct job — reasoning during thinking, decisions settled, what happened when.
 
-`/plan` always creates: `00_design_spec.md`, `01_context.md`, `02_plan.md`, `05_progress_overview.md`, `05_progress/05_00_agent_prompts_index.md`, `session_log.md`
+## Ownership
 
-Additional files (`03`, `04`, `06`-`10`) are created as needed during implementation.
+1. **`05_progress_overview.md` — planner only.** Implementation agents never write it. This is what prevents contested writes.
+2. **Phase files — one agent each.** An agent reads and writes its own phase file and the source files in its declared surface.
+3. **`## Acceptance` is planner-owned** even though it lives in the agent's file. The agent fills the *achieved* column of `## Evidence Required`; the planner writes `## Acceptance` after independently re-running the commands.
+4. **`00_design_spec.md`** is not modified by agents unless the user says so.
+5. **`decision_review.md`** — agents record decisions in their phase file's `## Decisions`; the planner promotes them at acceptance.
 
-## Ownership Rules
+## Evidence
 
-1. **`00_design_spec.md`** — Generated by `/plan` interactively. Agents do NOT modify unless user explicitly instructs.
-2. **`05_progress_overview.md`** — ONLY the planner updates this. Implementation agents never touch it. Prevents race conditions.
-3. **Phase files (`05_XX_*.md`)** — Each assigned to exactly one agent. Agent reads and writes only its own phase file.
-4. **`05_progress/review.md`** — Planner appends phase reviews. Human-read only.
+Phases declare what class of evidence closes them, and the planner confirms it. See `references/evidence-scale.md` for the classes, how to choose one at plan time, and what happens when achieved falls short of required.
 
-## Signal Protocol
+The short version: `02_plan.md`'s Verification Matrix declares the classes per phase before work starts, each phase's `## Evidence Required` inherits its row, and acceptance means re-running the named commands rather than reading the agent's account of them. An unmet class becomes a standing flag in the overview and the feature is not complete while one is open.
 
-Implementation agents write exactly ONE signal at the end of their phase file, including a UTC timestamp and their shell PID:
+## Reporting
+
+There is no signal protocol. Phase state is the `> Status:` header in the phase file; completion is delivered by the harness. An agent's final report is:
 
 ```
-<!-- AGENT_SIGNAL:DONE T:2026-02-09T19:30:45Z PID:12345 -->      All checklist items complete
-<!-- AGENT_SIGNAL:PAUSED T:2026-02-09T19:30:45Z PID:12345 -->    Needs input, question in ## Questions
-<!-- AGENT_SIGNAL:FAILED T:2026-02-09T19:30:45Z PID:12345 -->    Unrecoverable error, in ## Errors
+STATUS: DONE | PAUSED | FAILED
+EVIDENCE: <one line per Evidence Required row>
+DECISIONS: <count>
+FILES: <count>
+OPEN: <count of unresolved Open Items>
 ```
 
-- **T:** — `date -u +%Y-%m-%dT%H:%M:%SZ` — lets the monitor ignore stale signals from previous sessions
-- **PID:** — `echo $$` — lets the monitor verify the signal came from the expected agent process
+Everything else belongs in the phase file, which is what survives the session.
 
-Agent STOPS immediately after writing a signal.
+Legacy `<!-- AGENT_SIGNAL:... -->` comments in pre-v3 feature directories are inert history.
 
-## Naming Conventions
+## Phase file sections
 
-- Feature folders: `snake_case` (e.g., `ai_assistant/`)
-- Files: numbered prefix (`01_`, `05_02_`)
-- Phase files: `05_XX_description.md` (e.g., `05_01_backend_schema.md`)
+`## Agent Prompt` (authoritative) · `## Required Context` · `## Evidence Required` · `## Environment Assumptions` · `## Checklist` · `## Decisions` · `## Open Items` · `## Files Created/Modified` · `## Session Log` · `## Acceptance`
+
+`## Open Items` is the single home for anything needing the planner or the user — question, error, blocker, or evidence gap — with a `kind` column distinguishing them.
+
+## Naming
+
+- Feature folders: `snake_case` — `ai_assistant/`
+- Phase files: `05_XX_description.md` — `05_01_backend_schema.md`
 - Archive: `_archive/{name}__{date}.md`
 
-## Phase File Structure
-
-Each `05_progress/05_XX_*.md` contains these sections:
-- `## Agent Prompt` — Instructions for the assigned agent
-- `## Phase Scope` — What this phase covers
-- `## Checklist` — Tasks to complete (checkboxes)
-- `## In Progress` / `## Completed` / `## Blocked / Issues`
-- `## Files Created/Modified` — Audit trail
-- `## Session Log` — Date, session #, steps, summary
-- `## Review` — Agent writes summary before DONE signal
-- `## Questions` — For PAUSED signal
-- `## Errors` — For FAILED signal
-
-For full template details, see `references/full-template.md`.
+For the full file tree, ownership matrix, and per-section detail, see `references/full-template.md`.

@@ -1,3 +1,4 @@
 *.pid
 /tmp/
 .DS_Store
+tmp/

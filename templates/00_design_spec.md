@@ -14,7 +14,16 @@
 
 ## Problem Statement
 
-{What problem does this solve? Who is affected?}
+{What breaks or is missing without this — concrete enough that we can tell whether it was solved}
+
+---
+
+## Actors
+
+Who and what invokes this — users, agents, background jobs, other services.
+
+| Actor | How they reach it | What they can do |
+|-------|-------------------|------------------|
 
 ---
 
@@ -77,6 +86,14 @@
 
 ---
 
-## Q&A
+## Acceptance Vocabulary
 
-{Questions raised during discovery and their answers}
+> Include when the feature has a user-facing surface. Remove if not applicable.
+
+The words the user judges this by, **in their words**. For design work these are the acceptance criteria: a surface cannot be called done against a standard nobody wrote down.
+
+| Term | What it means here |
+|------|--------------------|
+| {their word, verbatim} | {what it rules in and out} |
+
+**How we will know the surface is right:** {the vocabulary above, a reference product to match, or a mockup put in front of a real user — name the method}

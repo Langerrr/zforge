@@ -1,6 +1,9 @@
 # Session Log
 
-> Tracks which Claude Code sessions contributed to this feature.
+> Tracks which sessions contributed to this feature, and how each one ended.
 
-| Session ID | Date | Phases Touched | Summary |
-|------------|------|----------------|---------|
+**Ended** is one of: `completed` · `handed off` · `usage limit` · `error` · `abandoned`.
+Usage-limit endings are a budgeting signal — several in one run means the schedule is asking for more concurrent tokens than the run has.
+
+| Session ID | Date | Phases Touched | Ended | Summary |
+|------------|------|----------------|-------|---------|
