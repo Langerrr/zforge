@@ -1,134 +1,51 @@
 ---
-description: Autonomous multi-phase feature execution with signal monitoring
-argument-hint: <feature-name>
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(${CLAUDE_PLUGIN_ROOT}/scripts/*), Bash(rm -rf /tmp/zforge-*), Bash(rm -f *.pid), Bash(kill:*), Bash(git:*), Bash(date:*), Bash(mkdir:*), Bash(ls:*), Bash(find:*), Task
-model: opus
+description: Autonomous multi-phase feature execution
+argument-hint: [feature-name]
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task, Agent, SendMessage, AskUserQuestion
 ---
+
+<!-- Bash is unrestricted rather than filtered: acceptance means re-running each phase's own
+     verification commands, which vary per project and are named by the plan rather than known
+     here. A filtered allowlist would make the acceptance bar unenforceable. -->
+
 
 # /feature-orchestrate — Autonomous Feature Execution
 
-Run autonomous multi-phase feature execution. Spawns isolated implementation agents for each phase, monitors progress via signals, and drives to completion.
+Run a feature plan to completion without blocking on the user. Phases execute as background subagents; decisions are recorded for asynchronous review; the planner accepts each phase by re-running its evidence.
+
+Load the `feature-execution` skill. It owns phase state, the spawn contract, recovery, scheduling, and acceptance. This command supplies the autonomous intent only.
 
 ## Arguments
 
-- `$1`: Feature name (snake_case or will be converted)
+- `$1`: Feature name (snake_case, or will be converted)
 
 ## Pre-flight
 
-1. Convert feature name to snake_case.
-2. Read `docs/{feature_name}/05_progress_overview.md`. If not found, report error and suggest `/plan`.
-3. Read `docs/{feature_name}/01_context.md` and `docs/{feature_name}/02_plan.md`.
-4. Read `docs/{feature_name}/05_progress/05_00_agent_prompts_index.md`.
-5. Read `docs/{feature_name}/session_log.md`. If it doesn't exist, create it from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md`. If the current session ID is not already listed, append a new row with the session ID, today's date, and empty phases/summary (updated as work progresses).
-6. Create scratchpad directory: `mkdir -p /tmp/zforge-{feature_name}`
+1. Convert the feature name to snake_case and resolve `docs/{feature_name}/`. If the directory is missing, report it and suggest `/zforge:plan`.
+2. Read `05_progress_overview.md`, `01_context.md`, `02_plan.md`, and the Doc Map in `01_context.md` for anything else binding.
+3. Read `decision_review.md`. If it does not exist, create it from `${CLAUDE_PLUGIN_ROOT}/templates/decision_review.md`.
+4. Read `session_log.md`, creating it from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md` if absent, and append a row for this session.
+5. Note any open standing flags in the overview. A flag opened by an earlier session is inherited by this one.
 
-## Step 1: Assess Phase Readiness
+**If the feature predates v3** — phase files with no `## Evidence Required` table — say so once, treat every phase's evidence as E0, and offer to backfill the Verification Matrix in `02_plan.md` before executing. Executing without it is allowed; it just means acceptance can only check that commands run, not that they were the right class.
 
-For each phase in `05_progress_overview.md`:
-- **COMPLETED**: Skip
-- **READY**: All dependencies met (previous phases completed), can spawn
-- **WAITING**: Dependencies not yet met
-- **IN_PROGRESS**: Agent already running (check PID file)
+## Run loop
 
-## Step 2: Spawn Agents for READY Phases
+1. Classify every phase. Pick what to run using the skill's scheduling rules — sequential unless dependencies, collision surfaces and token budget all permit otherwise.
+2. Spawn READY phases per the skill's spawn contract.
+3. Handle each report by its status. Completion arrives natively; do not poll.
+4. Accept COMPLETED phases per the skill's acceptance procedure — re-run the evidence commands before marking anything complete.
+5. Repeat until no phase is READY.
 
-For each READY phase:
+## Autonomy boundary
 
-1. Read the phase file (`05_progress/05_XX_*.md`)
-2. Check `## Required Context` section — if it lists files, include read instructions in the prompt
-3. If `## Agent Prompt` section is empty, fill it in based on `02_plan.md`
-4. Build the full prompt:
-   - If Required Context has entries: prepend "Before starting, read these files and briefly confirm your understanding in the ## Review section:" followed by the file paths and their "Why" descriptions
-   - Include the phase file content
-   - Append orchestration rules suffix (below)
-5. Write prompt to `/tmp/zforge-{feature_name}/05_XX.prompt.md`
-6. Spawn: `${CLAUDE_PLUGIN_ROOT}/scripts/spawn-agent.sh <working_dir> <prompt_file>`
-7. Update `05_00_agent_prompts_index.md` with "In Progress" status
+Run without stopping. Two things stop the loop:
 
-**Orchestration suffix appended to every agent prompt:**
-```
----
-ORCHESTRATION RULES — DO NOT IGNORE:
+- **A pause trigger fires** — the agent hit one of the five forks in its contract and stopped. Answer it from the plan if the plan resolves it; ask the user only if it does not.
+- **A phase FAILS** — stop and surface it. Do not attempt a third variation of a failing approach autonomously.
 
-1. You may ONLY update your assigned phase file: {phase_file_path}
-2. Do NOT update 05_progress_overview.md — only the planner does that.
-3. For package manager commands (install/build), use {plugin_root}/scripts/safe-run.sh <lock_name> <command> to prevent conflicts with parallel agents.
-4. Before signaling DONE, write a summary in the ## Review section of your phase file.
-5. When you complete ALL tasks in your checklist, write your signal at the end of your phase file, then stop.
-6. When you have a question or need a decision, write it in ## Questions, then write your signal, then stop.
-7. If you encounter an unrecoverable error, document it in ## Errors, then write your signal, then stop.
-8. Update the checklist as you complete each item.
-9. Only write ONE signal. Once you write a signal, STOP working immediately.
-10. Signal format: `<!-- AGENT_SIGNAL:{STATUS} T:{TIMESTAMP} PID:{PID} -->` where:
-    - STATUS is DONE, PAUSED, or FAILED
-    - TIMESTAMP is ISO 8601 UTC (run: `date -u +%Y-%m-%dT%H:%M:%SZ`)
-    - PID: read from `{phase_file_path}.pid` (run: `cat {phase_file_path}.pid 2>/dev/null || echo $$`)
-    - Example: `<!-- AGENT_SIGNAL:DONE T:2026-02-09T19:30:45Z PID:12345 -->`
----
-```
+Everything else is recorded and the run continues. Decisions the agents made land in `decision_review.md` as 🟡 for the user to review whenever they choose; they do not block later phases.
 
-Spawn multiple independent phases in parallel if they have no dependencies on each other.
+## Completion
 
-## Step 3: Monitor Loop
-
-Start the monitor:
-```bash
-${CLAUDE_PLUGIN_ROOT}/scripts/monitor.sh "docs/{feature_name}/05_progress" 30
-```
-
-Run this as a background task. Then poll for output using TaskOutput with `block=true` and `timeout=120000`.
-
-### Signal Handling
-
-**DONE**:
-1. Read completed phase file — verify `## Review` is filled and checklist is complete
-2. Update `05_progress_overview.md` — mark phase complete
-3. Update `05_00_agent_prompts_index.md`
-4. Append review summary to `05_progress/review.md`
-5. Check if new phases are now READY (dependencies met)
-6. If yes: spawn agents for newly READY phases (go to Step 2)
-7. Restart monitor
-
-**PAUSED**:
-1. Read phase file's `## Questions` section
-2. Analyze question in context of the feature plan
-3. If you can answer confidently: write answer in phase file, re-spawn agent
-4. If unsure: ask the user, then write answer and re-spawn
-5. Restart monitor
-
-**FAILED**:
-1. Read phase file's `## Errors` section
-2. Report failure to user with full context
-3. **STOP the orchestration loop** — user must decide next steps
-
-**ORPHANED** (process dead, no signal):
-1. Read phase file and check checklist completion
-2. If mostly done: treat as DONE — verify and clean up
-3. If partially done: re-spawn agent to continue
-4. If nothing done: STOP — likely a systemic issue
-
-**WORKING** (file modified recently, no signal):
-1. Agent is alive and working — restart monitor and wait
-
-**STALE** (file unchanged 5+ minutes):
-1. Check if PID is still alive
-2. If dead: treat as ORPHANED
-3. If alive: restart monitor, wait longer
-
-**Timeout** (no monitor output in 2 minutes):
-1. Restart monitor and continue
-
-## Step 4: Completion
-
-When all phases are complete or the session is ending:
-1. Update `05_progress_overview.md` with final status for all phases
-2. Update `session_log.md` — fill in the Phases Touched and Summary columns for the current session's row
-3. Create `06_post_deployment.md` if it doesn't exist
-4. Extract troubleshooting notes to `09_troubleshooting.md`
-5. Clean up: `rm -rf /tmp/zforge-{feature_name}`
-6. Remove any remaining `.pid` files
-7. Report summary to user:
-   - Phases completed
-   - Total files created/modified (from phase files)
-   - Any deferred items
-   - Suggest: `/review --feature {name}` for final review
+Follow the skill's completion bookkeeping. Report phases completed, evidence achieved against evidence planned, the count of 🟡 decisions awaiting review, and every standing flag still open.

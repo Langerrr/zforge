@@ -1,7 +1,8 @@
-# {Feature Name} - Review
+# {Feature Name} - Review Findings
 
-> Compiled by Planner. For human review only — planner does not read this file back.
+> Written by `/zforge:review`. Each finding cites both sides — what a document states, and what the code does.
 
 ---
 
-<!-- Planner appends each phase's review summary here as phases complete -->
+| # | Finding | Document says | Code does | Phase | Severity |
+|---|---------|---------------|-----------|-------|----------|

@@ -29,9 +29,9 @@ Evaluate whether zforge's workflow scaffolding gave the LLM a good structure to 
 
 **Look for:**
 - Phase file format — did it capture what agents actually needed?
-- Signal protocol — did it work correctly?
+- Report and recovery contract — did completion arrive cleanly, and did interrupted phases resume without losing work?
 - Template conventions — were ownership rules respected and useful?
-- Agent prompt structure — did it provide enough context for agents?
+- Required Context — did agents get the sections they needed to write structurally correct code, not just checklist-complete code?
 
 **Scope boundary:** Phase ordering, architectural decisions, and plan quality are LLM reasoning issues, NOT zforge issues. If the LLM sequenced phases badly or made poor architectural choices, that is out of scope. Only evaluate whether zforge's scaffolding supported or hindered the LLM's work.
 
@@ -80,9 +80,27 @@ Evaluate whether zforge added unnecessary ceremony for this feature.
 **High score:** Every zforge artifact pulled its weight; no unnecessary ceremony.
 **Low score:** Significant over-scaffolding; artifacts created that nobody used.
 
+### Evidence Quality (1-10)
+
+Evaluate whether the run's evidence tracked reality, or only tracked itself.
+
+A fluent model fills any form fluently, so form-satisfaction rises with model capability while truth-satisfaction does not. Every other dimension here can score well on a run whose artifacts are internally consistent and disconnected from what the software does. This dimension is the one that catches that.
+
+**Look for:**
+- Did each phase's `## Evidence Required` name commands and artifacts a third party could re-run, or restate a claim?
+- Did the planner actually re-run them at acceptance, or accept the agent's account of them?
+- Did achieved classes match required classes — and where they didn't, was a standing flag opened?
+- Did any standing flag get carried across phases, or was one silently dropped when the run ended?
+- Did defects found later fall in a class the Verification Matrix had already marked as a gap?
+
+**Scope boundary:** whether the *right* evidence classes were chosen for the feature is a planning-reasoning question. Whether the declared classes were honoured, checked and carried is zforge's.
+
+**High score:** claims were demonstrated at their declared class, checked independently, and shortfalls were visible as flags rather than absorbed.
+**Low score:** phases closed on self-report, evidence rows repeated one phrase regardless of what was verified, or a known gap was recorded once and never inherited.
+
 ## Overall Score
 
-The overall score is a weighted average of the five dimensions, but override the average if one dimension dominates the experience. For example:
+The overall score is a weighted average of the six dimensions, but override the average if one dimension dominates the experience. For example:
 - Simplicity scores 2/10 (massive over-scaffolding) should not average out to 7 just because other dimensions were fine
 - Friction scores 2/10 (constantly fighting the workflow) overshadows neutral scores in other dimensions
 

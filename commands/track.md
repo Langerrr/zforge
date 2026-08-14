@@ -1,13 +1,13 @@
 ---
-description: Show or update progress for a feature
-argument-hint: <feature-name>
+description: Show progress, flags and open decisions
+argument-hint: [feature-name]
 allowed-tools: Read, Edit, Glob, Grep
 model: haiku
 ---
 
-# /track — Feature Progress Tracking
+# /track — Feature Progress
 
-Show detailed progress for a specific feature and optionally update it.
+Show where a feature stands, including what it owes.
 
 ## Arguments
 
@@ -15,42 +15,37 @@ Show detailed progress for a specific feature and optionally update it.
 
 ## Process
 
-1. Convert feature name to snake_case.
-2. Look for `docs/{feature_name}/05_progress_overview.md`. If not found, check other common locations (`{feature_name}/05_progress_overview.md`).
-3. If not found, report: "No plan found for '{feature_name}'. Run `/plan {name}` to create one."
+1. Convert the feature name to snake_case and locate `docs/{feature_name}/05_progress_overview.md`, falling back to `{feature_name}/05_progress_overview.md`.
+2. If not found: "No plan found for '{feature_name}'. Run `/zforge:plan {name}` to create one."
+3. Read the overview, every phase file, and `decision_review.md`.
 
-4. Read and display:
+Phase status comes from each phase file's `> Status:` header. There are no signals to scan for.
 
-**From `05_progress_overview.md`:**
-- Phase summary table (phase name, status, progress file)
-- Active blockers
-- Overall completion percentage
-
-**From phase files (`05_progress/05_XX_*.md`):**
-- For each phase, show:
-  - Checklist completion (X of Y items done)
-  - Current status (signal if present)
-  - Last session date and summary
-
-5. Format as a clear status report:
+## Report
 
 ```
-## {Feature Name} — Progress Report
+## {Feature Name} — Progress
 
-Overall: {completed}/{total} phases ({percentage}%)
+Phases: {completed}/{total}
 
-Phase  Name                 Status       Checklist  Last Activity
-─────────────────────────────────────────────────────────────────
-1      Backend Schema       Complete     5/5        2026-02-08
-2      Backend API          In Progress  3/7        2026-02-09
-3      Frontend Types       Pending      0/4        —
-4      Frontend Pages       Pending      0/6        —
+Phase  Name                 Status      Checklist  Evidence      Last Activity
+──────────────────────────────────────────────────────────────────────────────
+1      Backend Schema       COMPLETED   5/5        E2 / E2       2026-02-08
+2      Backend API          RUNNING     3/7        — / E2        2026-02-09
+3      Frontend Types       PENDING     0/4        — / E1        —
+4      Frontend Pages       PENDING     0/6        — / E4        —
 
-### Active Blockers
-- Phase 2: Waiting on DB migration approval
+### Standing Flags (2 open)
+- SF1 (Phase 5): E4 unmet across all UI phases — closes when a browser-executed run passes
+- SF3 (Phase 7): live vendor calls deferred to a mock adapter — closes when a token exists
 
-### Recent Activity
-- Phase 2, Session 3 (2026-02-09): Implemented CRUD endpoints for users
+### Decisions awaiting review: 14 🟡
+- Most recent: P7.1 — tri-state run status supersedes P2.8
+
+### Open Items
+- Phase 2 · question · migration ordering under concurrent writes — unresolved
 ```
 
-6. If any phase has an uncleared signal (`<!-- AGENT_SIGNAL:PAUSED -->`), highlight the question from `## Questions`.
+The **Evidence** column reads *achieved / required*. A phase showing `— / E4` has not yet demonstrated the class its plan asked for; a completed phase showing anything below its requirement should have a standing flag against it, and if it does not, say so.
+
+Lead with what is owed. A feature at 8/8 phases with two open flags is not finished, and the report should not read as though it is.

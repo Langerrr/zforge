@@ -1,32 +1,53 @@
 # {Feature Name} - Phase {N}: {Phase Name}
 
 > Last updated: {DATE}
-> Status: Not Started
+> Status: PENDING
+> Depends on: {phases, or None}
 > Overview: `../05_progress_overview.md`
-
----
-
-## Required Context
-
-<!-- Planner fills this. Agent MUST read these files before starting the checklist.
-     Include architecture docs, patterns docs, or any file the agent needs to understand WHY, not just WHAT. -->
-
-| File | Why |
-|------|-----|
 
 ---
 
 ## Agent Prompt
 
+<!-- Authoritative. This is the only copy — the spawn message points here, it does not restate this.
+     Written by the planner. State what this phase covers, its postcondition (what must be
+     demonstrably true when it closes), and its surface (which files it may touch). -->
+
 ```
-{To be filled by planner or /feature-orchestrate before spawning agent}
+{What to build, what must be true at the end, which files are in scope}
 ```
 
 ---
 
-## Phase Scope
+## Required Context
 
-{Brief description of what this phase covers}
+<!-- Planner fills this. The agent reads these before starting the checklist — this table is
+     what makes it write structurally correct code rather than merely checklist-complete code,
+     so a phase that skips it tends to pass its own checklist and fail review.
+     Bind specific sections, not whole documents. -->
+
+| File | Sections | Why |
+|------|----------|-----|
+
+---
+
+## Evidence Required
+
+<!-- Inherited from the Verification Matrix in 02_plan.md — not reinvented here.
+     Required is set by the planner before the phase runs. Achieved is filled by the agent
+     with the class actually reached. See skills/template-conventions/references/evidence-scale.md -->
+
+| Claim | Required | Command / artifact | Achieved |
+|-------|----------|--------------------|----------|
+
+---
+
+## Environment Assumptions
+
+<!-- What this phase needs that may not exist here, and what standing in for it defers. -->
+
+| Assumed by plan | Actual here | Substitution | What it defers |
+|-----------------|-------------|--------------|----------------|
 
 ---
 
@@ -38,18 +59,23 @@
 
 ---
 
-## In Progress
+## Decisions
+
+<!-- Recorded as they are made, not reconstructed at the end.
+     Rationale states why, never who. If no reason was stated, write "not stated". -->
+
+| # | Decision | Why | Alternative rejected | Impact |
+|---|----------|-----|---------------------|--------|
 
 ---
 
-## Completed
+## Open Items
 
----
+<!-- Anything needing the planner or the user: a question, an error, a blocker, an evidence gap.
+     Resolved items stay, with their resolution. -->
 
-## Blocked / Issues
-
-| Issue | Step | Description | Resolution |
-|-------|------|-------------|------------|
+| # | Kind | What | Raised at | Status / Resolution |
+|---|------|------|-----------|---------------------|
 
 ---
 
@@ -67,32 +93,8 @@
 
 ---
 
-## Review
+## Acceptance
 
-<!-- Implementation agent writes a summary here before signaling DONE:
-- What was implemented (key changes, not file-by-file)
-- Any design decisions made during implementation
-- Known limitations or shortcuts taken
-- Test results summary (pass/fail counts)
--->
-
----
-
-## Questions
-
-<!-- Implementation agent writes questions here when signaling PAUSED.
-     Then writes: <!-- AGENT_SIGNAL:PAUSED T:{timestamp} PID:{pid} -->
-     at the very end of this file. -->
-
----
-
-## Errors
-
-<!-- Implementation agent documents errors here when signaling FAILED.
-     Then writes: <!-- AGENT_SIGNAL:FAILED T:{timestamp} PID:{pid} -->
-     at the very end of this file. -->
-
----
-
-## Notes
-
+<!-- PLANNER-OWNED. The agent does not write here.
+     Written after independently re-running the commands in ## Evidence Required:
+     what was re-run, the result, and achieved-versus-required per row. -->

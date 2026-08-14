@@ -1,8 +1,7 @@
 ---
-description: Evaluate zforge's workflow performance on a feature — scores and findings for plugin improvement
-argument-hint: <feature-name>
+description: Score zforge's workflow performance on a feature
+argument-hint: [feature-name]
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(mkdir:*), Bash(ls:*)
-model: opus
 ---
 
 # /retro — Zforge Workflow Retrospective
@@ -17,6 +16,7 @@ Evaluate how well zforge's workflow scaffolding served a feature. Output feeds p
 
 1. Convert feature name to snake_case.
 2. Read `docs/{feature_name}/session_log.md`. If not found or empty (no entries), **stop**: "No session history to evaluate. Run /retro at the end of a working session."
+   Also read `docs/{feature_name}/decision_review.md` §B if it exists — process notes written live during the run are the primary input, and they beat reconstructing the run from its artifacts afterwards.
 3. Check current session context. If this is a fresh session with no substantial conversation about the feature (no prior tool calls touching feature files, no implementation discussion), **stop**: "Run /retro at the end of a working session, not in a fresh one. The retro needs session context to evaluate zforge's performance."
 4. `mkdir -p docs/{feature_name}/.zforge-retro`
 

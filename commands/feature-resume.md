@@ -1,85 +1,60 @@
 ---
-description: Resume implementation on an existing feature
-argument-hint: <feature-name>
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), Bash(${CLAUDE_PLUGIN_ROOT}/scripts/*), Bash(mkdir:*), Bash(ls:*), Bash(find:*), Bash(cat:*), Bash(cp:*), Bash(mv:*), Bash(touch:*), Bash(date:*), Task, AskUserQuestion
-model: opus
+description: Resume implementation on an existing feature, interactively
+argument-hint: [feature-name]
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task, Agent, SendMessage, AskUserQuestion
 ---
 
-# /feature-resume — Resume Feature Implementation
+<!-- Bash is unrestricted for the same reason as /feature-orchestrate: this command implements
+     phases directly and accepts them by re-running their verification commands. -->
 
-Resume work on an existing feature plan. This runs within the current session using Task tool sub-agents.
+
+# /feature-resume — Interactive Feature Implementation
+
+Continue a feature plan with the planner implementing in-session and checking in with the user between phases.
+
+Load the `feature-execution` skill. It owns phase state, recovery, and acceptance. This command supplies the interactive intent only.
 
 ## Arguments
 
-- `$1`: Feature name (snake_case or will be converted)
+- `$1`: Feature name (snake_case, or will be converted)
 
-## Process
+## Pre-flight
 
-### 1. Load Feature State
+Same as `/feature-orchestrate`: resolve the feature directory, read the overview, context, plan, Doc Map, decision ledger and session log, append this session's row, and note inherited standing flags.
 
-1. Convert feature name to snake_case.
-2. Read `docs/{feature_name}/05_progress_overview.md`. If not found, report error.
-3. Read `docs/{feature_name}/01_context.md` and `docs/{feature_name}/02_plan.md` for full context.
-4. Scan all phase files in `docs/{feature_name}/05_progress/` to determine current state.
-5. Read `docs/{feature_name}/session_log.md`. If it doesn't exist, create it from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md`. If the current session ID is not already listed, append a new row with the session ID, today's date, and empty phases/summary (updated as work progresses).
+Then scan the phase files and report the current state to the user before doing anything: which phases are complete, which is next, what is PAUSED or INTERRUPTED, and which standing flags are open.
 
-### 2. Identify Next Work
+## Order of work
 
-Classify each phase:
-- **COMPLETED**: Checklist fully done, DONE signal present or verified
-- **IN_PROGRESS**: Partially done, no signal (was interrupted)
-- **PAUSED**: Has `<!-- AGENT_SIGNAL:PAUSED -->` signal — needs a question answered
-- **FAILED**: Has `<!-- AGENT_SIGNAL:FAILED -->` signal — needs error resolved
-- **PENDING**: Not started, checklist empty
+1. **PAUSED** — answer the question first. Present it with enough context for the user to decide, or resolve it from the plan and say that you did.
+2. **INTERRUPTED** — resume per the skill's recovery procedure. Re-orient against disk before continuing; the phase may be further along than the checklist claims.
+3. **FAILED** — present the error and ask whether to fix, skip, or stop.
+4. **READY** — start the next phase in order.
 
-Priority order:
-1. **PAUSED** phases — answer the question first, then resume
-2. **FAILED** phases — assess error, decide whether to retry or skip
-3. **IN_PROGRESS** phases — continue where it left off
-4. **PENDING** phases — start the next one in order
+## Executing a phase
 
-### 3. Handle PAUSED/FAILED
+The planner implements directly rather than spawning. The phase file's contract still governs:
 
-**If PAUSED:**
-- Read the `## Questions` section from the phase file
-- Present the question to the user
-- Write the answer into the phase file
-- Clear the PAUSED signal
+- Read the phase file and everything in its `## Required Context` before starting.
+- Work the checklist, marking items as they complete.
+- Record decisions in `## Decisions` as they are made — including the ones settled with the user in conversation, which are otherwise lost when the session ends.
+- Fill the `## Evidence Required` table's achieved column with the class actually reached and the artifact that proves it.
+- Keep `## Files Created/Modified` current.
 
-**If FAILED:**
-- Read the `## Errors` section from the phase file
-- Present the error to the user
-- Ask: fix and retry, skip this phase, or stop?
-- Clear the FAILED signal if retrying
+The pause triggers still apply. In this mode a trigger is a conversation rather than a stop — raise it, settle it with the user, record it.
 
-### 4. Execute Phase
+## Between phases
 
-For the next phase to work on:
+Accept the phase per the skill's acceptance procedure: re-run the evidence commands, compare achieved against required, write `## Acceptance`, promote decisions, roll up any unmet class as a standing flag.
 
-1. Read the phase file completely.
-2. Read all relevant source files referenced in `01_context.md`, `02_plan.md`, and the phase's checklist.
-3. Implement the checklist items one by one.
-4. After each significant step:
-   - Mark the checklist item as done in the phase file
-   - Update the session log
-   - Update the files created/modified table
-5. When the phase is complete:
-   - Write the `## Review` section
-   - Update `05_progress_overview.md` with completion status
-   - Ask the user: continue to next phase, run `/review`, or stop?
+Then ask the user: continue to the next phase, run `/zforge:review --feature {name}`, or stop.
 
-### 5. Between Phases
+## Discussion
 
-After completing a phase:
-- If the next phase involves a different domain (e.g., switching from backend to frontend), create `03_integration_summary.md` and `04_integration_plan.md` if they don't exist.
-- Fill in the `## Agent Prompt` section of the next phase file if empty.
-- Ask the user before proceeding to the next phase.
+This command does not maintain `discussion.md` by default — it is an implementation mode, and its record is the phase files and the decision ledger.
 
-### 6. Completion
+When a session genuinely opens design discussion before continuing — a phase turns out to need a decision the plan never made, and settling it takes real conversation — append to `discussion.md` for that stretch, under the same rule that governs planning: nothing new is asked until the last answer is on disk.
 
-When all phases are done or the session is ending:
-- Update `05_progress_overview.md` with final status
-- Update `session_log.md` — fill in the Phases Touched and Summary columns for the current session's row
-- Create `06_post_deployment.md` if it doesn't exist
-- Extract any issues to `09_troubleshooting.md`
-- Suggest running `/review --feature {name}` for a final review
+## Completion
+
+Follow the skill's completion bookkeeping.
