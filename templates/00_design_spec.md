@@ -97,3 +97,19 @@ The words the user judges this by, **in their words**. For design work these are
 | {their word, verbatim} | {what it rules in and out} |
 
 **How we will know the surface is right:** {the vocabulary above, a reference product to match, or a mockup put in front of a real user — name the method}
+
+---
+
+## Owner-Only Decisions
+
+> Contract item A6. Include whenever the feature has commercial, policy or legal surface. Remove if not applicable.
+
+Calls only the owner can make — commercial model, pricing, licensing, moderation, data retention, who carries a liability. These arrive from writing the behaviour and the journeys, never from reading the code, which is why they are recorded here rather than discovered mid-build.
+
+Each row is **answered** or **parked with a date**. A parked row that gates a phase is also an open question in `01_context.md`, with the same owner and method.
+
+| # | Decision | Status | Answer, or the default proposed | What accepting it commits to | Owner | By when |
+|---|----------|--------|--------------------------------|------------------------------|-------|---------|
+| OD1 | {the call} | answered / parked | {what was decided, or the default on the table} | {the obligation it creates} | {who} | {date} |
+
+A default proposed here stays a proposal until the owner rules on it. Where money, legal exposure or a promise to a third party is inside the decision, there is no defensible default and the row stays parked until it is answered.

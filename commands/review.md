@@ -18,9 +18,10 @@ This is not a general code review. Bugs, security, performance and style belong 
 
 1. `02_plan.md` — schema, contracts, phase decomposition, **Verification Matrix**, **Environment Assumptions**, **Invariants**
 2. The core patterns doc, if the Doc Map lists one — the rules agents were told to follow
-3. `decision_review.md` — every decision recorded during the run, §A and §C
-4. Every phase file's `## Evidence Required` and `## Acceptance`
-5. `05_progress_overview.md` — open standing flags
+3. `decision_review.md` §A and §C — the decisions that reached beyond the implementation, and whatever the user has already adjudicated
+4. Every phase file's `## Decisions` — the implementation conventions that were not promoted. This is the larger set, and it binds the code just as tightly
+5. Every phase file's `## Evidence Required` and `## Acceptance`
+6. `05_progress_overview.md` — open standing flags
 
 Then read the code those documents describe.
 
@@ -29,13 +30,15 @@ Then read the code those documents describe.
 Four questions, each answerable against a document rather than a judgment call:
 
 **1. Do the decisions hold in the code?**
-Every 🟡 and ✅ entry in `decision_review.md` claims something about how the system works. Check the call sites. A decision recorded once and violated in four places is the common shape.
+Every 🟡 and ✅ entry in `decision_review.md`, and every row in a phase file's `## Decisions`, claims something about how the system works. Check the call sites. A decision recorded once and violated in four places is the common shape, and it is commonest among the unpromoted conventions — the ledger's rows had the user's eye on them, the phase files' rows had nobody's.
 
 **2. Are the invariants implemented and re-checked?**
 `02_plan.md` names invariants with an owner phase and a re-check phase. Verify each is actually established, and actually holds at every call site — not just the one the owning phase wrote. Anything spanning phases is verified by no single phase file, which is why it survives to here.
 
 **3. Does the evidence match the artifacts?**
 For every `## Evidence Required` row, the claimed class must have something behind it. A row claiming E4 with no browser-executed artifact, or E3 with tests that only ever ran in the wrong runtime, is a false claim in the ledger — report it as one.
+
+A **J** row is checked the same way: the method and the referent must both be named, and the walk must have a recorded result. A J2 row whose referent turns out to be the case the design was derived from is a J1 claim wearing a J2 label, because the referent supplied no resistance.
 
 **4. Do the environment substitutions still hold?**
 Each substitution in `## Environment Assumptions` deferred some verification. Check whether the deferral is still true, still recorded, and still visible as a standing flag.

@@ -83,13 +83,29 @@ What each phase's gate will and will not cover, declared before any of it runs. 
 
 Mark each cell `✓` (will cover), `—` (will not), `n/a` (does not apply), or **`gap`** (should be covered and will not be — this opens a standing flag at the phase that first needs it).
 
+Two axes, two tables, because they are not comparable. **E** is what will be executed; **J** is what will be judged. Classes rank within an axis only.
+
+### E — execution
+
 | Phase | E1 pure logic | E2 boundary | E3 prod runtime | E4 real surface |
 |-------|---------------|-------------|-----------------|-----------------|
 | 1 | | | | |
 | 2 | | | | |
 | 3 | | | | |
 
-**Read the columns, not the rows.** A column that is empty across every phase with a user-facing surface is a hole in the whole feature, and this table exists to make that visible now rather than after the last phase.
+### J — judgement
+
+Fill this for any phase carrying a claim no test runner settles — a vocabulary the actor must find learnable, a format that must generalise, a boundary that must be in the right place. Name the method in the phase's evidence row; this table only declares the class it will reach.
+
+| Phase | J1 method stated and walked | J2 named referent | The claim being judged |
+|-------|------------------------------|-------------------|------------------------|
+| 1 | | | |
+| 2 | | | |
+| 3 | | | |
+
+A phase with no judgement-shaped claim leaves its row `n/a` and that is a complete answer.
+
+**Read the columns, not the rows.** A column that is empty across every phase with a user-facing surface is a hole in the whole feature, and this table exists to make that visible now rather than after the last phase. An empty E4 column is a wiring hole. An empty J column under a spec whose acceptance came from the user's own vocabulary is the same hole one level up.
 
 ---
 
@@ -99,7 +115,7 @@ What the plan assumes exists, what is actually here, and what standing in for it
 
 | # | Assumed | Actual | Substitution | What it defers | Phases affected |
 |---|---------|--------|--------------|----------------|-----------------|
-| E1 | {managed service, credential, vendor token} | {what exists locally} | {what will be used instead} | {which verification this postpones, and to when} | |
+| S1 | {managed service, credential, vendor token} | {what exists locally} | {what will be used instead} | {which verification this postpones, and to when} | |
 
 A substitution with no deferral stated is a substitution nobody will remember to undo.
 

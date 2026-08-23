@@ -1,7 +1,7 @@
 {
   "name": "zforge",
-  "version": "2.3.1",
-  "description": "Template-aware development workflow: interactive planning, multi-reviewer code review, progress tracking, and autonomous multi-phase feature orchestration.",
+  "version": "3.1.0",
+  "description": "Durable state, contract and evidence layer for multi-session feature work: contract-bounded planning, autonomous phase orchestration with evidence-based acceptance, and ledger-versus-implementation review.",
   "author": {
     "name": "lan"
   },
@@ -10,14 +10,14 @@
   "keywords": [
     "planning",
     "workflow",
-    "review",
+    "evidence",
     "orchestration"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "zforge",
-    "shortDescription": "Template-aware planning, review, and orchestration workflows.",
-    "longDescription": "zforge bundles reusable skills and workflow templates for planning, tracking, reviewing, and orchestrating multi-phase engineering work.",
+    "shortDescription": "Contract-bounded planning, evidence-based acceptance, and phase orchestration.",
+    "longDescription": "zforge carries what must be true before a phase closes, what evidence proves it, what was decided along the way, and what is still open across multi-session feature work.",
     "developerName": "lan",
     "category": "Productivity",
     "capabilities": [

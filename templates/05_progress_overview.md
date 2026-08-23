@@ -8,8 +8,8 @@
 
 ## Phase Summary
 
-Status is one of PENDING · READY · WAITING · RUNNING · PAUSED · INTERRUPTED · FAILED · COMPLETED.
-A phase reaches COMPLETED only through acceptance — the planner re-running its evidence commands.
+Status is one of PENDING · READY · WAITING · RUNNING · REPORTED · PAUSED · INTERRUPTED · FAILED · COMPLETED.
+A phase reaches COMPLETED only through acceptance — the planner re-running its evidence commands. REPORTED is the state in between: an agent reported DONE and the evidence has not been re-run.
 
 | Phase | Name | Status | Evidence achieved | Progress File |
 |-------|------|--------|-------------------|---------------|

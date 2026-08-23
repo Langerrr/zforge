@@ -8,7 +8,7 @@ zforge carries what must be true before a phase closes, what evidence proves it,
 
 | Command | Description |
 |---------|-------------|
-| `/zforge:plan <name> [--spec file]` | Resolve a completeness contract, then write the artifact tree |
+| `/zforge:plan <name> [--spec file] [--kind ...]` | Resolve a completeness contract, then write the artifact tree |
 | `/zforge:feature-orchestrate <name>` | Autonomous multi-phase execution with evidence-based acceptance |
 | `/zforge:feature-resume <name>` | Interactive implementation with check-ins between phases |
 | `/zforge:review --feature <name>` | Check the implementation against the feature's own ledger |
@@ -19,15 +19,19 @@ zforge carries what must be true before a phase closes, what evidence proves it,
 
 ## How it works
 
-**Planning stops when a contract is full**, not when the model runs out of questions. `/plan` resolves sixteen items — intent, ground, shape, handoff — attempting each from the codebase, the docs, and what you have already said before it asks you anything. Where the attempt succeeds it proposes rather than asks, because correcting a proposal costs you recognition while answering a question costs you generation.
+**Planning stops when a contract is full**, not when the model runs out of questions. `/plan` resolves seventeen items — intent, ground, shape, handoff — attempting each from the codebase, the docs, and what you have already said before it asks you anything. Where the attempt succeeds it proposes rather than asks, because correcting a proposal costs you recognition while answering a question costs you generation.
 
-**Phases declare their acceptance bar before they run.** `02_plan.md` carries a Verification Matrix: for every phase, which classes of evidence its gate will and will not cover. A column that is empty across every phase with a user-facing surface is a hole you can see at planning time rather than after the last phase.
+**The contract also stops the files.** `--kind requirements` puts only intent and ground on the contract and terminates at a specification; `--kind implementation` puts all four groups on it and terminates at a phase tree. A group that is off the contract asks nothing and writes nothing, so a product-definition session cannot drift into producing a phase graph for work nobody has scoped.
 
-**Acceptance means re-running the commands.** An agent's green report is a claim; the planner independently re-runs the phase's evidence commands and compares the class achieved against the class required. Where it falls short, a standing flag opens with a stated *closes when*, and the feature is not complete while any flag is open.
+**Phases declare their acceptance bar before they run.** `02_plan.md` carries a Verification Matrix on two axes: **E0–E4** for what will be executed, **J0–J2** for what will be judged — a claim no test runner settles, checked by a stated method against a named referent. A column that is empty across every phase with a user-facing surface is a hole you can see at planning time rather than after the last phase.
 
-**Decisions do not block.** Agents decide, record, and keep moving; every decision lands in `decision_review.md` as 🟡 for you to approve or reject whenever you choose. Blocking is reserved for five named pause triggers.
+**Acceptance means re-running the commands.** An agent's green report is a claim; the planner independently re-runs the phase's evidence commands, re-walks its judgement methods, and compares achieved against required. Where it falls short, a standing flag opens with a stated *closes when*, and the feature is not complete while any flag is open. On a long chain the re-run is delegated to `zforge:acceptance-agent`, because it needs a phase file and a shell rather than the run's accumulated context.
 
-**Interrupted work is resumed, not restarted.** A phase agent killed by a usage limit is resumed from its own transcript with a mandatory re-orientation against disk — `git status`, re-run the tests, diff the checklist against what exists — because its memory of what it wrote is less reliable than the working tree.
+**Decisions do not block, and only the load-bearing ones surface.** Agents decide, record, and keep moving. At acceptance the planner promotes to `decision_review.md` only the decisions reaching beyond the feature's implementation — the rest stay in their phase file. The ledger is a queue you drain, not an index of everything decided. Blocking is reserved for five named pause triggers.
+
+**Interrupted work is resumed, not restarted.** A phase agent killed by a usage limit is resumed from its own transcript with a mandatory re-orientation against disk — `git status`, re-run the tests, diff the checklist against what exists — because its memory of what it wrote is less reliable than the working tree. Agents are told up front to stop cleanly at ~95% of budget, flushing a `## Resume Point` first, which turns the expensive recovery into a cheap one.
+
+**A reported phase is not an accepted phase.** `REPORTED` is its own state: the work is on disk and the evidence has not been re-run. It is written the moment a report arrives, so a planner that dies mid-acceptance leaves a phase that says on disk exactly what is true of it.
 
 ## Artifact tree
 
@@ -67,6 +71,13 @@ A phase that genuinely only needs unit tests declares E1, closes on a one-line r
 | `feature-execution` | Phase state, spawning, recovery, scheduling, acceptance |
 | `async-reasoning` | Designing state layers over async data flows |
 | `retro` | Scoring zforge's own workflow performance |
+
+## Agents
+
+| Agent | Purpose |
+|-------|---------|
+| `zforge:phase-agent` | Implements one phase from its phase file, records decisions and evidence, stops cleanly on budget |
+| `zforge:acceptance-agent` | Re-runs a phase's evidence in a clean shell and returns an achieved-class table. Fixes nothing, accepts nothing |
 
 ## Installation
 

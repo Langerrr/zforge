@@ -3,10 +3,11 @@ name: template-conventions
 description: >
   This skill should be used when the user asks to "plan a feature", "what goes
   in the phase file", "which file owns this", "what evidence class is this",
-  "where should this doc go", or when writing, reading or updating any zforge
-  feature document under docs/{feature}/. Provides the template structure,
-  file ownership rules, the evidence scale, phase states, and naming
-  conventions.
+  "how do I verify a claim no test can settle", "where should this doc go", or
+  when writing, reading or updating any zforge feature document under
+  docs/{feature}/. Provides the template structure, file ownership rules, the
+  two-axis evidence scale for what was executed and what was judged, phase
+  states, and naming conventions.
 ---
 
 # Zforge Template Conventions
@@ -52,13 +53,15 @@ Running ledgers are unnumbered: `discussion.md`, `decision_review.md`, `session_
 2. **Phase files — one agent each.** An agent reads and writes its own phase file and the source files in its declared surface.
 3. **`## Acceptance` is planner-owned** even though it lives in the agent's file. The agent fills the *achieved* column of `## Evidence Required`; the planner writes `## Acceptance` after independently re-running the commands.
 4. **`00_design_spec.md`** is not modified by agents unless the user says so.
-5. **`decision_review.md`** — agents record decisions in their phase file's `## Decisions`; the planner promotes them at acceptance.
+5. **`decision_review.md`** — agents record every decision in their phase file's `## Decisions`; at acceptance the planner promotes only the ones **reaching beyond the feature's implementation**. The rest stay in the phase file, where phase agents already read them. The ledger is an adjudication queue for the user, not an index of everything decided.
 
 ## Evidence
 
 Phases declare what class of evidence closes them, and the planner confirms it. See `references/evidence-scale.md` for the classes, how to choose one at plan time, and what happens when achieved falls short of required.
 
-The short version: `02_plan.md`'s Verification Matrix declares the classes per phase before work starts, each phase's `## Evidence Required` inherits its row, and acceptance means re-running the named commands rather than reading the agent's account of them. An unmet class becomes a standing flag in the overview and the feature is not complete while one is open.
+Two axes. **E0–E4** for what was executed, ranked by what each rules out — algorithm errors, integration mismatches, runtime divergence, wiring defects. **J0–J2** for what was judged: a claim no test runner settles, checked by a stated method against a named referent. Classes rank within an axis only; neither substitutes for the other.
+
+The short version: `02_plan.md`'s Verification Matrix declares the classes per phase before work starts, each phase's `## Evidence Required` inherits its row, and acceptance means re-running the named commands and re-walking the named methods rather than reading the agent's account of them. An unmet class becomes a standing flag in the overview and the feature is not complete while one is open.
 
 ## Reporting
 
@@ -66,6 +69,7 @@ There is no signal protocol. Phase state is the `> Status:` header in the phase 
 
 ```
 STATUS: DONE | PAUSED | FAILED
+REASON: <only when PAUSED — the trigger that fired, or USAGE_LIMIT_95>
 EVIDENCE: <one line per Evidence Required row>
 DECISIONS: <count>
 FILES: <count>
@@ -78,7 +82,7 @@ Legacy `<!-- AGENT_SIGNAL:... -->` comments in pre-v3 feature directories are in
 
 ## Phase file sections
 
-`## Agent Prompt` (authoritative) · `## Required Context` · `## Evidence Required` · `## Environment Assumptions` · `## Checklist` · `## Decisions` · `## Open Items` · `## Files Created/Modified` · `## Session Log` · `## Acceptance`
+`## Agent Prompt` (authoritative) · `## Required Context` · `## Evidence Required` · `## Environment Assumptions` · `## Checklist` · `## Decisions` · `## Open Items` · `## Files Created/Modified` · `## Session Log` · `## Resume Point` (only when the agent stopped early) · `## Acceptance`
 
 `## Open Items` is the single home for anything needing the planner or the user — question, error, blocker, or evidence gap — with a `kind` column distinguishing them.
 
