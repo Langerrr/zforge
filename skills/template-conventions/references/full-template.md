@@ -86,14 +86,19 @@ Actionable items. Marked as they complete.
 ### `## Session Log`
 `Date | Session | Steps | Summary`. One agent execution is one session; several per phase is normal.
 
+### `## Resume Point`
+Written by the agent only when it stops before the phase is finished — a pause trigger, or the budget-stop clause at ~95% of usage. What is done, what is half-done, the next concrete action. The resuming agent verifies it against the tree and deletes it once past the point it names. A phase that closes with one still in it did not finish.
+
 ### `## Acceptance`
-Planner-owned. What was re-run, the result, and achieved-versus-required per evidence row.
+Planner-owned. What was re-run, the result, and achieved-versus-required per evidence row, plus which `## Decisions` rows were promoted to the ledger and which stayed.
 
 ## Phase state
 
 Read from the phase file's `> Status:` header:
 
-`PENDING` · `READY` · `WAITING` · `RUNNING` · `PAUSED` · `INTERRUPTED` · `FAILED` · `COMPLETED`
+`PENDING` · `READY` · `WAITING` · `RUNNING` · `REPORTED` · `PAUSED` · `INTERRUPTED` · `FAILED` · `COMPLETED`
+
+`REPORTED` — an agent has reported DONE and the planner has not re-run the evidence — is the state acceptance runs in. Its recovery rule is its own: **re-run the evidence, do not resume the agent.** The work is on disk; only the verification is missing.
 
 `INTERRUPTED` — an agent killed mid-phase by a usage limit, API error or session end — is resumed via `SendMessage` with a mandatory re-orientation against disk, never re-spawned. `COMPLETED` is only reached through acceptance.
 
@@ -113,7 +118,9 @@ Read from the phase file's `> Status:` header:
 | New requirement | `00_design_spec.md` | User |
 | Reasoning behind a design choice | `discussion.md` | Planner, during the conversation |
 | Architecture decision | `01_context.md` | Planner |
-| Decision made mid-run without blocking | phase `## Decisions` → `decision_review.md` | Agent, then planner |
+| Decision made mid-run without blocking | phase `## Decisions` | Agent |
+| Decision reaching beyond the feature's implementation | phase `## Decisions` → `decision_review.md` §C | Agent, then planner at acceptance |
+| Agent stopped before the phase finished | phase `## Resume Point` | Agent |
 | Scope change | `01_context.md` + `02_plan.md` | Planner |
 | Step completed | own `05_XX_*.md` | Agent |
 | Evidence fell short of its class | phase `## Open Items` → overview Standing Flags | Agent, then planner |

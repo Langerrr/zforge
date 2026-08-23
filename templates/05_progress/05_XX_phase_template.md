@@ -5,6 +5,11 @@
 > Depends on: {phases, or None}
 > Overview: `../05_progress_overview.md`
 
+<!-- Status is one of: PENDING · READY · WAITING · RUNNING · REPORTED · PAUSED ·
+     INTERRUPTED · FAILED · COMPLETED. REPORTED means an agent reported DONE and the
+     planner has not re-run the evidence yet — the work is on disk, the verification
+     is not. COMPLETED is only reached through acceptance. -->
+
 ---
 
 ## Agent Prompt
@@ -35,10 +40,15 @@
 
 <!-- Inherited from the Verification Matrix in 02_plan.md — not reinvented here.
      Required is set by the planner before the phase runs. Achieved is filled by the agent
-     with the class actually reached. See skills/template-conventions/references/evidence-scale.md -->
+     with the class actually reached. See skills/template-conventions/references/evidence-scale.md
 
-| Claim | Required | Command / artifact | Achieved |
-|-------|----------|--------------------|----------|
+     Classes come from two axes. E0-E4 for what was executed: the row names a command.
+     J0-J2 for what was judged: the row names a method and the referent it is walked
+     against. A claim that is both a working surface and a readable one takes a row on
+     each. Classes compare within an axis only — E3 is not more than J2. -->
+
+| Claim | Required | Command / method | Achieved |
+|-------|----------|------------------|----------|
 
 ---
 
@@ -90,6 +100,18 @@
 
 | Date | Session | Steps | Summary |
 |------|---------|-------|---------|
+
+---
+
+## Resume Point
+
+<!-- Written by the agent only when it stops before the phase is finished — a pause
+     trigger, or the budget-stop clause at ~95% of usage. Three things: what is done,
+     what is half-done, and the next concrete action.
+
+     The resuming agent treats this as a hypothesis and the working tree as the fact,
+     then deletes this section once it passes the point named here. A phase that closes
+     with a Resume Point still in it did not finish. -->
 
 ---
 

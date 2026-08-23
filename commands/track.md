@@ -31,9 +31,12 @@ Phases: {completed}/{total}
 Phase  Name                 Status      Checklist  Evidence      Last Activity
 ──────────────────────────────────────────────────────────────────────────────
 1      Backend Schema       COMPLETED   5/5        E2 / E2       2026-02-08
-2      Backend API          RUNNING     3/7        — / E2        2026-02-09
+2      Backend API          REPORTED    7/7        E2 / E2 *     2026-02-09
 3      Frontend Types       PENDING     0/4        — / E1        —
 4      Frontend Pages       PENDING     0/6        — / E4        —
+5      Console Vocabulary   PENDING     0/3        — / J2        —
+
+* claimed, not re-run — Phase 2 is REPORTED
 
 ### Standing Flags (2 open)
 - SF1 (Phase 5): E4 unmet across all UI phases — closes when a browser-executed run passes
@@ -46,6 +49,8 @@ Phase  Name                 Status      Checklist  Evidence      Last Activity
 - Phase 2 · question · migration ordering under concurrent writes — unresolved
 ```
 
-The **Evidence** column reads *achieved / required*. A phase showing `— / E4` has not yet demonstrated the class its plan asked for; a completed phase showing anything below its requirement should have a standing flag against it, and if it does not, say so.
+The **Evidence** column reads *achieved / required*, and classes compare within their axis — an `E` row and a `J` row are not ranked against each other. A phase showing `— / E4` has not yet demonstrated the class its plan asked for; a completed phase showing anything below its requirement should have a standing flag against it, and if it does not, say so.
+
+**A REPORTED phase's achieved class is a claim, not a result.** Mark it as unverified rather than counting it, because nobody has re-run it yet.
 
 Lead with what is owed. A feature at 8/8 phases with two open flags is not finished, and the report should not read as though it is.

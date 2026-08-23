@@ -29,12 +29,14 @@ Load the `feature-execution` skill. It owns phase state, the spawn contract, rec
 
 **If the feature predates v3** — phase files with no `## Evidence Required` table — say so once, treat every phase's evidence as E0, and offer to backfill the Verification Matrix in `02_plan.md` before executing. Executing without it is allowed; it just means acceptance can only check that commands run, not that they were the right class.
 
+**If any phase is REPORTED** — an earlier session took its report and died before verifying it — acceptance is the first work of this session. Do not resume its agent.
+
 ## Run loop
 
 1. Classify every phase. Pick what to run using the skill's scheduling rules — sequential unless dependencies, collision surfaces and token budget all permit otherwise.
 2. Spawn READY phases per the skill's spawn contract.
-3. Handle each report by its status. Completion arrives natively; do not poll.
-4. Accept COMPLETED phases per the skill's acceptance procedure — re-run the evidence commands before marking anything complete.
+3. Handle each report by its status. Completion arrives natively; do not poll. **On arrival, set the phase to REPORTED and log the report before running anything** — that checkpoint is what survives a planner that dies mid-acceptance.
+4. Accept REPORTED phases per the skill's acceptance procedure — re-run the evidence commands and re-walk the named methods before marking anything complete. On a long chain, delegate the re-run to `zforge:acceptance-agent` and adjudicate the table it returns; the run's context is the scarce resource, and re-running evidence does not need it.
 5. Repeat until no phase is READY.
 
 ## Autonomy boundary
@@ -44,8 +46,10 @@ Run without stopping. Two things stop the loop:
 - **A pause trigger fires** — the agent hit one of the five forks in its contract and stopped. Answer it from the plan if the plan resolves it; ask the user only if it does not.
 - **A phase FAILS** — stop and surface it. Do not attempt a third variation of a failing approach autonomously.
 
-Everything else is recorded and the run continues. Decisions the agents made land in `decision_review.md` as 🟡 for the user to review whenever they choose; they do not block later phases.
+Everything else is recorded and the run continues. The decisions that reach beyond this feature's implementation land in `decision_review.md` as 🟡 for the user to review whenever they choose; the rest stay in their phase files. Neither blocks a later phase.
+
+A `PAUSED` report carrying `REASON: USAGE_LIMIT_95` is not a fork and needs no answer — the agent stopped on budget and left a `## Resume Point`. Wait for capacity and resume it.
 
 ## Completion
 
-Follow the skill's completion bookkeeping. Report phases completed, evidence achieved against evidence planned, the count of 🟡 decisions awaiting review, and every standing flag still open.
+Follow the skill's completion bookkeeping. Report phases completed, evidence achieved against evidence planned on both axes, the count of 🟡 decisions awaiting review, and every standing flag still open.

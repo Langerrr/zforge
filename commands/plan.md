@@ -1,6 +1,6 @@
 ---
 description: Plan a feature and write its artifact tree
-argument-hint: [feature-name] [--spec file]
+argument-hint: [feature-name] [--spec file] [--kind requirements|implementation]
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Task, Agent, AskUserQuestion
 ---
 
@@ -18,6 +18,7 @@ You are the **zforge planner**. You do not run the discovery conversation — `s
 
 - `$1` — feature name (converted to snake_case for the directory)
 - `--spec <file>` — an external requirements document to use as the base
+- `--kind requirements|implementation` — what this session terminates at. Inferred and proposed when absent
 
 ## Pre-flight
 
@@ -25,6 +26,14 @@ You are the **zforge planner**. You do not run the discovery conversation — `s
 2. If the directory exists, read `05_progress_overview.md` and ask whether to re-plan or continue.
 3. Load the `template-conventions` skill. It is the source of truth for structure, ownership and naming.
 4. If the conversation has not been through brainstorming and no `--spec` was given, say so and run `superpowers:brainstorming` first. Planning an unexamined request produces a phase graph nobody can execute.
+5. **Resolve the output kind**, because it selects which groups are on the contract:
+
+| Kind | Terminates at | Groups |
+|---|---|---|
+| `implementation` | a phase tree agents execute | A · B · C · D |
+| `requirements` | a specification a later session plans from | A · B |
+
+Where `--kind` was not given, infer it and state the inference as a proposal — the ladder below governs this choice too. Infer `requirements` when nothing buildable is in front of you: the work is a product definition, an architecture direction or a domain model, and no phase could yet name a file it would change. Infer `implementation` when a concrete change is on the table. Say which you chose in one line and let the user correct it.
 
 ---
 
@@ -55,6 +64,8 @@ Reaching rung 4 for something rung 1 would have answered spends the most expensi
 
 **Ask nothing that isn't on the contract.** A question that does not trace to an unfilled contract item does not get asked. This is the stopping condition — without it there is always another plausible question available, and producing one always feels like care.
 
+**Only the groups the output kind selects are on the contract.** Under `requirements` that is A and B; C and D are not on it at all. A schema question is a group-C question, so under `requirements` it does not get asked — not deferred, not asked politely, not asked.
+
 Never re-ask something already answered. Checking the session and the docs is part of the attempt.
 
 ### A — Intent · gates `00_design_spec.md`
@@ -66,12 +77,15 @@ Never re-ask something already answered. Checking the session and the docs is pa
 | A3 | Actors | Who and what invokes it — users, agents, background jobs, other services | Existing roles, auth model, cron and queue definitions |
 | A4 | Boundary | What is explicitly out of scope, named | Propose from what the brainstorm did not claim; confirm, because a wrong boundary silently expands the build |
 | A5 | Surface acceptance *(if user-facing)* | How we will know the surface is right — the user's own judging vocabulary verbatim, a reference product, or a mockup gate | Capture from how the user already talks about it |
+| A6 | Owner-only decisions | Every call only the owner can make is named, and each is either answered or parked with a date — commercial model, pricing, licensing, moderation, data retention, who carries a liability | Propose where a default is defensible, and say what accepting it commits to. Where it is not — money, legal exposure, or a promise made to a third party — this is rung 4, and rung 4 is the right rung |
+
+A6 does not surface on its own. These questions arrive from writing the behaviour and the journeys, never from reading the code, so a session that never writes A2 down never discovers them.
 
 ### B — Ground · gates `01_context.md`
 
 | # | Item | Filled when | Attempt |
 |---|------|-------------|---------|
-| B1 | Codebase anchors | Existing patterns, similar features and key files this touches are identified | Exploration. Never a question |
+| B1 | Anchors | The prior work this builds on is identified — existing patterns, similar features and key files where there is code; the design documents, decision logs and numbered decisions where there is not | Exploration. Never a question |
 | B2 | Constraints | Stack, compatibility, what must not break | `CLAUDE.md`, manifests, CI config. Ask only for non-code constraints such as timeline |
 | B3 | Environment reality | What actually exists here versus what the plan assumes — services, credentials, data | Inspection: running containers, `.env` presence, a connection test. Should almost never be a question |
 | B4 | Blocking questions owned | Every question gating a phase has an owner, a method and a date | Attempt first; park the rest with their method |
@@ -82,7 +96,7 @@ Never re-ask something already answered. Checking the session and the docs is pa
 |---|------|-------------|---------|
 | C1 | Concern split | Single-concern, or multi-concern with split-or-combined chosen | Propose from scope; confirm, because it changes the artifact layout |
 | C2 | Decomposition | Every phase has a boundary; dependency edges and collision surfaces stated as data | Propose |
-| C3 | Verification Matrix | Every phase declares a value in every class column, gaps included | Propose from what each phase touches. Never default this silently |
+| C3 | Verification Matrix | Every phase declares a value in every class column on both axes, gaps included | Propose from what each phase touches. A phase carrying a claim no test runner settles declares a **J** class and names the method; never default either axis silently |
 | C4 | Environment assumptions | Each missing dependency mapped to a substitution and what it defers | Derived from B3 |
 | C5 | Invariants *(if any span phases)* | Each has an owner phase and a re-check phase | Propose |
 | C6 | Async state design *(if async data flows)* | Data-flow map, init order, concurrent timeline trace, persistence boundaries | Propose. This is design work, not a question |
@@ -99,18 +113,22 @@ Never re-ask something already answered. Checking the session and the docs is pa
 
 Each group gates one artifact. Write each as its group fills.
 
-| Group full | Write |
-|---|---|
-| A | `00_design_spec.md` |
-| B | `01_context.md` (including the Doc Map and the open-questions table) |
-| C | `02_plan.md` |
-| D | `05_progress_overview.md`, `05_progress/05_XX_*.md` |
+| Group full | Write | On the contract under |
+|---|---|---|
+| A | `00_design_spec.md` | both kinds |
+| B | `01_context.md` (including the Doc Map and the open-questions table) | both kinds |
+| C | `02_plan.md` | `implementation` |
+| D | `05_progress_overview.md`, `05_progress/05_XX_*.md` | `implementation` |
 
 Every file is created from its template in `${CLAUDE_PLUGIN_ROOT}/templates/` — phase files from `templates/05_progress/05_XX_phase_template.md`.
 
-`discussion.md`, `decision_review.md` and `session_log.md` are created at the start and appended throughout.
+`discussion.md` and `session_log.md` are created at the start and appended throughout, under either kind. `decision_review.md` is created with the tree under `implementation`; under `requirements` it is created only if the session makes a run-level call worth recording in §A, since §C has no phases to promote from.
 
 Create the **core patterns doc** when the feature changes data models, abstractions or architectural patterns: the entity model, the rules with code examples, the anti-patterns table. Without it agents follow the checklist and write structurally wrong code. Name it for what it is, take the next free number, and register it in the Doc Map. The same applies to any other document the feature turns out to need — never create empty placeholders.
+
+**Write nothing that is not gated by a filled group.** This is the stopping condition for artifacts, and it is *ask nothing that isn't on the contract* one level up. A group that is off the contract for this output kind materializes nothing: under `requirements`, C and D are off, so `02_plan.md` and the phase tree are not written, not drafted, and not offered.
+
+Producing the next artifact is always locally available and always feels like diligence, which is why it takes a rule rather than judgment. When the contract is full, the session is over. The next file belongs to a later one.
 
 **An item that cannot be filled at all becomes an open question with an owner, a method and a date.** If it gates a phase, write everything up to that group, name the blocker, and stop. Do not block the whole tree on one unknown, and do not paper over it with a guess.
 
@@ -143,8 +161,14 @@ These bind the artifacts regardless of how the conversation went.
 
 **A phase graph whose Verification Matrix tops out at E1 has planned nothing that would catch a wiring defect.** Say so out loud before finishing, or fix the matrix.
 
+**A spec whose acceptance under A5 is the user's own vocabulary, and whose J column is empty, has the same hole one level up.** The claim *they will not have to learn the model* is checkable — walk the journey, list what they had to understand — and a matrix that leaves it at J0 has left the feature's stated bar untested.
+
 ---
 
 ## Completion
 
-Report: the feature directory, the phase count, the approach in a sentence, the Verification Matrix's weakest column, any open question left with an owner, and the next command — `/zforge:feature-orchestrate {name}` for autonomous execution, `/zforge:feature-resume {name}` to work interactively.
+Report against the output kind.
+
+**`implementation`** — the feature directory, the phase count, the approach in a sentence, the Verification Matrix's weakest column on each axis, any open question left with an owner, and the next command: `/zforge:feature-orchestrate {name}` for autonomous execution, `/zforge:feature-resume {name}` to work interactively.
+
+**`requirements`** — the feature directory, what the spec covers, the acceptance vocabulary captured under A5, and every A6 decision still parked with who owns it and by when. The next command is a **later** `/zforge:plan {name} --kind implementation`, run when there is something buildable. Do not run it now, and do not write toward it.

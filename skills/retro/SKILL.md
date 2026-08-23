@@ -40,9 +40,9 @@ The question is always: **"Did zforge's workflow help or get in the way?"**
 Read these from `docs/{feature_name}/`:
 
 1. **`decision_review.md` §B** — process notes written live during the run. **Read this first.** It is contemporaneous, where everything else is reconstruction, and a run that improvised something is a template gap recorded at the moment it was felt
-2. **`session_log.md`** — Session count, convergence pattern, how each session ended (usage-limit interruptions are a scheduling signal)
+2. **`session_log.md`** — Session count, convergence pattern, how each session ended. A usage-limit interruption is a scheduling signal; a clean `USAGE_LIMIT_95` stop with a `## Resume Point` on disk is the budget clause working
 3. **`05_progress_overview.md`** — Phase structure, completion status, standing flags and whether any were carried or dropped
-4. **`05_progress/05_XX_*.md`** — Evidence tables (required versus achieved), decisions, open items, acceptance sections
+4. **`05_progress/05_XX_*.md`** — Evidence tables (required versus achieved, on both axes), decisions, open items, acceptance sections. Each `## Acceptance` names which decisions were promoted and which stayed: compare that against `decision_review.md` §C to see whether the ledger stayed an adjudication queue or became a second copy of the progress folder
 5. **`02_plan.md`** — the Verification Matrix, compared against what the phases actually achieved
 6. **Template files** — which sections were filled with real content versus empty or "N/A"
 7. **`git log` on feature docs** — how much the plan changed after creation
