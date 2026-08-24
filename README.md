@@ -105,4 +105,15 @@ codex plugin add zforge@zforge-local
 
 In the Codex app, select `@zforge`; in the CLI or a prompt, invoke a workflow explicitly (for example `$zforge:feature-resume`) or ask naturally: “Use zforge to resume implementation of `<feature>`.”
 
+### Codex goals
+
+For a long autonomous run, make `/goal` the outer objective and invoke the Codex orchestration skill inside it:
+
+```text
+/goal Use $zforge:feature-orchestrate to execute feature `payments_v2`.
+Continue until every phase is accepted and no standing flag remains.
+```
+
+When Codex exposes a remaining goal budget, orchestration uses it to reduce concurrency, prioritize acceptance and preserve durable resume points as the budget tightens. The goal does not replace zforge's state: phase files and evidence still decide whether the feature is complete. Invoking `$zforge:feature-orchestrate` without `/goal` keeps the existing behavior and never creates a goal implicitly.
+
 `superpowers` and `compound-engineering` remain complementary dependencies for discovery, test discipline, debugging, and general review. Install their Codex-compatible plugins when you want those routed workflows available; zforge itself continues to own only durable state, contracts, evidence, and phase execution.

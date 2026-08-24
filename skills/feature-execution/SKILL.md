@@ -113,6 +113,23 @@ Record usage-limit deaths distinctly in `session_log.md`. They are a budgeting s
 
 Dependency edges say what *can* run in parallel. These three say what *should*. When parallelizing, state the reason in `session_log.md`.
 
+### Goal-budget overlay
+
+Apply this overlay only when Codex is running `$zforge:feature-orchestrate` under an active goal and `get_goal` exposes both the goal budget and its remainder. Re-check immediately before each scheduling wave and calculate the remaining percentage from the tool's values; when either value is absent, use the ordinary scheduling rules rather than inventing an estimate.
+
+| Remaining | Scheduling response |
+|---|---|
+| Above 60% | Apply the ordinary dependency, collision and budget gates. Parallelism is eligible, not required. |
+| `>30%` through `60%` | Run phases serially. Delegate a costly evidence re-run when doing so protects the planner's cumulative context. |
+| 15–30% | Accept REPORTED work first, then recover one INTERRUPTED phase through its next report and acceptance — resume its thread when reachable, otherwise use the disk-first fallback — then schedule at most one READY phase per wave. Delegate the evidence re-run when the acceptance role can verify it from the phase file without reconstructing planner context. Prefer the bounded action that leaves the strongest durable checkpoint. |
+| Below 15% | Do no speculative or parallel work. Accept an existing report, finish or checkpoint the held phase, or take one bounded action that materially advances the nearest acceptance condition. Do not idle solely because the budget is low. |
+
+After any usage-limit interruption in the current run, do not parallelize again during that run. Delegated acceptance reduces planner-context pressure but still consumes goal tokens; use it to preserve the scarce planner context, not as a claim that total usage must fall.
+
+The overlay changes ordering and concurrency only. It never changes phase state, lowers an evidence class, skips independent acceptance, or turns budget exhaustion into `COMPLETED`, `PAUSED` or `FAILED`.
+
+If the goal runtime reports no remaining capacity or refuses further work, launch no worker. Preserve the last durable zforge checkpoint and let the goal runtime control continuation; exhausted budget alone does not satisfy the goal's blocked condition.
+
 ### The planner's budget is the one that cannot be reset
 
 An agent's cost is per-phase and bounded: it reads a phase file, works, reports five lines, and its context dies with it. The planner's cost is **cumulative across the whole run** — it holds the plan, reads every report, re-runs every evidence command, writes every acceptance section, promotes decisions, updates the overview and session log, and commits. Serialising agents makes the agent side cheaper and does nothing about the planner.
