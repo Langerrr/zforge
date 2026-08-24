@@ -16,11 +16,11 @@ Features are documented in `docs/{feature_name}/`, snake_case.
 
 ## Core files
 
-Always created by `/plan`:
+Always created by the zforge plan workflow:
 
 | File | Owner | Purpose |
 |------|-------|---------|
-| `00_design_spec.md` | /plan | Problem, actors, requirements, boundary, acceptance vocabulary |
+| `00_design_spec.md` | Planner | Problem, actors, requirements, boundary, acceptance vocabulary |
 | `01_context.md` | Planner | Doc Map, key decisions, open questions with owner and method |
 | `02_plan.md` | Planner | Technical plan, phase decomposition, Verification Matrix, environment assumptions, invariants |
 | `discussion.md` | Planner | Reasoning generated during planning — written while thinking, not after |
@@ -35,11 +35,11 @@ Created when the feature needs them, never as empty placeholders:
 |------|------|
 | Core patterns doc | The feature changes data models, abstractions or architectural patterns. Without it agents follow the checklist and write structurally wrong code |
 | `03_integration_summary.md`, `04_integration_plan.md` | The plan spans backend and frontend |
-| `05_progress/review.md` | `/zforge:review` has findings |
+| `05_progress/review.md` | The zforge review workflow has findings |
 | `06_post_deployment.md` | At completion |
 | `08_configuration.md`, `09_troubleshooting.md` | Config or gotchas emerge |
 | `10_`–`12_refactor_*` | The task is a refactoring rather than a new feature |
-| `.zforge-retro/*.md` | `/zforge:retro` is invoked |
+| `.zforge-retro/*.md` | The zforge retro workflow is invoked |
 
 ## Numbering
 

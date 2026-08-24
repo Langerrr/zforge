@@ -5,7 +5,7 @@ description: >
   "run the phases", "resume implementation", "continue the plan", "the phase
   agent died", "the agent stopped on its usage limit", "accept this phase",
   "can these phases run in parallel", or "is this phase done" — and whenever
-  /zforge:feature-orchestrate or /zforge:feature-resume executes. Use it as
+  the zforge feature-orchestrate or feature-resume workflow executes. Use it as
   well when a phase reported done but its evidence was never re-run, or when a
   long chain is draining the planner's own budget rather than the agents'.
   Provides phase state classification, the subagent spawn contract and its
@@ -16,7 +16,7 @@ description: >
 
 # Feature Execution
 
-The shared execution model behind `/feature-orchestrate` and `/feature-resume`. The two commands differ only in **who implements** — a spawned agent or the planner in-session — and **where decisions go** — `decision_review.md` or the conversation. Everything below is the same for both.
+The shared execution model behind `$zforge:feature-orchestrate` and `$zforge:feature-resume`. The two workflows differ only in **who implements** — a spawned agent or the planner in-session — and **where decisions go** — `decision_review.md` or the conversation. Everything below is the same for both.
 
 ## Phase state
 
@@ -38,7 +38,7 @@ REPORTED is the state acceptance runs *in*. Nobody holds the phase and nothing h
 
 ## Spawning
 
-One agent per phase, `subagent_type: zforge:phase-agent`, `run_in_background: true`.
+One worker per phase. In Codex, spawn a subagent and instruct it to load `$zforge:phase-agent`; applicable skill instructions are allowed to request this delegation. In Claude Code, use the plugin's `zforge:phase-agent` agent type. Both routes use the same phase contract below.
 
 **The phase file is the authoritative prompt.** The spawn message is a pointer to it plus the report contract — never a second copy of the phase's instructions. Two copies drift, and the copy the agent reads wins.
 
@@ -78,7 +78,7 @@ Anything longer belongs in the phase file, where it survives the session.
 
 When an agent dies mid-phase, **resume it — do not re-spawn from the phase file.** A re-spawn discards the agent's working context and repeats work that is already on disk.
 
-1. `SendMessage` to the same agent.
+1. Send a follow-up to the same Codex subagent thread when it is still available.
 2. The resume message mandates **re-orientation against disk before any new work**:
    - `git status` and `git diff --stat` — what actually changed
    - re-run the phase's verification commands — what actually passes
@@ -97,10 +97,10 @@ Record usage-limit deaths distinctly in `session_log.md`. They are a budgeting s
 |---|---|
 | REPORTED | Run acceptance (below). The agent is finished; do not resume it |
 | COMPLETED | Already adjudicated. Advance |
-| PAUSED | Answer from the plan if it resolves the question; otherwise ask the user. Resume via `SendMessage` |
-| PAUSED, `REASON: USAGE_LIMIT_95` | No question to answer. Wait for capacity, then resume via `SendMessage` pointed at the phase's `## Resume Point` |
+| PAUSED | Answer from the plan if it resolves the question; otherwise ask the user. Resume the same subagent thread with a follow-up |
+| PAUSED, `REASON: USAGE_LIMIT_95` | No question to answer. Wait for capacity, then resume the same subagent thread with a follow-up pointed at the phase's `## Resume Point` |
 | FAILED | Stop. Surface the phase's `## Open Items` to the user with full context |
-| INTERRUPTED | Wait for capacity, then resume via `SendMessage`. **Never re-spawn** — the work is not lost, only paused |
+| INTERRUPTED | Wait for capacity, then resume the same reachable subagent thread. **Never re-spawn when that thread still exists** — the work is not lost, only paused |
 | ORPHANED | The orchestrator session died. On the next session, resume from the phase file plus disk state |
 
 ## Scheduling
@@ -152,7 +152,7 @@ The line that settles borderline rows: **a question the user must answer** belon
 
 ### Delegating the re-run
 
-Step 2 is the largest recurring cost on the planner and it needs the least of the planner's context — a phase file and a shell. Where the chain is long or the budget is tight, spawn `zforge:acceptance-agent` with the phase file path and adjudicate the table it returns.
+Step 2 is the largest recurring cost on the planner and it needs the least of the planner's context — a phase file and a shell. Where the chain is long or the budget is tight, delegate to the specialized acceptance role: in Codex, instruct a subagent to use `$zforge:acceptance-agent`; in Claude Code, use the plugin's `zforge:acceptance-agent` agent type. Adjudicate the table it returns.
 
 Steps 3 through 7 stay with the planner. Judging whether an achieved class is good enough, writing `## Acceptance`, and deciding what gets promoted are the parts that need the run.
 
@@ -165,6 +165,6 @@ On completion:
 1. Final status for all phases in `05_progress_overview.md`.
 2. Fill the current session's row in `session_log.md` — phases touched, summary, and any usage-limit interruptions.
 3. Report to the user: phases completed, evidence classes achieved against those planned, open 🟡 decisions awaiting review, and any flag that had to be carried.
-4. Suggest `/zforge:review --feature {name}` to check the implementation against the ledger.
+4. Suggest `$zforge:review` for feature `{name}` to check the implementation against the ledger.
 
 If flags remain open, say so plainly and name them. A feature with an open flag is not finished; it is finished-except-for-a-named-gap, and the difference is the entire point of tracking them.

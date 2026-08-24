@@ -16,7 +16,7 @@ docs/{feature_name}/
 ├── 05_progress/
 │   ├── 05_01_{phase_name}.md      # Phase 1
 │   ├── 05_XX_{phase_name}.md      # Additional phases
-│   └── review.md                  # /zforge:review findings
+│   └── review.md                  # zforge review findings
 ├── {NN}_{named_for_what_it_is}.md # Core patterns, UI flows, infra reference — registered in the Doc Map
 ├── 03_integration_summary.md      # API types → frontend mapping (when the plan spans both)
 ├── 04_integration_plan.md         # Frontend integration steps
@@ -26,7 +26,7 @@ docs/{feature_name}/
 ├── 10_refactor_spec.md            # [Refactoring] Requirements, goals, scope
 ├── 11_refactor_context.md         # [Refactoring] Current-state audit
 ├── 12_refactor_plan.md            # [Refactoring] Migration steps
-├── .zforge-retro/{session_id}.md  # Plugin eval artifacts (only if /zforge:retro is invoked)
+├── .zforge-retro/{session_id}.md  # Plugin eval artifacts (only if zforge retro is invoked)
 └── _archive/{name}__{date}.md     # Superseded docs
 ```
 
@@ -34,11 +34,11 @@ Documents outside the fixed `00`–`02` and `05` set take the next free number a
 
 ## Creation timeline
 
-**By `/plan`:** `00`, `01`, `02`, `discussion.md`, `decision_review.md`, `session_log.md`, `05_progress_overview.md`, one `05_progress/05_XX_*.md` per phase.
+**By the zforge plan workflow:** `00`, `01`, `02`, `discussion.md`, `decision_review.md`, `session_log.md`, `05_progress_overview.md`, one `05_progress/05_XX_*.md` per phase.
 
-`/plan` writes each of these as its contract group fills, so a blocked item stops the tree at a group boundary rather than blocking everything.
+The plan workflow writes each of these as its contract group fills, so a blocked item stops the tree at a group boundary rather than blocking everything.
 
-**During implementation, when needed:** the core patterns doc (before the first phase that depends on it — usually written at plan time), `03`/`04` when frontend work begins, `05_progress/review.md` when `/zforge:review` runs, `06` at completion, `08` and `09` as config and gotchas emerge.
+**During implementation, when needed:** the core patterns doc (before the first phase that depends on it — usually written at plan time), `03`/`04` when frontend work begins, `05_progress/review.md` when the zforge review runs, `06` at completion, `08` and `09` as config and gotchas emerge.
 
 ## Ownership matrix
 
@@ -52,10 +52,10 @@ Documents outside the fixed `00`–`02` and `05` set take the next free number a
 | `05_progress_overview.md` | All | **Planner only** | Prevents contested writes |
 | `05_XX_*.md` | Assigned agent | Assigned agent | One agent per file |
 | `05_XX_*.md` → `## Acceptance` | All | **Planner only** | The agent's file, the planner's section |
-| `05_progress/review.md` | All | /zforge:review | Findings citing both document and code |
+| `05_progress/review.md` | All | zforge review | Findings citing both document and code |
 | `session_log.md` | All | Planner | Includes how each session ended |
 | `06`, `08`, `09` | All | Planner | Extracted from phase findings |
-| `.zforge-retro/*.md` | All | /zforge:retro | Created on demand |
+| `.zforge-retro/*.md` | All | zforge retro | Created on demand |
 
 ## Phase file sections
 
@@ -100,7 +100,7 @@ Read from the phase file's `> Status:` header:
 
 `REPORTED` — an agent has reported DONE and the planner has not re-run the evidence — is the state acceptance runs in. Its recovery rule is its own: **re-run the evidence, do not resume the agent.** The work is on disk; only the verification is missing.
 
-`INTERRUPTED` — an agent killed mid-phase by a usage limit, API error or session end — is resumed via `SendMessage` with a mandatory re-orientation against disk, never re-spawned. `COMPLETED` is only reached through acceptance.
+`INTERRUPTED` — an agent killed mid-phase by a usage limit, API error or session end — resumes in the same reachable subagent thread with a mandatory re-orientation against disk, never re-spawned while that thread remains available. `COMPLETED` is only reached through acceptance.
 
 ## Naming
 
@@ -125,6 +125,6 @@ Read from the phase file's `> Status:` header:
 | Step completed | own `05_XX_*.md` | Agent |
 | Evidence fell short of its class | phase `## Open Items` → overview Standing Flags | Agent, then planner |
 | Phase accepted | `## Acceptance` + `05_progress_overview.md` | Planner |
-| Ledger contradicted by code | `05_progress/review.md` | /zforge:review |
+| Ledger contradicted by code | `05_progress/review.md` | zforge review |
 | Feature deferred | `06_post_deployment.md` | Planner |
 | Doc superseded | `_archive/` | Planner |

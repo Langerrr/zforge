@@ -1,21 +1,21 @@
 # zforge
 
-The durable state, contract and evidence layer for multi-session feature work in Claude Code.
+The durable state, contract and evidence layer for multi-session feature work in Claude Code and Codex.
 
-zforge carries what must be true before a phase closes, what evidence proves it, what was decided along the way, and what is still open. It does not carry methodology — discovery belongs to `superpowers:brainstorming`, test discipline to `superpowers:test-driven-development`, debugging rigour to `superpowers:systematic-debugging` and `ce:debug`, general code review to `/code-review` and `ce:review`. zforge names those where they apply and owns none of them.
+zforge carries what must be true before a phase closes, what evidence proves it, what was decided along the way, and what is still open. It does not carry methodology — discovery belongs to `superpowers:brainstorming`, test discipline to `superpowers:test-driven-development`, debugging rigour to `superpowers:systematic-debugging` and `compound-engineering:ce-debug`, and general code review to the host's code review plus `compound-engineering:ce-review`. zforge names those where they apply and owns none of them.
 
-## Commands
+## Workflows
 
-| Command | Description |
-|---------|-------------|
-| `/zforge:plan <name> [--spec file] [--kind ...]` | Resolve a completeness contract, then write the artifact tree |
-| `/zforge:feature-orchestrate <name>` | Autonomous multi-phase execution with evidence-based acceptance |
-| `/zforge:feature-resume <name>` | Interactive implementation with check-ins between phases |
-| `/zforge:review --feature <name>` | Check the implementation against the feature's own ledger |
-| `/zforge:debug` | Route a concrete failure through the right debugging methodology |
-| `/zforge:track <name>` | Progress, standing flags, and decisions awaiting review |
-| `/zforge:plan-status` | Feature status across the workspace |
-| `/zforge:retro <name>` | Score zforge's own performance on a completed feature |
+| Workflow | Claude Code | Codex | Description |
+|----------|-------------|-------|-------------|
+| Plan | `/zforge:plan <name> [--spec file] [--kind ...]` | `$zforge:plan` or “Use zforge to plan…” | Resolve a completeness contract, then write the artifact tree |
+| Orchestrate | `/zforge:feature-orchestrate <name>` | `$zforge:feature-orchestrate` | Autonomous multi-phase execution with evidence-based acceptance |
+| Resume | `/zforge:feature-resume <name>` | `$zforge:feature-resume` | Interactive implementation with check-ins between phases |
+| Review | `/zforge:review --feature <name>` | `$zforge:review` | Check the implementation against the feature's own ledger |
+| Debug | `/zforge:debug` | `$zforge:debug` | Route a concrete failure through the right debugging methodology |
+| Track | `/zforge:track <name>` | `$zforge:track` | Progress, standing flags, and decisions awaiting review |
+| Status | `/zforge:plan-status` | `$zforge:plan-status` | Feature status across the workspace |
+| Retro | `/zforge:retro <name>` | `$zforge:retro` | Score zforge's own performance on a completed feature |
 
 ## How it works
 
@@ -71,17 +71,38 @@ A phase that genuinely only needs unit tests declares E1, closes on a one-line r
 | `feature-execution` | Phase state, spawning, recovery, scheduling, acceptance |
 | `async-reasoning` | Designing state layers over async data flows |
 | `retro` | Scoring zforge's own workflow performance |
+| `plan`, `feature-orchestrate`, `feature-resume` | Codex-native planning and implementation entry points |
+| `review`, `track`, `plan-status`, `debug` | Codex-native review, reporting, and debugging entry points |
+| `phase-agent`, `acceptance-agent` | Specialized instructions loaded by Codex subagents |
 
-## Agents
+## Specialized agents
 
 | Agent | Purpose |
 |-------|---------|
 | `zforge:phase-agent` | Implements one phase from its phase file, records decisions and evidence, stops cleanly on budget |
 | `zforge:acceptance-agent` | Re-runs a phase's evidence in a clean shell and returns an achieved-class table. Fixes nothing, accepts nothing |
 
+Claude Code loads these from `agents/`. Codex loads the corresponding skills in `skills/` when the orchestration workflow delegates a phase or an acceptance check.
+
 ## Installation
+
+### Claude Code
 
 ```bash
 git clone https://github.com/Langerrr/zforge.git
 claude --plugin-dir ./zforge
 ```
+
+### Codex
+
+The repository includes `.codex-plugin/plugin.json` and a local marketplace definition. Add the repository as a marketplace, install the plugin, then start a new Codex thread so the skills are discovered:
+
+```bash
+git clone https://github.com/Langerrr/zforge.git
+codex plugin marketplace add /absolute/path/to/zforge
+codex plugin add zforge@zforge-local
+```
+
+In the Codex app, select `@zforge`; in the CLI or a prompt, invoke a workflow explicitly (for example `$zforge:feature-resume`) or ask naturally: “Use zforge to resume implementation of `<feature>`.”
+
+`superpowers` and `compound-engineering` remain complementary dependencies for discovery, test discipline, debugging, and general review. Install their Codex-compatible plugins when you want those routed workflows available; zforge itself continues to own only durable state, contracts, evidence, and phase execution.

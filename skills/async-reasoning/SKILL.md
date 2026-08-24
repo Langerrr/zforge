@@ -1,5 +1,5 @@
 ---
-name: Async State Reasoning
+name: async-reasoning
 description: This skill should be used when implementing or designing code with async data flows — "state management design", "async data flow", "stale data", "cache invalidation", "optimistic update", "init order", "race condition", "write then read", "data not updating", "cache not refreshing", "UI shows old data after save", "value doesn't update", "empty data on first load". Also applicable when working with caching layers, event-driven systems, or any code where write and read paths have different latencies. Covers frontend, backend, and infrastructure.
 ---
 
@@ -85,7 +85,7 @@ See `references/patterns.md` for detailed pattern descriptions.
 
 ## Integration with Planning
 
-During `/plan` Phase 3 (Architecture Design), apply steps 1-4 to each async data source identified. Capture the decisions in the plan's state management section. Without explicit decisions at planning time, these become ad-hoc implementation choices that produce bugs.
+During the zforge plan workflow, apply steps 1-4 to each async data source identified. Capture the decisions in the plan's state management section. Without explicit decisions at planning time, these become ad-hoc implementation choices that produce bugs.
 
 ## Integration with Implementation
 
