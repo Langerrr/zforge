@@ -11,11 +11,11 @@ Not for open-ended exploration ("this feels wrong"). That is `$compound-engineer
 
 ## Sequence
 
-**1. `$superpowers:systematic-debugging` — always start here.**
-Investigation discipline before any fix. This is the one step that is never skipped, including when the cause seems obvious. Especially then.
+**1. `$superpowers:systematic-debugging` — start here when installed.**
+Investigation discipline comes before any fix, including when the cause seems obvious. When Superpowers is unavailable, use the host's equivalent systematic-debugging workflow; do not skip the investigation step.
 
-**2. `$compound-engineering:ce-debug` — reproduce, trace, predict.**
-Its hypothesis-and-prediction gate goes *before* any code change: state what you believe is wrong and what you expect to see if you are right, then check. A fix applied without a failed prediction is a guess that happened to be typed confidently.
+**2. `$compound-engineering:ce-debug` — add when installed.**
+Its hypothesis-and-prediction gate goes *before* any code change: state what you believe is wrong and what you expect to see if you are right, then check. Without Compound Engineering, apply that same hypothesis-and-prediction gate directly. A fix applied without a failed prediction is a guess that happened to be typed confidently.
 
 **3. `$zforge:async-reasoning` — add when the failure involves timing.**
 Async state, race conditions, cache invalidation, init order, stale reads, write-then-read gaps within one component.

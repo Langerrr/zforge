@@ -54,12 +54,12 @@ Documents beyond this set are named for what they are, numbered in whatever slot
 
 ## Scaling
 
-| Task | Commands | Overhead |
-|------|----------|----------|
-| Bug fix | `/zforge:debug` | No files |
-| Small feature | `/zforge:plan` + implement | `00`, `01`, `02` |
-| Medium feature | `/zforge:plan` → `/zforge:feature-resume` → `/zforge:review` | Full core set |
-| Large feature | `/zforge:plan` → `/zforge:feature-orchestrate` → `/zforge:review` | Core set + per-phase evidence |
+| Task | Claude Code | Codex | Overhead |
+|------|-------------|-------|----------|
+| Bug fix | `/zforge:debug` | `$zforge:debug` | No files |
+| Small feature | `/zforge:plan` + implement | `$zforge:plan` + implement | `00`, `01`, `02` |
+| Medium feature | `/zforge:plan` → `/zforge:feature-resume` → `/zforge:review` | `$zforge:plan` → `$zforge:feature-resume` → `$zforge:review` | Full core set |
+| Large feature | `/zforge:plan` → `/zforge:feature-orchestrate` → `/zforge:review` | `$zforge:plan` → `$zforge:feature-orchestrate` → `$zforge:review` | Core set + per-phase evidence |
 
 A phase that genuinely only needs unit tests declares E1, closes on a one-line re-run, and gets no ceremony. The matrix is what lets cheap phases stay cheap.
 

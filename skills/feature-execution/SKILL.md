@@ -108,7 +108,7 @@ Record usage-limit deaths distinctly in `session_log.md`. They are a budgeting s
 **Sequential is the default.** Parallelize only when all three hold:
 
 1. **Dependencies allow it** — the plan's dependency edges are disjoint.
-2. **Collision surfaces are disjoint** — generated files, route trees, lockfiles, package installs, migrations. Two agents regenerating the same file will silently clobber each other. Where surfaces overlap and parallelism is still wanted, use `isolation: "worktree"` and accept the merge-and-re-verify cost.
+2. **Collision surfaces are disjoint** — generated files, route trees, lockfiles, package installs, migrations. Two agents regenerating the same file will silently clobber each other. Where surfaces overlap, keep the phases serial unless the planner explicitly provisions separate Git worktrees before spawning; after merging isolated results, re-run the combined evidence.
 3. **The token budget supports it** — concurrent long-running agents drain one shared budget, and each concurrent agent multiplies the odds of a mid-phase usage-limit death. After any INTERRUPTED phase in this run, treat the budget as constrained.
 
 Dependency edges say what *can* run in parallel. These three say what *should*. When parallelizing, state the reason in `session_log.md`.

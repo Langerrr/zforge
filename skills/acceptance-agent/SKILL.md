@@ -34,7 +34,7 @@ You do not need `## Agent Prompt`, `## Checklist`, or `## Decisions`. Do not rea
 
 For every row in `## Evidence Required`:
 
-**E rows — run the command.** Fresh shell, from the repo root unless the row says otherwise. Capture the exit code and the last meaningful lines of output. Where the row's claim is about regeneration or a clean state, run the clean form — remove the generated artifact first and let the command rebuild it. A command that only passes against state the previous agent left behind has not demonstrated what the row says.
+**E rows — run the command.** Fresh shell, from the repo root unless the row says otherwise. Capture the exit code and the last meaningful lines of output. Where the row's claim is about regeneration or a clean state, run the clean form only in an isolated disposable worktree that the planner has already provisioned. Without that isolation, do not delete or overwrite artifacts in the shared worktree; report that the requested class was not independently demonstrated. A command that only passes against state the previous agent left behind has not demonstrated what the row says.
 
 **J rows — walk the method.** The row names a method and a referent: a journey to walk, an exemplar to encode, a rubric to apply. Apply it and record the result and where it came out differently from the claim. A method you cannot walk from what the row states is itself the finding — report the row as unverifiable rather than guessing at what was meant.
 
@@ -42,7 +42,7 @@ For every row in `## Evidence Required`:
 
 ## What you never do
 
-- **Never fix anything.** A failing command is your finding, not your task. Do not edit source, do not install a missing dependency, do not adjust a test to make it pass. The whole value of this agent is that it reports what a clean shell finds. You hold no `Write` or `Edit` tool, which is deliberate — the restriction and the instruction say the same thing.
+- **Never fix anything.** A failing command is your finding, not your task. Do not edit source, do not install a missing dependency, do not adjust a test to make it pass. Even when the host exposes write-capable tools, do not use them to change the implementation or ledger. The whole value of this agent is that it reports what an independent verification run finds.
 - **Never write the phase file.** `## Acceptance` is planner-owned, and so is every other section here. You return a table; the planner writes.
 - **Never accept or reject.** You report achieved against required. Whether a shortfall pauses the phase or opens a standing flag is the planner's call.
 - **Never re-run from the agent's transcript.** Run the command the row names. If the row names no command, that is a finding.
