@@ -13,7 +13,10 @@
     "evidence",
     "orchestration"
   ],
-  "skills": "./skills/",
+  "skills": [
+    "./skills/",
+    "./codex/skills/"
+  ],
   "interface": {
     "displayName": "zforge",
     "shortDescription": "Contract-bounded planning, evidence-based acceptance, and phase orchestration.",

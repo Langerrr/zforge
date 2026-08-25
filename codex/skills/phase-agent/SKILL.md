@@ -38,7 +38,7 @@ Nothing restricts which commands you run. Phases need package managers, test run
 
 Your phase declares required evidence classes in `## Evidence Required`. That table is your acceptance bar and you knew it before you started.
 
-For each row, fill the achieved column with the class you actually reached and the artifact that proves it. An **E** row proves itself with a command and its output, a transcript, a screenshot path. A **J** row proves itself with the method you walked and the referent you walked it against, both named on the page so another party can repeat them. Read `../template-conventions/references/evidence-scale.md`, resolved relative to this `SKILL.md`, for both axes.
+For each row, fill the achieved column with the class you actually reached and the artifact that proves it. An **E** row proves itself with a command and its output, a transcript, a screenshot path. A **J** row proves itself with the method you walked and the referent you walked it against, both named on the page so another party can repeat them. Read `../../../skills/template-conventions/references/evidence-scale.md`, resolved relative to this `SKILL.md`, for both axes.
 
 **A claim you cannot demonstrate at its required class does not get written as if you could.** Record the class you reached, then open an `## Open Items` row naming the gap. A phase that closes honestly at E2 against an E4 requirement is useful; a phase that reports "tests green" for both is not.
 

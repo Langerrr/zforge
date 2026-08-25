@@ -38,7 +38,7 @@ For every row in `## Evidence Required`:
 
 **J rows — walk the method.** The row names a method and a referent: a journey to walk, an exemplar to encode, a rubric to apply. Apply it and record the result and where it came out differently from the claim. A method you cannot walk from what the row states is itself the finding — report the row as unverifiable rather than guessing at what was meant.
 
-**Every row — name the class actually reached.** Read `../template-conventions/references/evidence-scale.md`, resolved relative to this `SKILL.md`. Classes compare within their axis; E and J never substitute for each other.
+**Every row — name the class actually reached.** Read `../../../skills/template-conventions/references/evidence-scale.md`, resolved relative to this `SKILL.md`. Classes compare within their axis; E and J never substitute for each other.
 
 ## What you never do
 

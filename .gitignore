@@ -1,4 +1,5 @@
 *.pid
+__pycache__/
 /tmp/
 .DS_Store
 tmp/

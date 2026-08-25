@@ -75,6 +75,8 @@ A phase that genuinely only needs unit tests declares E1, closes on a one-line r
 | `review`, `track`, `plan-status`, `debug` | Codex-native review, reporting, and debugging entry points |
 | `phase-agent`, `acceptance-agent` | Specialized instructions loaded by Codex subagents |
 
+The four shared skills remain under `skills/`, where both hosts can load them. Codex-only workflow and subagent skills live under `codex/skills/`; the Codex manifest loads both roots, while Claude Code's default scan sees only the shared root. This local multi-root layout is tested with Codex CLI 0.149.1. Public Codex package assembly is deferred and recorded in [docs/public-codex-packaging.md](docs/public-codex-packaging.md).
+
 ## Specialized agents
 
 | Agent | Purpose |
@@ -82,7 +84,7 @@ A phase that genuinely only needs unit tests declares E1, closes on a one-line r
 | `zforge:phase-agent` | Implements one phase from its phase file, records decisions and evidence, stops cleanly on budget |
 | `zforge:acceptance-agent` | Re-runs a phase's evidence in a clean shell and returns an achieved-class table. Fixes nothing, accepts nothing |
 
-Claude Code loads these from `agents/`. Codex loads the corresponding skills in `skills/` when the orchestration workflow delegates a phase or an acceptance check.
+Claude Code loads these from `agents/`. Codex loads the corresponding skills from `codex/skills/` when the orchestration workflow delegates a phase or an acceptance check.
 
 ## Installation
 

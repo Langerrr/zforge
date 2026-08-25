@@ -113,7 +113,7 @@ Each group gates one artifact. Write each as its group fills.
 | C | `02_plan.md` | `implementation` |
 | D | `05_progress_overview.md`, `05_progress/05_XX_*.md` | `implementation` |
 
-Every file is created from the plugin templates at `../../templates/`, resolved relative to this `SKILL.md`; phase files come from `../../templates/05_progress/05_XX_phase_template.md`.
+Every file is created from the plugin templates at `../../../templates/`, resolved relative to this `SKILL.md`; phase files come from `../../../templates/05_progress/05_XX_phase_template.md`.
 
 `discussion.md` and `session_log.md` are created at the start and appended throughout, under either kind. `decision_review.md` is created with the tree under `implementation`; under `requirements` it is created only if the session makes a run-level call worth recording in §A, since §C has no phases to promote from.
 

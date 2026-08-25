@@ -17,8 +17,8 @@ Load `$zforge:feature-execution`. It owns phase state, the spawn contract, recov
 
 1. Convert the feature name to snake_case and resolve `docs/{feature_name}/`. If the directory is missing, report it and suggest `$zforge:plan`.
 2. Read `05_progress_overview.md`, `01_context.md`, `02_plan.md`, and the Doc Map in `01_context.md` for anything else binding.
-3. Read `decision_review.md`. If it does not exist, create it from `../../templates/decision_review.md`, resolved relative to this `SKILL.md`.
-4. Read `session_log.md`, creating it from `../../templates/session_log.md`, resolved relative to this `SKILL.md`, if absent, and append a row for this session.
+3. Read `decision_review.md`. If it does not exist, create it from `../../../templates/decision_review.md`, resolved relative to this `SKILL.md`.
+4. Read `session_log.md`, creating it from `../../../templates/session_log.md`, resolved relative to this `SKILL.md`, if absent, and append a row for this session.
 5. Note any open standing flags in the overview. A flag opened by an earlier session is inherited by this one.
 
 ## Codex goal bridge
