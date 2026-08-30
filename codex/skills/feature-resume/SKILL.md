@@ -34,16 +34,16 @@ The planner implements directly rather than spawning. The phase file's contract 
 - Read the phase file and everything in its `## Required Context` before starting.
 - Work the checklist, marking items as they complete.
 - Record decisions in `## Decisions` as they are made — including the ones settled with the user in conversation, which are otherwise lost when the session ends.
-- Fill the `## Evidence Required` table's achieved column with the class actually reached and the artifact that proves it — the command and its output for an **E** row, the method walked and the referent it was walked against for a **J** row.
+- Fill each `## Evidence Required` row **when its command runs, from the artifact that command wrote** — the command's captured output for an **E** row, the method walked and the referent it was walked against for a **J** row. Name artifacts per run, so a re-run does not overwrite the file an earlier row quotes. Writing rows at the end of the phase, from what the console said, is what makes a correct implementation fail its own acceptance.
 - Keep `## Files Created/Modified` current.
 
 The pause triggers still apply. In this mode a trigger is a conversation rather than a stop — raise it, settle it with the user, record it.
 
 ## Between phases
 
-Accept the phase per the skill's acceptance procedure: re-run the evidence commands and re-walk the named methods, compare achieved against required within each axis, write `## Acceptance`, promote the decisions that reach beyond this feature's implementation, roll up any unmet class as a standing flag.
+Accept the phase per the skill's acceptance procedure: reconcile every row against its artifact, re-execute the rows a trigger selects, compare achieved against required within each axis, settle each shortfall by materiality, write `## Acceptance`, promote the decisions that reach beyond this feature's implementation and the harness facts to `07_harness_conventions.md`, and roll up any material unmet class as a standing flag.
 
-Implementing and accepting in the same context is what this mode trades away: you are re-running commands you just wrote. Run them from a clean state where the row's claim depends on one — a removed build directory, a fresh database — so the check is of the code and not of what the session left lying around.
+Implementing and accepting in the same context is what this mode trades away: you are checking work you just did, and the tier-1 reconciliation is the part that survives that. Reconcile every figure against the artifact rather than against your memory of running the command — the memory and the artifact are the two things this mode cannot keep independent, and only one of them is on disk. Where a row's claim depends on a clean state, run it from one — a removed build directory, a fresh database — so the check is of the code and not of what the session left lying around.
 
 Then ask the user: continue to the next phase, run `$zforge:review` for feature `{name}`, or stop.
 

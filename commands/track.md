@@ -49,7 +49,9 @@ Phase  Name                 Status      Checklist  Evidence      Last Activity
 - Phase 2 · question · migration ordering under concurrent writes — unresolved
 ```
 
-The **Evidence** column reads *achieved / required*, and classes compare within their axis — an `E` row and a `J` row are not ranked against each other. A phase showing `— / E4` has not yet demonstrated the class its plan asked for; a completed phase showing anything below its requirement should have a standing flag against it, and if it does not, say so.
+The **Evidence** column reads *achieved / required*, and classes compare within their axis — an `E` row and a `J` row are not ranked against each other. A phase showing `— / E4` has not yet demonstrated the class its plan asked for.
+
+A completed phase showing anything below its requirement resolved that gap one of two ways: a standing flag against it, or reasoning in its `## Acceptance` for why the shortfall was immaterial. Either is an answer. **A shortfall with neither is the finding** — say so, and name the row.
 
 **A REPORTED phase's achieved class is a claim, not a result.** Mark it as unverified rather than counting it, because nobody has re-run it yet.
 

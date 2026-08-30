@@ -66,5 +66,65 @@ class PluginSurfaceTests(unittest.TestCase):
         self.assertEqual(unresolved, [])
 
 
+    def test_template_paths_named_by_workflows_resolve(self) -> None:
+        """A workflow loading a template by path fails at run time if it is absent.
+
+        Scoped to explicit ``templates/`` paths. Bare ``NN_name.md`` mentions are
+        not checked: documents outside the fixed set are named for what they are
+        and have no template, so ``03_core_patterns.md`` appears as an example of
+        the naming convention rather than as a file to load.
+        """
+        pattern = re.compile(r"(?:\$\{CLAUDE_PLUGIN_ROOT\}/)?(templates/[\w/.-]+\.md)")
+        missing: list[str] = []
+        for doc in sorted(REPO_ROOT.rglob("*.md")):
+            if {"tmp", "_archive", ".git"} & set(doc.parts):
+                continue
+            for relative in pattern.findall(doc.read_text()):
+                if not (REPO_ROOT / relative).exists():
+                    missing.append(f"{doc.relative_to(REPO_ROOT)} -> {relative}")
+        self.assertEqual(missing, [])
+
+    def test_harness_conventions_template_exists(self) -> None:
+        """Acceptance and both orchestrators read this file; it must be creatable."""
+        self.assertTrue(
+            (REPO_ROOT / "templates" / "07_harness_conventions.md").is_file()
+        )
+
+    def test_acceptance_contract_stated_on_both_hosts(self) -> None:
+        """The Claude agent and the Codex skill state one acceptance contract.
+
+        Two copies of a contract drift, and a phase accepted under one bar and
+        reviewed under the other is the failure this guards.
+        """
+        claude = (REPO_ROOT / "agents" / "acceptance-agent.md").read_text()
+        codex = (
+            REPO_ROOT / "codex" / "skills" / "acceptance-agent" / "SKILL.md"
+        ).read_text()
+
+        for clause in (
+            "## Tier 1 — reconcile every row",
+            "## Tier 2 — re-execute what a trigger selects",
+            "SHORTFALL-MATERIAL",
+            "SHORTFALL-IMMATERIAL",
+            "Never accept or reject unilaterally",
+            "07_harness_conventions.md",
+        ):
+            self.assertIn(clause, claude, f"missing from Claude agent: {clause}")
+            self.assertIn(clause, codex, f"missing from Codex skill: {clause}")
+
+    def test_evidence_floor_is_stated_wherever_shortfalls_are_settled(self) -> None:
+        """Every surface that settles a shortfall names the two unwaivable ones."""
+        for relative in (
+            "agents/acceptance-agent.md",
+            "codex/skills/acceptance-agent/SKILL.md",
+            "skills/feature-execution/SKILL.md",
+            "skills/template-conventions/references/evidence-scale.md",
+        ):
+            text = (REPO_ROOT / relative).read_text()
+            self.assertIn("selected nothing and exited 0", text, relative)
+            self.assertIn("user-reachable surface", text, relative)
+
+
+
 if __name__ == "__main__":
     unittest.main()

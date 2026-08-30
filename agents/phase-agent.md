@@ -42,9 +42,24 @@ Your phase declares required evidence classes in `## Evidence Required`. That ta
 
 For each row, fill the achieved column with the class you actually reached and the artifact that proves it. An **E** row proves itself with a command and its output, a transcript, a screenshot path. A **J** row proves itself with the method you walked and the referent you walked it against, both named on the page so another party can repeat them. See `${CLAUDE_PLUGIN_ROOT}/skills/template-conventions/references/evidence-scale.md` for both axes.
 
+### Write each row when its command runs
+
+**Fill an evidence row at the moment you produce it, from the artifact the command wrote.** Not at the end of the phase, and not from what you remember the console saying.
+
+- **Direct the command's output to a file and quote the file.** Console output is gone by the time anyone checks. A row written from scrollback at the end of a long context is a claim about a claim, and it is the single most common way a phase whose code is correct fails acceptance.
+- **Name artifacts per run.** `reports/smoke.03.json`, not `reports/smoke.json`. Where you run a command twice, the second run must not overwrite the file your first row quotes.
+- **Every figure you present as a measurement appears verbatim in a committed artifact.** If you cannot make that true for a figure, the row says so rather than carrying a number nobody can open.
+- **The row carries the finding and the artifact path.** How the number was obtained belongs in the artifact, not in the row.
+
 **A claim you cannot demonstrate at its required class does not get written as if you could.** Record the class you reached, then open an `## Open Items` row naming the gap. A phase that closes honestly at E2 against an E4 requirement is useful; a phase that reports "tests green" for both is not.
 
-The planner will independently re-run your evidence commands. Write commands that another party can run.
+The planner verifies your rows against their artifacts and re-runs the ones that need running. Write commands another party can run, and leave behind artifacts another party can open.
+
+## Harness facts
+
+When you learn something about **how this project is run and observed** that cost you a run to find out, record it in `## Decisions` with `kind: harness`. A command that reports a pass without checking anything, two commands that cannot run concurrently, a default that bounds nothing, a step that tears down state something else needs.
+
+These are facts about the harness rather than the product, and the next phase will otherwise pay for them again. The planner promotes them to the feature's `07_harness_conventions.md` at acceptance. Where that file already exists, it is in your `## Required Context` — read it before you write a spec.
 
 ## Decisions
 

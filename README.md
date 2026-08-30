@@ -25,7 +25,11 @@ zforge carries what must be true before a phase closes, what evidence proves it,
 
 **Phases declare their acceptance bar before they run.** `02_plan.md` carries a Verification Matrix on two axes: **E0–E4** for what will be executed, **J0–J2** for what will be judged — a claim no test runner settles, checked by a stated method against a named referent. A column that is empty across every phase with a user-facing surface is a hole you can see at planning time rather than after the last phase.
 
-**Acceptance means re-running the commands.** An agent's green report is a claim; the planner independently re-runs the phase's evidence commands, re-walks its judgement methods, and compares achieved against required. Where it falls short, a standing flag opens with a stated *closes when*, and the feature is not complete while any flag is open. On a long chain the re-run is delegated to `zforge:acceptance-agent`, because it needs a phase file and a shell rather than the run's accumulated context.
+**Acceptance checks the artifacts the work left behind.** An agent's green report is a claim. Every evidence row is first reconciled against the artifact it names: does that artifact exist, does every figure appear in it verbatim, did the command select anything at all. Rows are then re-executed where a trigger fires — an E3 or E4 claim, a failed reconciliation, a row the agent flagged, anything whose failure would need human attention. The rest close against their artifacts, and each row records which check it got.
+
+**Evidence rows are written when their commands run**, from the artifact each command wrote, with artifacts named per run. A row written from console scrollback at the end of a long context is the most common way a correct implementation fails its own acceptance.
+
+**A shortfall is settled by whether it matters.** Where achieved falls below required, a material gap opens a standing flag with a stated *closes when* and the feature is not complete while any flag is open; an immaterial one is accepted with the reasoning recorded. Two shortfalls are never immaterial: a command that selected nothing and exited 0, and a user-reachable surface nothing reached. The achieved class is recorded as reached either way. On a long chain the verification is delegated to `zforge:acceptance-agent`, which returns a per-row verdict and a recommendation — it needs a phase file and a shell rather than the run's accumulated context.
 
 **Decisions do not block, and only the load-bearing ones surface.** Agents decide, record, and keep moving. At acceptance the planner promotes to `decision_review.md` only the decisions reaching beyond the feature's implementation — the rest stay in their phase file. The ledger is a queue you drain, not an index of everything decided. Blocking is reserved for five named pause triggers.
 
@@ -107,9 +111,21 @@ codex plugin add zforge@zforge-local
 
 In the Codex app, select `@zforge`; in the CLI or a prompt, invoke a workflow explicitly (for example `$zforge:feature-resume`) or ask naturally: “Use zforge to resume implementation of `<feature>`.”
 
-### Codex goals
+### Goals
 
-For a long autonomous run, make `/goal` the outer objective and invoke the Codex orchestration skill inside it:
+A run's phase files record what happened. What is still **owed** lives only in the planner's context, and that is what a planner death takes with it. A harness-held completion condition puts it somewhere else, so the planner can die cheaply: `--resume` restores the goal, the phase files restore the state.
+
+In Claude Code:
+
+```text
+/goal Execute feature `payments_v2` with /zforge:feature-orchestrate.
+Continue until every phase in docs/payments_v2/05_progress/ is COMPLETED
+and no standing flag remains open in 05_progress_overview.md.
+```
+
+The condition is the feature rather than a phase — one goal is active at a time, so a per-phase condition is replaced at every phase — and it names zforge's own bar, so the harness check and the phase files agree about what finished means. zforge never sets or replaces a goal on its own.
+
+For a long autonomous run in Codex, make `/goal` the outer objective and invoke the orchestration skill inside it:
 
 ```text
 /goal Use $zforge:feature-orchestrate to execute feature `payments_v2`.

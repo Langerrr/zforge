@@ -96,7 +96,7 @@ A6 does not surface on its own. These questions arrive from writing the behaviou
 |---|------|-------------|---------|
 | C1 | Concern split | Single-concern, or multi-concern with split-or-combined chosen | Propose from scope; confirm, because it changes the artifact layout |
 | C2 | Decomposition | Every phase has a boundary; dependency edges and collision surfaces stated as data | Propose |
-| C3 | Verification Matrix | Every phase declares a value in every class column on both axes, gaps included | Propose from what each phase touches. A phase carrying a claim no test runner settles declares a **J** class and names the method; never default either axis silently |
+| C3 | Verification Matrix | Every phase declares a value in every class column on both axes, gaps included | Propose from what each phase touches. A phase carrying a claim no test runner settles declares a **J** class and names the method; never default either axis silently. Where `07_harness_conventions.md` exists, read it first — a matrix that assumes two commands are independent when the harness says otherwise declares a class the run cannot deliver |
 | C4 | Environment assumptions | Each missing dependency mapped to a substitution and what it defers | Derived from B3 |
 | C5 | Invariants *(if any span phases)* | Each has an owner phase and a re-check phase | Propose |
 | C6 | Async state design *(if async data flows)* | Data-flow map, init order, concurrent timeline trace, persistence boundaries | Propose. This is design work, not a question |

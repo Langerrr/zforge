@@ -21,6 +21,7 @@ docs/{feature_name}/
 ├── 03_integration_summary.md      # API types → frontend mapping (when the plan spans both)
 ├── 04_integration_plan.md         # Frontend integration steps
 ├── 06_post_deployment.md          # Smoke checks, deferred items, rollback
+├── 07_harness_conventions.md      # How the project is run and observed (planner writes, phases read)
 ├── 08_configuration.md            # Env vars, feature flags, external services
 ├── 09_troubleshooting.md          # Issues, solutions, debug commands
 ├── 10_refactor_spec.md            # [Refactoring] Requirements, goals, scope
@@ -38,7 +39,7 @@ Documents outside the fixed `00`–`02` and `05` set take the next free number a
 
 The plan workflow writes each of these as its contract group fills, so a blocked item stops the tree at a group boundary rather than blocking everything.
 
-**During implementation, when needed:** the core patterns doc (before the first phase that depends on it — usually written at plan time), `03`/`04` when frontend work begins, `05_progress/review.md` when the zforge review runs, `06` at completion, `08` and `09` as config and gotchas emerge.
+**During implementation, when needed:** the core patterns doc (before the first phase that depends on it — usually written at plan time), `03`/`04` when frontend work begins, `05_progress/review.md` when the zforge review runs, `06` at completion, `07` at the first acceptance that promotes a harness fact, `08` and `09` as config and gotchas emerge.
 
 ## Ownership matrix
 
@@ -55,6 +56,7 @@ The plan workflow writes each of these as its contract group fills, so a blocked
 | `05_progress/review.md` | All | zforge review | Findings citing both document and code |
 | `session_log.md` | All | Planner | Includes how each session ended |
 | `06`, `08`, `09` | All | Planner | Extracted from phase findings |
+| `07_harness_conventions.md` | All | Planner | Promoted from phase `kind: harness` decisions; graduated to the project doc at completion |
 | `.zforge-retro/*.md` | All | zforge retro | Created on demand |
 
 ## Phase file sections
@@ -66,7 +68,9 @@ Authoritative and the only copy. The spawn message points at it and does not res
 `File | Sections | Why`. Bind specific sections, not whole documents. This is what makes an agent write structurally correct code instead of merely checklist-complete code.
 
 ### `## Evidence Required`
-`Claim | Required | Command / artifact | Achieved`. Required is inherited from the Verification Matrix before the phase runs; achieved is filled by the agent with the class actually reached. Commands must be re-runnable by someone else.
+`Claim | Required | Command / method | Achieved | Artifact`. Required is inherited from the Verification Matrix before the phase runs; achieved and artifact are filled by the agent. Commands must be re-runnable by someone else.
+
+Each row is written **when its command runs, from the artifact that command wrote** — not at session end and not from console scrollback. Artifacts are named per run, so a second run cannot overwrite the file an earlier row quotes. Every figure presented as a measurement appears verbatim in a committed artifact, or the row says it cannot.
 
 ### `## Environment Assumptions`
 `Assumed by plan | Actual here | Substitution | What it defers`. A substitution with no deferral stated is one nobody will remember to undo.
@@ -75,7 +79,9 @@ Authoritative and the only copy. The spawn message points at it and does not res
 Actionable items. Marked as they complete.
 
 ### `## Decisions`
-`Decision | Why | Alternative rejected | Impact`. Recorded as made. Rationale states why, never who — `not stated` where no reason was given. Promoted to `decision_review.md` §C at acceptance.
+`Kind | Decision | Why | Alternative rejected | Impact`. Recorded as made. Rationale states why, never who — `not stated` where no reason was given.
+
+Kind is `design` or `harness`. At acceptance the planner promotes `design` rows reaching beyond the feature to `decision_review.md` §C, and `harness` rows — facts about how the project is run and observed — to `07_harness_conventions.md`.
 
 ### `## Open Items`
 `Kind | What | Raised at | Status / Resolution`. One home for questions, errors, blockers and evidence gaps. Resolved items stay with their resolution.
@@ -90,7 +96,9 @@ Actionable items. Marked as they complete.
 Written by the agent only when it stops before the phase is finished — a pause trigger, or the budget-stop clause at ~95% of usage. What is done, what is half-done, the next concrete action. The resuming agent verifies it against the tree and deletes it once past the point it names. A phase that closes with one still in it did not finish.
 
 ### `## Acceptance`
-Planner-owned. What was re-run, the result, and achieved-versus-required per evidence row, plus which `## Decisions` rows were promoted to the ledger and which stayed.
+Planner-owned. Which rows were reconciled against their artifacts and which were re-executed, the result, and achieved-versus-required per evidence row.
+
+A row accepted below its required class carries the reasoning that settled it: what the missing class would have ruled out, why the postcondition does not depend on it, and what would make it matter. Also names which `## Decisions` rows were promoted to the ledger and which stayed, which harness facts went to `07_harness_conventions.md`, and any drift between what the phase file specified and what was implemented.
 
 ## Phase state
 
@@ -123,7 +131,10 @@ Read from the phase file's `> Status:` header:
 | Agent stopped before the phase finished | phase `## Resume Point` | Agent |
 | Scope change | `01_context.md` + `02_plan.md` | Planner |
 | Step completed | own `05_XX_*.md` | Agent |
-| Evidence fell short of its class | phase `## Open Items` → overview Standing Flags | Agent, then planner |
+| Evidence fell short of its class, materially | phase `## Open Items` → overview Standing Flags | Agent, then planner |
+| Evidence fell short of its class, immaterially | phase `## Acceptance`, with the reasoning | Agent records the class, planner settles it |
+| A fact about how the project is run and observed | phase `## Decisions` (`kind: harness`) → `07_harness_conventions.md` | Agent, then planner at acceptance |
+| Harness facts still true at completion | `07_harness_conventions.md` → the project's conventions doc | Planner, trimmed |
 | Phase accepted | `## Acceptance` + `05_progress_overview.md` | Planner |
 | Ledger contradicted by code | `05_progress/review.md` | zforge review |
 | Feature deferred | `06_post_deployment.md` | Planner |

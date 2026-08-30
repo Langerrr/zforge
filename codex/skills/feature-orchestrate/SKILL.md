@@ -20,6 +20,7 @@ Load `$zforge:feature-execution`. It owns phase state, the spawn contract, recov
 3. Read `decision_review.md`. If it does not exist, create it from `../../../templates/decision_review.md`, resolved relative to this `SKILL.md`.
 4. Read `session_log.md`, creating it from `../../../templates/session_log.md`, resolved relative to this `SKILL.md`, if absent, and append a row for this session.
 5. Note any open standing flags in the overview. A flag opened by an earlier session is inherited by this one.
+6. Read `07_harness_conventions.md` if the feature has one. It says how this project is run and observed, and it is what keeps the run from re-learning a fact an earlier phase already paid for.
 
 ## Codex goal bridge
 
@@ -39,7 +40,7 @@ The bridge owns no second progress ledger: `/goal` answers whether Codex should 
 ## Run loop
 
 1. Classify every phase. If this run adopted a goal, call `get_goal` now before acceptance or delegation. If the same goal is no longer active, or the runtime reports no remaining capacity, checkpoint any delivered report and yield without starting more work.
-2. Accept REPORTED phases before scheduling implementation — re-run the evidence commands and re-walk the named methods before marking anything complete. Below 15% goal budget, if a REPORTED phase exists, accept exactly one, skip implementation for this wave and return to classification to re-check the goal; if none exists, continue to the skill's single bounded action for this wave. Outside that band, accept every REPORTED phase. On a long chain, delegate the re-run to a Codex subagent instructed to use `$zforge:acceptance-agent`, then adjudicate the table it returns; the run's context is the scarce resource, and re-running evidence does not need it.
+2. Accept REPORTED phases before scheduling implementation — reconcile every evidence row against its artifact, re-execute the rows a trigger selects, and settle each shortfall by materiality before marking anything complete. Below 15% goal budget, if a REPORTED phase exists, accept exactly one, skip implementation for this wave and return to classification to re-check the goal; if none exists, continue to the skill's single bounded action for this wave. Outside that band, accept every REPORTED phase. On a long chain, delegate the verification to a Codex subagent instructed to use `$zforge:acceptance-agent`, then adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
 3. Pick what to run using the skill's scheduling rules — sequential unless dependencies, collision surfaces and token budget all permit otherwise. If this run adopted a goal, immediately before spawning, re-check that the same goal is active and that the runtime has not reported exhausted capacity; otherwise yield at the durable checkpoint. Then spawn READY phases per the skill's contract.
 4. Handle each report by its status. Completion arrives natively; do not poll. **On arrival, set the phase to REPORTED and log the report before running anything** — that checkpoint is what survives a planner that dies mid-acceptance.
 5. Return to classification. Exit to Completion when every phase is COMPLETED and no standing flag is open. If all phases are COMPLETED but a standing flag remains, stop and surface it. If incomplete phases remain but none can run, stop and surface their WAITING, PAUSED or INTERRUPTED conditions. Otherwise begin the next wave. A scheduling wave is one pass from this classification boundary through the bounded acceptance or implementation work selected there.
@@ -57,7 +58,9 @@ A `PAUSED` report carrying `REASON: USAGE_LIMIT_95` is not a fork and needs no a
 
 ## Completion
 
-Follow the skill's completion bookkeeping. Report phases completed, evidence achieved against evidence planned on both axes, the count of 🟡 decisions awaiting review, and every standing flag still open.
+Follow the skill's completion bookkeeping. Report phases completed, evidence achieved against evidence planned on both axes, any row accepted below its required class and the reasoning that settled it, the count of 🟡 decisions awaiting review, and every standing flag still open.
+
+Graduate `07_harness_conventions.md` into the project's conventions document, trimmed to the facts still true. These outlive the feature that paid for them.
 
 When this run adopted an active Codex goal, call `get_goal` again before changing its status. Proceed only when the result confirms that the same adopted goal is still active; if it is paused, cleared, replaced or cannot be matched to the adopted contract, preserve zforge state and yield without any `update_goal` call:
 
