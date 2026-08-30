@@ -1,6 +1,6 @@
 {
   "name": "zforge",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "Durable state, contract and evidence layer for multi-session feature work: contract-bounded planning, autonomous phase orchestration with evidence-based acceptance, and ledger-versus-implementation review.",
   "author": {
     "name": "lan"
@@ -13,7 +13,10 @@
     "evidence",
     "orchestration"
   ],
-  "skills": "./skills/",
+  "skills": [
+    "./skills/",
+    "./codex/skills/"
+  ],
   "interface": {
     "displayName": "zforge",
     "shortDescription": "Contract-bounded planning, evidence-based acceptance, and phase orchestration.",
@@ -28,7 +31,8 @@
     "defaultPrompt": [
       "Use zforge to plan this feature.",
       "Use zforge to review this implementation.",
-      "Use zforge to resume this feature plan."
+      "Use zforge to resume this feature plan.",
+      "Use zforge to orchestrate all ready phases."
     ],
     "brandColor": "#10A37F"
   }

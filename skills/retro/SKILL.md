@@ -11,6 +11,15 @@ description: >
 
 Evaluate zforge's workflow performance on a feature. The output is for improving the zforge plugin itself — not for project documentation or tracking.
 
+## Run
+
+1. Convert the requested feature name to snake_case.
+2. Read `docs/{feature_name}/session_log.md`. If it is missing or has no entries, stop with: "No session history to evaluate. Run the retro at the end of a working session."
+3. Read `docs/{feature_name}/decision_review.md` §B when present. These live process notes are the primary input.
+4. Confirm this conversation contains substantial work on the feature. If this is a fresh session with no relevant implementation context, stop with: "Run the retro at the end of a working session, not in a fresh one."
+5. Create `docs/{feature_name}/.zforge-retro/` and write the result to `{session_id}.md` using the output contract below.
+6. Report the overall score, actionable findings, and any changes worth contributing to zforge.
+
 ## Scope Boundary
 
 Zforge is a **workflow plugin**, not a thinking framework. Retro judges:
