@@ -88,15 +88,19 @@ A fluent model fills any form fluently, so form-satisfaction rises with model ca
 
 **Look for:**
 - Did each phase's `## Evidence Required` name commands and artifacts a third party could re-run, or restate a claim?
-- Did the planner actually re-run them at acceptance, or accept the agent's account of them?
-- Did achieved classes match required classes — and where they didn't, was a standing flag opened?
+- Were rows written as their commands ran, from the artifacts, or batched at the end from console output? Does every figure presented as a measurement appear verbatim in a committed artifact?
+- Did artifacts survive to be checked, or did a re-run overwrite the file a row quotes?
+- Did the planner verify at acceptance, or accept the agent's account? Does each row record whether it was reconciled from its artifact or re-executed?
+- Did achieved classes match required classes — and where they didn't, did the gap get a standing flag or recorded reasoning for why it was immaterial? A shortfall with neither was absorbed.
+- Was anything waived that sits on the floor — a command that selected nothing and exited 0, or a user-reachable surface nothing reached?
 - Did any standing flag get carried across phases, or was one silently dropped when the run ended?
 - Did defects found later fall in a class the Verification Matrix had already marked as a gap?
+- Did a harness fact get learned twice? A cost one phase paid and a later phase paid again is a promotion that did not happen.
 
 **Scope boundary:** whether the *right* evidence classes were chosen for the feature is a planning-reasoning question. Whether the declared classes were honoured, checked and carried is zforge's.
 
-**High score:** claims were demonstrated at their declared class, checked independently, and shortfalls were visible as flags rather than absorbed.
-**Low score:** phases closed on self-report, evidence rows repeated one phrase regardless of what was verified, or a known gap was recorded once and never inherited.
+**High score:** claims were demonstrated at their declared class, checked independently against artifacts that survived, and every shortfall was either flagged or waived with its reasoning on the page.
+**Low score:** phases closed on self-report, evidence rows repeated one phrase regardless of what was verified, figures could not be found in any artifact, or a known gap was recorded once and never inherited.
 
 ## Overall Score
 

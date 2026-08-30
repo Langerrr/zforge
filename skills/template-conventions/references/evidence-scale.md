@@ -48,6 +48,16 @@ The split is not *design versus implementation*. It is **execution-shaped versus
 
 Where a claim is both — a surface that must work *and* must read correctly to the person using it — declare a class on each axis and let acceptance check both.
 
+## The artifact is what carries the class
+
+A class is claimed by a row and held by an artifact. Three rules keep the two attached:
+
+- **Write the row when the command runs, from the artifact the command wrote.** Not at session end, and not from console output. Console output is gone by the time anyone checks, and a row written from memory at the end of a long context is a claim about a claim.
+- **Name artifacts per run.** A second run that overwrites the file a row quotes leaves the row quoting a measurement nobody can open. Where a command is run twice, the two artifacts have two names.
+- **A figure presented as a measurement appears verbatim in a committed artifact**, or the row says it cannot. This is the check acceptance runs first, and it is the cheapest one available.
+
+The row carries the finding and the artifact path. How the number was obtained belongs in the artifact.
+
 ## What is not on either scale
 
 **Production dependencies** — vendor credentials, live buckets, real payment providers, deploy targets. Their absence is not a weaker class of evidence, it is a *substitution*, and it belongs in `## Environment Assumptions`, which records what the substitution defers. A phase running against a local container instead of the managed service can still reach E2 or E3 against that container; what it cannot do is claim the vendor's behaviour was verified.
@@ -73,14 +83,21 @@ A feature with a user-facing surface whose matrix has an empty E4 column has a k
 
 ## The gap between required and achieved
 
-At acceptance the planner re-runs the named commands and re-applies the named methods. A J row is re-checked the way an E row is: the method is on the page, so another party can walk it.
+At acceptance every row is reconciled against its artifact, and the rows a trigger selects are re-executed. A J row is re-checked the way an E row is: the method is on the page, so another party can walk it. `feature-execution` §Acceptance carries the tiers and the triggers.
 
 | | |
 |---|---|
 | achieved = required | accept |
 | achieved > required | accept, note the surplus |
-| achieved < required | pause the phase, or open a standing flag with a stated *closes when* |
+| achieved < required, material | pause the phase, or open a standing flag with a stated *closes when* |
+| achieved < required, immaterial | accept, recording the gap, why the postcondition does not depend on it, and what would make it matter |
 
 Classes compare **within an axis only**. E3 is not more than J2, and neither stands in for the other.
 
-An unmet class never disappears by the phase ending. It becomes a standing flag in `05_progress_overview.md` and stays visible until the evidence that closes it exists.
+**Materiality is read off the scale.** Each class states what it rules out. Name what the missing class would have ruled out, then ask whether anything downstream in this feature relies on that being ruled out. Nothing does, and no later phase inherits the assumption: the gap is immaterial. A judgment that takes more than a paragraph to state is material.
+
+Worked: a phase whose postcondition is a transport encoding, required at E4 and reached at E3, was exercised in its shipping runtime but not through the surface a user reaches. E4 rules out wiring and delivery defects. Where the surface is another phase's postcondition and this phase's encoding is what the later phase consumes, nothing here depends on the wiring being ruled out, and the row is accepted at E3 with that reasoning written down.
+
+Two shortfalls are never immaterial: a command that **selected nothing and exited 0**, which reads exactly like a pass, and a **user-reachable surface that nothing reached the way a user reaches it**. Every other row is judged by impact rather than by category.
+
+The achieved class is recorded as reached, whichever outcome the row takes. A material unmet class becomes a standing flag in `05_progress_overview.md` and stays visible until the evidence that closes it exists. An immaterial one is recorded in `## Acceptance` with the reasoning that settled it, where the next reader can disagree with it.

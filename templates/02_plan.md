@@ -81,6 +81,8 @@ Dependency edges are plan facts. **Scheduling is not** — whether two phases wi
 
 What each phase's gate will and will not cover, declared before any of it runs. Each phase's `## Evidence Required` table inherits its row from here. See `skills/template-conventions/references/evidence-scale.md`.
 
+Where `07_harness_conventions.md` exists, read it before filling this in. It says which of this project's commands interact, which tear down state, and which can report a pass without checking anything — and a matrix built without those facts declares classes the harness cannot actually deliver.
+
 Mark each cell `✓` (will cover), `—` (will not), `n/a` (does not apply), or **`gap`** (should be covered and will not be — this opens a standing flag at the phase that first needs it).
 
 Two axes, two tables, because they are not comparable. **E** is what will be executed; **J** is what will be judged. Classes rank within an axis only.

@@ -36,7 +36,9 @@ Every 🟡 and ✅ entry in `decision_review.md`, and every row in a phase file'
 `02_plan.md` names invariants with an owner phase and a re-check phase. Verify each is actually established, and actually holds at every call site — not just the one the owning phase wrote. Anything spanning phases is verified by no single phase file, which is why it survives to here.
 
 **3. Does the evidence match the artifacts?**
-For every `## Evidence Required` row, the claimed class must have something behind it. A row claiming E4 with no browser-executed artifact, or E3 with tests that only ever ran in the wrong runtime, is a false claim in the ledger — report it as one.
+For every `## Evidence Required` row, the claimed class must have something behind it. A row claiming E4 with no browser-executed artifact, or E3 with tests that only ever ran in the wrong runtime, is a false claim in the ledger — report it as one. So is a figure presented as a measurement that appears in no committed artifact, and a row whose named artifact is not in the tree.
+
+**A row accepted below its required class is a recorded waiver** where `## Acceptance` carries the reasoning that settled it. Check that reasoning rather than the class: does the postcondition really hold without what the missing class rules out, and has a later phase since come to depend on it? A waiver that was sound at acceptance and has been overtaken is a finding, and it opens a standing flag rather than a correction.
 
 A **J** row is checked the same way: the method and the referent must both be named, and the walk must have a recorded result. A J2 row whose referent turns out to be the case the design was derived from is a J1 claim wearing a J2 label, because the referent supplied no resistance.
 

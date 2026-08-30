@@ -39,16 +39,21 @@
 ## Evidence Required
 
 <!-- Inherited from the Verification Matrix in 02_plan.md — not reinvented here.
-     Required is set by the planner before the phase runs. Achieved is filled by the agent
-     with the class actually reached. See skills/template-conventions/references/evidence-scale.md
+     Required is set by the planner before the phase runs. Achieved and Artifact are filled
+     by the agent. See skills/template-conventions/references/evidence-scale.md
 
      Classes come from two axes. E0-E4 for what was executed: the row names a command.
      J0-J2 for what was judged: the row names a method and the referent it is walked
      against. A claim that is both a working surface and a readable one takes a row on
-     each. Classes compare within an axis only — E3 is not more than J2. -->
+     each. Classes compare within an axis only — E3 is not more than J2.
 
-| Claim | Required | Command / method | Achieved |
-|-------|----------|------------------|----------|
+     Fill a row when its command runs, from the artifact that command wrote — not at the
+     end of the phase and not from console scrollback. Name artifacts per run so a second
+     run cannot overwrite the file an earlier row quotes. Every figure presented as a
+     measurement appears verbatim in the committed artifact, or the row says it cannot. -->
+
+| Claim | Required | Command / method | Achieved | Artifact |
+|-------|----------|------------------|----------|----------|
 
 ---
 
@@ -72,10 +77,15 @@
 ## Decisions
 
 <!-- Recorded as they are made, not reconstructed at the end.
-     Rationale states why, never who. If no reason was stated, write "not stated". -->
+     Rationale states why, never who. If no reason was stated, write "not stated".
 
-| # | Decision | Why | Alternative rejected | Impact |
-|---|----------|-----|---------------------|--------|
+     Kind is `design` by default, or `harness` for a fact about how this project is run and
+     observed — a command that passes without checking, two commands that cannot run
+     concurrently, a step that tears down shared state. The planner promotes `harness` rows
+     to 07_harness_conventions.md at acceptance so the next phase reads them. -->
+
+| # | Kind | Decision | Why | Alternative rejected | Impact |
+|---|------|----------|-----|---------------------|--------|
 
 ---
 
@@ -118,5 +128,14 @@
 ## Acceptance
 
 <!-- PLANNER-OWNED. The agent does not write here.
-     Written after independently re-running the commands in ## Evidence Required:
-     what was re-run, the result, and achieved-versus-required per row. -->
+     Written after independently verifying ## Evidence Required: which rows were reconciled
+     against their artifacts and which were re-executed, the result, and achieved-versus-required
+     per row.
+
+     A row accepted below its required class carries the reasoning that settled it — what the
+     missing class would have ruled out, why the postcondition does not depend on it, and what
+     would make it matter. The achieved class is recorded as reached either way.
+
+     Also names which ## Decisions rows were promoted to decision_review.md and which stayed,
+     which harness facts went to 07_harness_conventions.md, and any drift between what the
+     phase file specified and what was implemented. -->
