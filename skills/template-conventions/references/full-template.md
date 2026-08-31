@@ -31,7 +31,26 @@ docs/{feature_name}/
 └── _archive/{name}__{date}.md     # Superseded docs
 ```
 
+Nothing else belongs here. Command output, test reports, traces and screenshots are written outside this tree — see **Where artifacts live**.
+
 Documents outside the fixed `00`–`02` and `05` set take the next free number and a name that says what they are. The **Doc Map** in `01_context.md` is what makes them findable; a document not in the Doc Map is a document no agent will read.
+
+## Where artifacts live
+
+Evidence artifacts are command output, and they live beside the code that produced them. A phase writes them to:
+
+```
+{repo whose code the command exercised}/.zforge/artifacts/{feature}/
+    05_04_typecheck.01.txt
+    05_10_e2e-full.01.json
+    05_10_e2e-full.02.json
+```
+
+`{feature}` names the feature — its directory under `docs/`, with any nesting flattened to `-`, so one repo can hold artifacts for several concurrent features without collision. The file name is `{phase}_{what-it-is}.{NN}.{ext}`, and the run number is what lets a second run coexist with the file an earlier row already quotes.
+
+**`.zforge/` is gitignored.** The plan workflow puts that line in each repo its phases touch. An artifact is working state: acceptance reads it once, and completion drops the feature's directory. What the tree keeps is the row — its finding, its figure, and the path the figure came from.
+
+**Rows cite artifacts by a path relative to the workspace root.** `.zforge/artifacts/creator-platform/05_10_e2e-full.01.json` where the workspace is a single repo; `director-console/.zforge/artifacts/creator-platform/05_10_e2e-full.01.json` where it is several. One rule covers both, and it is the path acceptance opens.
 
 ## Creation timeline
 
@@ -70,7 +89,9 @@ Authoritative and the only copy. The spawn message points at it and does not res
 ### `## Evidence Required`
 `Claim | Required | Command / method | Achieved | Artifact`. Required is inherited from the Verification Matrix before the phase runs; achieved and artifact are filled by the agent. Commands must be re-runnable by someone else.
 
-Each row is written **when its command runs, from the artifact that command wrote** — not at session end and not from console scrollback. Artifacts are named per run, so a second run cannot overwrite the file an earlier row quotes. Every figure presented as a measurement appears verbatim in a committed artifact, or the row says it cannot.
+Each row is written **when its command runs, from the artifact that command wrote** — not at session end and not from console scrollback. Every figure presented as a measurement appears verbatim in that artifact, or the row says it cannot.
+
+Artifacts are written to `.zforge/artifacts/{feature}/` at the root of the repo whose code the command exercised, named `{phase}_{what-it-is}.{NN}.{ext}` so a second run cannot overwrite the file an earlier row quotes, and cited by a path relative to the workspace root. The directory is gitignored and dropped at completion — see **Where artifacts live**.
 
 ### `## Environment Assumptions`
 `Assumed by plan | Actual here | Substitution | What it defers`. A substitution with no deferral stated is one nobody will remember to undo.

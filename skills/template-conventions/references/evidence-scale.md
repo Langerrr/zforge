@@ -54,9 +54,11 @@ A class is claimed by a row and held by an artifact. Three rules keep the two at
 
 - **Write the row when the command runs, from the artifact the command wrote.** Not at session end, and not from console output. Console output is gone by the time anyone checks, and a row written from memory at the end of a long context is a claim about a claim.
 - **Name artifacts per run.** A second run that overwrites the file a row quotes leaves the row quoting a measurement nobody can open. Where a command is run twice, the two artifacts have two names.
-- **A figure presented as a measurement appears verbatim in a committed artifact**, or the row says it cannot. This is the check acceptance runs first, and it is the cheapest one available.
+- **A figure presented as a measurement appears verbatim in its artifact**, or the row says it cannot. This is the check acceptance runs first, and it is the cheapest one available.
 
 The row carries the finding and the artifact path. How the number was obtained belongs in the artifact.
+
+Artifacts are written outside the documentation tree, to `.zforge/artifacts/{feature}/` at the root of the repo whose code the command exercised, and cited by a path relative to the workspace root. The directory is untracked and is dropped when the feature closes: an artifact exists to be read at acceptance, which is also the moment a figure with nothing behind it is caught. After that the row is the record. `full-template.md` §Where artifacts live has the naming and the paths.
 
 ## What is not on either scale
 
