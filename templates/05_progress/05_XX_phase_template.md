@@ -48,9 +48,15 @@
      each. Classes compare within an axis only — E3 is not more than J2.
 
      Fill a row when its command runs, from the artifact that command wrote — not at the
-     end of the phase and not from console scrollback. Name artifacts per run so a second
-     run cannot overwrite the file an earlier row quotes. Every figure presented as a
-     measurement appears verbatim in the committed artifact, or the row says it cannot. -->
+     end of the phase and not from console scrollback. Every figure presented as a
+     measurement appears verbatim in that artifact, or the row says it cannot.
+
+     Artifacts go to .zforge/artifacts/{feature}/ at the root of the repo whose code the
+     command exercised — never into this docs tree. Name them {phase}_{what-it-is}.{NN}.{ext}
+     so a second run cannot overwrite the file an earlier row quotes, and cite them by a
+     path relative to the workspace root:
+     .zforge/artifacts/{feature}/05_04_e2e.01.json for a single-repo workspace,
+     director-console/.zforge/artifacts/... for a workspace of several. -->
 
 | Claim | Required | Command / method | Achieved | Artifact |
 |-------|----------|------------------|----------|----------|

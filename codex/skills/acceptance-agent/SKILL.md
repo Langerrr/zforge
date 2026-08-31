@@ -37,7 +37,7 @@ You do not need `## Agent Prompt`, `## Checklist`, or `## Decisions`. Do not rea
 
 Every row, every time, before you run anything:
 
-- **Does the row's named artifact exist?** A row citing a file that is not in the tree has not demonstrated its claim.
+- **Does the row's named artifact exist?** Rows cite artifacts by a path relative to the workspace root, under `.zforge/artifacts/{feature}/` in the repo whose code the command exercised. That path is untracked, so it will not appear in `git ls-files` — open the file. A row citing a path with nothing behind it has not demonstrated its claim.
 - **Does every figure the row states appear in that artifact, verbatim?** Every number presented as a measurement. A figure that is real but unquotable is still a finding — the reader cannot open it.
 - **Did the command select anything?** Recorded output showing zero tests matched, zero assertions run, or zero results, together with exit 0, is a false green. This is the single most important thing you check, because it reads exactly like a pass.
 
@@ -106,7 +106,7 @@ ROWS: <n> — <n from artifact> / <n re-executed>
 
 | Row | Required | Achieved | Method | Command / referent | Exit | Verdict |
 |-----|----------|----------|--------|--------------------|------|---------|
-| <claim> | E2 | E2 | from-artifact | reports/e2.3.json | — | PASS |
+| <claim> | E2 | E2 | from-artifact | .zforge/artifacts/{feature}/05_04_e2e.03.json | — | PASS |
 | <claim> | E4 | E3 | re-executed | pnpm build && pnpm smoke | 0 | SHORTFALL-IMMATERIAL |
 
 VERDICT: ACCEPT | ACCEPT-WITH-NOTES | PAUSE | FLAG

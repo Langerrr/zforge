@@ -45,9 +45,11 @@ For each row, fill the achieved column with the class you actually reached and t
 **Fill an evidence row at the moment you produce it, from the artifact the command wrote.** Not at the end of the phase, and not from what you remember the console saying.
 
 - **Direct the command's output to a file and quote the file.** Console output is gone by the time anyone checks. A row written from scrollback at the end of a long context is a claim about a claim, and it is the single most common way a phase whose code is correct fails acceptance.
-- **Name artifacts per run.** `reports/smoke.03.json`, not `reports/smoke.json`. Where you run a command twice, the second run must not overwrite the file your first row quotes.
-- **Every figure you present as a measurement appears verbatim in a committed artifact.** If you cannot make that true for a figure, the row says so rather than carrying a number nobody can open.
-- **The row carries the finding and the artifact path.** How the number was obtained belongs in the artifact, not in the row.
+- **Write artifacts to `.zforge/artifacts/{feature}/`, at the root of the repo whose code the command exercised.** The documentation tree holds prose; command output goes here. `{feature}` names your feature — its directory under `docs/`, with any nesting flattened to `-`. The directory is gitignored, so an artifact is working state that acceptance reads once.
+- **Name each one `{phase}_{what-it-is}.{NN}.{ext}`** — `05_10_e2e-full.01.json`. The run number is what stops a second run from overwriting the file your first row quotes.
+- **Cite it by a path relative to the workspace root.** `.zforge/artifacts/creator-platform/05_10_e2e-full.01.json` where the workspace is one repo, `director-console/.zforge/artifacts/...` where it is several. That path is what acceptance opens.
+- **Every figure you present as a measurement appears verbatim in the artifact.** If you cannot make that true for a figure, the row says so rather than carrying a number nobody can open.
+- **The row carries the finding and the artifact path.** The artifact is read at acceptance and dropped when the feature closes; the row is what survives. How the number was obtained belongs in the artifact, not in the row.
 
 **A claim you cannot demonstrate at its required class does not get written as if you could.** Record the class you reached, then open an `## Open Items` row naming the gap. A phase that closes honestly at E2 against an E4 requirement is useful; a phase that reports "tests green" for both is not.
 

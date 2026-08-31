@@ -186,7 +186,7 @@ A phase whose evidence table is entirely E0 and J0 has demonstrated nothing, reg
 
 Every row, every time, without running anything:
 
-- Does the row's named artifact exist?
+- Does the row's named artifact exist? Rows cite artifacts by a path relative to the workspace root, under `.zforge/artifacts/{feature}/` in the repo whose code the command exercised. That path is untracked by design — open the file rather than looking for it in the tree.
 - Does every figure the row states appear in that artifact verbatim?
 - Does the recorded output show a command that **selected nothing** — zero tests matched, zero assertions run, zero results — and exited 0?
 
@@ -247,7 +247,8 @@ On completion:
 1. Final status for all phases in `05_progress_overview.md`.
 2. Fill the current session's row in `session_log.md` — phases touched, summary, and any usage-limit interruptions.
 3. **Graduate the harness conventions.** Where `07_harness_conventions.md` exists, write the facts still true, in their simplest final form, into the project's conventions document — its `CLAUDE.md`, or the nearest doc phases actually read. A fact a later phase made obsolete does not graduate, and neither does the account of how one was learned. The feature file accumulates what the run learned; the project file states what is true of the harness now. These facts outlive the feature that paid for them.
-4. Report to the user: phases completed, evidence classes achieved against those planned, rows accepted below their class and why, open 🟡 decisions awaiting review, and any flag that had to be carried.
-5. Suggest `$zforge:review` for feature `{name}` to check the implementation against the ledger.
+4. **Drop the feature's artifact directory.** `.zforge/artifacts/{feature}/` in each repo the phases touched has done its work: every row was reconciled against it at acceptance, and what the run needs to keep is in the rows. Anything a standing flag still depends on is quoted in `05_progress_overview.md` before the directory goes.
+5. Report to the user: phases completed, evidence classes achieved against those planned, rows accepted below their class and why, open 🟡 decisions awaiting review, and any flag that had to be carried.
+6. Suggest `$zforge:review` for feature `{name}` to check the implementation against the ledger.
 
 If flags remain open, say so plainly and name them. A feature with an open flag is not finished; it is finished-except-for-a-named-gap, and the difference is the entire point of tracking them.

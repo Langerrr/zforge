@@ -108,11 +108,13 @@ Each evidence row is written **when its command runs, from the artifact that com
 
 - Never batched at session end, never from console scrollback.
 - Artifacts named per run, so a re-run cannot overwrite the one a row quotes.
-- A figure in a row appears verbatim in a committed artifact, or the row states that it cannot.
+- A figure in a row appears verbatim in its artifact, or the row states that it cannot.
 - The row carries the finding and the artifact path. How the number was obtained lives in the artifact.
 
 This is the change with the largest expected return, and it is what makes tier 1 possible: tier 1
 reconciles rows against artifacts, and only works where the artifacts exist and are quotable.
+
+Where those artifacts are written is settled in `evidence-artifacts-outside-the-docs-tree.md`.
 
 ## 6. `/goal` carries the planner across deaths
 

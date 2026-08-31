@@ -125,6 +125,70 @@ class PluginSurfaceTests(unittest.TestCase):
             self.assertIn("user-reachable surface", text, relative)
 
 
+    def test_artifact_location_stated_wherever_artifacts_are_written_or_read(
+        self,
+    ) -> None:
+        """Every surface that writes or opens an artifact names one location.
+
+        The location went unstated through v4.1.0, and agents improvised it into
+        the documentation tree. A surface that tells an agent to write an artifact
+        without saying where re-opens exactly that gap.
+        """
+        for relative in (
+            "agents/phase-agent.md",
+            "codex/skills/phase-agent/SKILL.md",
+            "agents/acceptance-agent.md",
+            "codex/skills/acceptance-agent/SKILL.md",
+            "commands/review.md",
+            "codex/skills/review/SKILL.md",
+            "commands/plan.md",
+            "codex/skills/plan/SKILL.md",
+            "skills/feature-execution/SKILL.md",
+            "skills/template-conventions/SKILL.md",
+            "skills/template-conventions/references/full-template.md",
+            "skills/template-conventions/references/evidence-scale.md",
+            "templates/05_progress/05_XX_phase_template.md",
+            "skills/retro/references/scoring.md",
+        ):
+            text = (REPO_ROOT / relative).read_text()
+            self.assertIn(".zforge/artifacts/", text, relative)
+
+    def test_artifact_path_rule_stated_on_both_hosts(self) -> None:
+        """The writer and the reader agree on how a row cites an artifact.
+
+        The phase agent writes the path and the acceptance agent opens it. If the
+        two copies of either drift, a row cites a path acceptance cannot resolve.
+        """
+        pairs = (
+            ("agents/phase-agent.md", "codex/skills/phase-agent/SKILL.md"),
+            (
+                "agents/acceptance-agent.md",
+                "codex/skills/acceptance-agent/SKILL.md",
+            ),
+        )
+        for claude_path, codex_path in pairs:
+            for relative in (claude_path, codex_path):
+                text = (REPO_ROOT / relative).read_text()
+                self.assertIn("relative to the workspace root", text, relative)
+
+    def test_no_surface_requires_a_committed_artifact(self) -> None:
+        """Artifacts are untracked, so no surface may still demand a commit.
+
+        A single surviving instruction to commit an artifact puts command output
+        back in the documentation tree, which is the whole of what this changed.
+        Scoped to the surfaces an agent reads as instructions; `docs/` holds design
+        records, which name the rules they retired.
+        """
+        skip = {"tmp", "_archive", ".git", "node_modules"}
+        offenders = []
+        for directory in ("agents", "commands", "skills", "templates", "codex"):
+            for path in (REPO_ROOT / directory).rglob("*.md"):
+                if skip & set(path.relative_to(REPO_ROOT).parts):
+                    continue
+                if "committed artifact" in path.read_text():
+                    offenders.append(str(path.relative_to(REPO_ROOT)))
+        self.assertEqual([], offenders)
+
 
 if __name__ == "__main__":
     unittest.main()
