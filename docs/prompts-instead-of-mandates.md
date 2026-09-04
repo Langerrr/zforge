@@ -198,6 +198,14 @@ root. Retention belongs to the operating system.
 - The two-shape citation rule — `.zforge/artifacts/…` for a single-repo workspace,
   `director-console/.zforge/artifacts/…` for a workspace of several.
 
+### `.zforge-retro/` is a different directory
+
+`docs/{feature}/.zforge-retro/{session_id}.md` holds retro output and stays inside the
+documentation tree. It shares a prefix with the artifact directory and nothing else — it is
+prose, it is committed, and this change does not touch it. `commands/retro.md`,
+`skills/retro/SKILL.md` and the two template-conventions references name it and are edited only
+where they also name `.zforge/artifacts`.
+
 ### The exposure, and its price
 
 An artifact is written by a phase and read by that phase's acceptance, which follows it closely.
@@ -217,5 +225,5 @@ Both Claude and Codex copies, for every surface that carries one.
 | Tier 2 | `skills/feature-execution/SKILL.md`, `agents/acceptance-agent.md`, `codex/skills/acceptance-agent/SKILL.md` |
 | Absences | `skills/feature-execution/SKILL.md`, `templates/05_progress_overview.md`, `templates/05_progress/05_XX_phase_template.md`, `commands/plan.md`, `codex/skills/plan/SKILL.md`, `skills/template-conventions/SKILL.md`, `skills/template-conventions/references/full-template.md` |
 | Commits | `skills/feature-execution/SKILL.md`, `commands/feature-orchestrate.md`, `codex/skills/feature-orchestrate/SKILL.md`, `commands/feature-resume.md`, `codex/skills/feature-resume/SKILL.md` |
-| Artifacts | seventeen files name `.zforge` and each is edited: `README.md`, `agents/acceptance-agent.md`, `agents/phase-agent.md`, `codex/skills/acceptance-agent/SKILL.md`, `codex/skills/phase-agent/SKILL.md`, `codex/skills/plan/SKILL.md`, `codex/skills/review/SKILL.md`, `commands/plan.md`, `commands/retro.md`, `commands/review.md`, `skills/feature-execution/SKILL.md`, `skills/retro/SKILL.md`, `skills/retro/references/scoring.md`, `skills/template-conventions/SKILL.md`, `skills/template-conventions/references/evidence-scale.md`, `skills/template-conventions/references/full-template.md`, `templates/05_progress/05_XX_phase_template.md`. `docs/evidence-artifacts-outside-the-docs-tree.md` names it too and is left as written — a superseded document is the record of what was decided, not a file to correct. |
+| Artifacts | fifteen files name `.zforge/artifacts` and each is edited: `README.md`, `agents/acceptance-agent.md`, `agents/phase-agent.md`, `codex/skills/acceptance-agent/SKILL.md`, `codex/skills/phase-agent/SKILL.md`, `codex/skills/plan/SKILL.md`, `codex/skills/review/SKILL.md`, `commands/plan.md`, `commands/review.md`, `skills/feature-execution/SKILL.md`, `skills/retro/references/scoring.md`, `skills/template-conventions/SKILL.md`, `skills/template-conventions/references/evidence-scale.md`, `skills/template-conventions/references/full-template.md`, `templates/05_progress/05_XX_phase_template.md`. `docs/evidence-artifacts-outside-the-docs-tree.md` names it too and is left as written — a superseded document is the record of what was decided, not a file to correct. |
 | Version | `.claude-plugin/plugin.json` → 4.3.0 |
