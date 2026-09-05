@@ -25,7 +25,7 @@ zforge carries what must be true before a phase closes, what evidence proves it,
 
 **Phases declare their acceptance bar before they run.** `02_plan.md` carries a Verification Matrix on two axes: **E0–E4** for what will be executed, **J0–J2** for what will be judged — a claim no test runner settles, checked by a stated method against a named referent. A column that is empty across every phase with a user-facing surface is a hole you can see at planning time rather than after the last phase.
 
-**Acceptance checks the artifacts the work left behind.** An agent's green report is a claim. Every evidence row is first reconciled against the artifact it names: does that artifact exist, does every figure appear in it verbatim, did the command select anything at all. Rows are then re-executed where a trigger fires — an E3 or E4 claim, a failed reconciliation, a row the agent flagged, anything whose failure would need human attention. The rest close against their artifacts, and each row records which check it got.
+**Acceptance checks the artifacts the work left behind.** An agent's green report is a claim. Every evidence row is first reconciled against the artifact it names: does that artifact exist, does every figure appear in it verbatim, did the command select anything at all. Rows are then re-executed where a fact forces it — a failed reconciliation, a row that names no artifact, a row the agent flagged, a claim about a clean state — and otherwise where acceptance judges the re-run worth making, weighing what a command costs against the unknown it retires and the smallest thing that would retire it. The rest close against their artifacts, and each row records which check it got.
 
 **Evidence rows are written when their commands run**, from the artifact each command wrote, with artifacts named per run. A row written from console scrollback at the end of a long context is the most common way a correct implementation fails its own acceptance. Artifacts are written to `/tmp/zforge/artifacts/{feature}/` — outside every repository, and dropped when the feature closes. What the tree keeps is the row: the finding, the figure, and the path it came from.
 
@@ -36,6 +36,10 @@ zforge carries what must be true before a phase closes, what evidence proves it,
 **Interrupted work is resumed, not restarted.** A phase agent killed by a usage limit is resumed from its own transcript with a mandatory re-orientation against disk — `git status`, re-run the tests, diff the checklist against what exists — because its memory of what it wrote is less reliable than the working tree. Agents are told up front to stop cleanly at ~95% of budget, flushing a `## Resume Point` first, which turns the expensive recovery into a cheap one.
 
 **A reported phase is not an accepted phase.** `REPORTED` is its own state: the work is on disk and the evidence has not been re-run. It is written the moment a report arrives, so a planner that dies mid-acceptance leaves a phase that says on disk exactly what is true of it.
+
+**zforge commits its own work.** A phase is committed when it is accepted, so every commit in the history is accepted work and a long phase gets its own diff rather than a share of a ten-phase one. A feature closes with a bookkeeping commit that is the finish marker, made with plain `git` and not pushed. What comes next — the push, a review — is named with its cost, as a decision the user makes.
+
+**What a feature could not reach leaves with it.** A phase that walks a journey finds surfaces nothing reaches. At close, each is asked which decision chose it, what owns building it, and where the next planner will look — and an absence nothing owns becomes an `OUTWARD` flag that closes only when it has been written somewhere a planner reads.
 
 ## Artifact tree
 
