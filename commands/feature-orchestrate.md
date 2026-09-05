@@ -37,7 +37,7 @@ Load the `feature-execution` skill. It owns phase state, the spawn contract, rec
 1. Classify every phase. Pick what to run using the skill's scheduling rules — sequential unless dependencies, collision surfaces and token budget all permit otherwise.
 2. Spawn READY phases per the skill's spawn contract.
 3. Handle each report by its status. Completion arrives natively; do not poll. **On arrival, set the phase to REPORTED and log the report before running anything** — that checkpoint is what survives a planner that dies mid-acceptance.
-4. Accept REPORTED phases per the skill's acceptance procedure — reconcile every evidence row against its artifact, re-execute the rows a trigger selects, and settle each shortfall by materiality before marking anything complete. On a long chain, delegate the verification to `zforge:acceptance-agent` and adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
+4. Accept REPORTED phases per the skill's acceptance procedure — reconcile every evidence row against its artifact, re-execute what a fact forces or judgment selects, and settle each shortfall by materiality before marking anything complete. On a long chain, delegate the verification to `zforge:acceptance-agent` and adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
 5. Repeat until no phase is READY.
 
 ## Autonomy boundary

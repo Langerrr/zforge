@@ -85,7 +85,7 @@ A feature with a user-facing surface whose matrix has an empty E4 column has a k
 
 ## The gap between required and achieved
 
-At acceptance every row is reconciled against its artifact, and the rows a trigger selects are re-executed. A J row is re-checked the way an E row is: the method is on the page, so another party can walk it. `feature-execution` §Acceptance carries the tiers and the triggers.
+At acceptance every row is reconciled against its artifact, and what a fact forces or judgment selects is re-executed. A J row is re-checked the way an E row is: the method is on the page, so another party can walk it. `feature-execution` §Acceptance carries the tiers and what decides between them.
 
 | | |
 |---|---|

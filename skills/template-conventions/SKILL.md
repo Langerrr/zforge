@@ -63,7 +63,7 @@ Phases declare what class of evidence closes them, and the planner confirms it. 
 
 Two axes. **E0–E4** for what was executed, ranked by what each rules out — algorithm errors, integration mismatches, runtime divergence, wiring defects. **J0–J2** for what was judged: a claim no test runner settles, checked by a stated method against a named referent. Classes rank within an axis only; neither substitutes for the other.
 
-The short version: `02_plan.md`'s Verification Matrix declares the classes per phase before work starts, each phase's `## Evidence Required` inherits its row, and acceptance verifies rather than reads — every row reconciled against the artifact it names, and the rows a trigger selects re-executed.
+The short version: `02_plan.md`'s Verification Matrix declares the classes per phase before work starts, each phase's `## Evidence Required` inherits its row, and acceptance verifies rather than reads — every row reconciled against the artifact it names, and what a fact forces or judgment selects re-executed.
 
 **Rows are written when their commands run, from the artifact each command wrote**, with artifacts named per run so a re-run cannot overwrite the file an earlier row quotes. A figure presented as a measurement appears verbatim in its artifact or the row says it cannot. This is what makes the cheap half of acceptance possible at all.
 

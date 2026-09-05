@@ -162,7 +162,7 @@ An agent's green report is a claim. Acceptance is the planner's independent conf
 
 1. Read the phase's `## Evidence Required` table, its `## Environment Assumptions`, and `07_harness_conventions.md` if the feature has one.
 2. **Reconcile every row against its artifact** (tier 1, below).
-3. **Re-execute the rows a trigger selects** (tier 2, below). A J row is re-checked by walking the method the row names.
+3. **Re-execute what tier 2 selects** (below). A J row is re-checked by walking the method the row names.
 4. Compare achieved class against required class for every row, **within its axis**, and settle each shortfall by materiality:
 
 | Result | Response |
@@ -192,18 +192,24 @@ Every row, every time, without running anything:
 
 This tier is cheap, it needs no project state, and it is where misquoted figures and false greens surface. Run it before deciding what to re-execute, because what it finds is one of the triggers.
 
-### Tier 2 — re-execute what a trigger selects
+### Tier 2 — re-execute what earns it
 
-Re-run a row when any of these holds:
+Re-run a row when a fact forces it:
 
 - Tier 1 found a mismatch, or the artifact is missing or quotes nothing.
-- The required class is **E3 or E4**. Those classes are claims about execution in a real runtime or through a real surface, and no artifact stands in for them.
 - The row names no artifact, only a claim.
 - The agent flagged the row itself, in `## Open Items` or by filling achieved below required.
 - The claim is about a clean or regenerated state.
-- A failure in this row would need human attention.
 
-Otherwise the artifact stands and the row closes at tier 1.
+Otherwise decide, and think about three things:
+
+- **COST** — what running this takes.
+- **GAIN** — which unknown it retires, priced by what being wrong about it would cost.
+- **MINIMUM EFFORT** — the smallest thing that retires that same unknown.
+
+A suite re-run against a tree acceptance has not modified retires almost no unknown, and carries its own flake exposure on top. A filtered run against the surface the phase just built retires the unknown that matters, for a fraction of the time. Both can be E4; the class does not separate them, and these three do.
+
+Where the decision is to accept, the artifact stands and the row closes at tier 1.
 
 **Record which check each row got** — `from-artifact` or `re-executed`. A row accepted from its artifact is honestly accepted; a row written up as though a command ran is not.
 
@@ -236,7 +242,7 @@ The agent returns a per-row verdict and an overall recommendation with its ratio
 
 Steps 4 through 9 stay with the planner. Adjudicating materiality, writing `## Acceptance`, and deciding what gets promoted are the parts that need the run.
 
-A tier-1-only pass — reconciliation with no re-execution triggered — is arithmetic against committed files and runs well on a cheaper model. A pass that will re-execute E3 or E4 rows needs one that can read a failing runtime.
+A tier-1-only pass — reconciliation with no re-execution triggered — is arithmetic against committed files and runs well on a cheaper model. A pass that will re-execute anything needs one that can read a failing runtime.
 
 ## Completion bookkeeping
 
