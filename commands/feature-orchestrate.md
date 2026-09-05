@@ -37,7 +37,7 @@ Load the `feature-execution` skill. It owns phase state, the spawn contract, rec
 1. Classify every phase. Pick what to run using the skill's scheduling rules — sequential unless dependencies, collision surfaces and token budget all permit otherwise.
 2. Spawn READY phases per the skill's spawn contract.
 3. Handle each report by its status. Completion arrives natively; do not poll. **On arrival, set the phase to REPORTED and log the report before running anything** — that checkpoint is what survives a planner that dies mid-acceptance.
-4. Accept REPORTED phases per the skill's acceptance procedure — reconcile every evidence row against its artifact, re-execute what a fact forces or judgment selects, and settle each shortfall by materiality before marking anything complete. On a long chain, delegate the verification to `zforge:acceptance-agent` and adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
+4. Accept REPORTED phases per the skill's acceptance procedure — reconcile every evidence row against its artifact, re-execute what a fact forces or COST, GAIN and MINIMUM EFFORT select, settle each shortfall by materiality, and commit the accepted phase as `zforge({feature}): phase {NN} {name}` with `git` directly. On a long chain, delegate the verification to `zforge:acceptance-agent` and adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
 5. Repeat until no phase is READY.
 
 ## Autonomy boundary
@@ -69,6 +69,6 @@ The condition is the feature rather than a phase, because one goal is active at 
 
 ## Completion
 
-Follow the skill's completion bookkeeping. Report phases completed, evidence achieved against evidence planned on both axes, any row accepted below its required class and the reasoning that settled it, the count of 🟡 decisions awaiting review, and every standing flag still open.
+Follow the skill's completion bookkeeping. Report phases completed, evidence achieved against evidence planned on both axes, any row accepted below its required class and the reasoning that settled it, the count of 🟡 decisions awaiting review, every standing flag still open with its kind, and what the run cost. The closing commit is not pushed: name the push and `$zforge:review` as what is available next, each with its cost and what it could reopen.
 
-Graduate `07_harness_conventions.md` into the project's conventions document, trimmed to the facts still true. These outlive the feature that paid for them.
+Graduate the unowned absences into the document this project's planners read, then `07_harness_conventions.md` into the project's conventions document, trimmed to the facts still true. Both outlive the feature that paid for them.

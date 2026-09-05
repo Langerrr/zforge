@@ -177,6 +177,11 @@ An agent's green report is a claim. Acceptance is the planner's independent conf
 7. **Promote any harness fact** the phase learned into `07_harness_conventions.md`, so the next phase reads it instead of paying for it again.
 8. Roll any material unmet class up to the overview's Standing Flags.
 9. Set `> Status:` to COMPLETED and update `05_progress_overview.md`.
+10. **Commit the accepted phase.** Stage the phase's source changes and its phase file, and commit as `zforge({feature}): phase {NN} {name}`.
+
+Commit at acceptance rather than at report, so every commit in the history is accepted work: a phase that is rejected or re-run leaves none to unwind. A phase can be hours of work, and it gets its own commit rather than a share of a ten-phase diff.
+
+Make the commit with `git` directly, **never by invoking a commit skill or command**. A delegated commit hands this moment to another workflow, and what runs next tends to arrive with its own review and repair loop — which is how an accepted, green feature gets reopened with nobody present to decide.
 
 The achieved class is recorded as reached. A row that reached E3 against an E4 requirement reads E3 whichever outcome it takes — accepting a gap and hiding it are different acts.
 
@@ -264,7 +269,8 @@ On completion:
 
 4. **Graduate the harness conventions.** Where `07_harness_conventions.md` exists, write the facts still true, in their simplest final form, into the project's conventions document — its `CLAUDE.md`, or the nearest doc phases actually read. A fact a later phase made obsolete does not graduate, and neither does the account of how one was learned. The feature file accumulates what the run learned; the project file states what is true of the harness now. These facts outlive the feature that paid for them.
 5. **Drop the feature's artifact directory.** `/tmp/zforge/artifacts/{feature}/` has done its work: every row was reconciled against it at acceptance, and what the run needs to keep is in the rows. Anything a standing flag still depends on is quoted in `05_progress_overview.md` before the directory goes.
-6. Report to the user: phases completed, evidence classes achieved against those planned, rows accepted below their class and why, open 🟡 decisions awaiting review, and any flag that had to be carried.
-7. Suggest `$zforge:review` for feature `{name}` to check the implementation against the ledger.
+6. Report to the user: phases completed, evidence classes achieved against those planned, rows accepted below their class and why, open 🟡 decisions awaiting review, any flag that had to be carried with its kind, and what the run cost — wall-clock, the command time re-executed at acceptance, and how many phases took a second pass. A run whose cost is never stated is a run nobody can decide to change.
+7. **Commit the close.** Code landed per phase, so this commit carries the bookkeeping: the final overview status, the `session_log.md` row, the graduated absences, the graduated harness facts. Commit it as `zforge({feature}): close`. It is small, and it is unmistakably the end of the feature — which is what makes any later review or fix commit separable from it.
+8. **Name what is available next, with its cost.** The closing commit is **not pushed**. A push gate can be a suite of many minutes, and a red gate reopens the feature with nobody present to decide. Name the push and `$zforge:review` for feature `{name}` as what is available, each with what it would take and what it could reopen. Both are the user's decisions, not consequences of closing.
 
 If flags remain open, say so plainly and name them. A feature with an open flag is not finished; it is finished-except-for-a-named-gap, and the difference is the entire point of tracking them.
