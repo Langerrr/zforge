@@ -122,8 +122,6 @@ Each group gates one artifact. Write each as its group fills.
 
 Every file is created from its template in `${CLAUDE_PLUGIN_ROOT}/templates/` — phase files from `templates/05_progress/05_XX_phase_template.md`.
 
-**Under `implementation`, make sure `.zforge/` is ignored in every repo the phases will touch.** Phases write evidence artifacts to `.zforge/artifacts/{feature}/` at the root of the repo whose code they exercise; where that line is missing, the first phase to run commits its own command output into the tree. One line per repo, appended where it is not already there.
-
 `discussion.md` and `session_log.md` are created at the start and appended throughout, under either kind. `decision_review.md` is created with the tree under `implementation`; under `requirements` it is created only if the session makes a run-level call worth recording in §A, since §C has no phases to promote from.
 
 Create the **core patterns doc** when the feature changes data models, abstractions or architectural patterns: the entity model, the rules with code examples, the anti-patterns table. Without it agents follow the checklist and write structurally wrong code. Name it for what it is, take the next free number, and register it in the Doc Map. The same applies to any other document the feature turns out to need — never create empty placeholders.

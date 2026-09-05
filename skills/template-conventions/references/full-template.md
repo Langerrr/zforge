@@ -37,20 +37,22 @@ Documents outside the fixed `00`–`02` and `05` set take the next free number a
 
 ## Where artifacts live
 
-Evidence artifacts are command output, and they live beside the code that produced them. A phase writes them to:
+Evidence artifacts are command output, and they live outside every repository. A phase writes them to:
 
 ```
-{repo whose code the command exercised}/.zforge/artifacts/{feature}/
+/tmp/zforge/artifacts/{feature}/
     05_04_typecheck.01.txt
     05_10_e2e-full.01.json
     05_10_e2e-full.02.json
 ```
 
-`{feature}` names the feature — its directory under `docs/`, with any nesting flattened to `-`, so one repo can hold artifacts for several concurrent features without collision. The file name is `{phase}_{what-it-is}.{NN}.{ext}`, and the run number is what lets a second run coexist with the file an earlier row already quotes.
+`{feature}` names the feature — its directory under `docs/`, with any nesting flattened to `-`, so several concurrent features share the root without collision. The file name is `{phase}_{what-it-is}.{NN}.{ext}`, and the run number is what lets a second run coexist with the file an earlier row already quotes.
 
-**`.zforge/` is gitignored.** The plan workflow puts that line in each repo its phases touch. An artifact is working state: acceptance reads it once, and completion drops the feature's directory. What the tree keeps is the row — its finding, its figure, and the path the figure came from.
+**The root is the same for every repo a feature touches**, so there is one path to construct and one to open however many repositories the phases exercise. Nothing is written inside a repository, so nothing has to be kept out of a commit. Retention belongs to the operating system.
 
-**Rows cite artifacts by a path relative to the workspace root.** `.zforge/artifacts/creator-platform/05_10_e2e-full.01.json` where the workspace is a single repo; `director-console/.zforge/artifacts/creator-platform/05_10_e2e-full.01.json` where it is several. One rule covers both, and it is the path acceptance opens.
+An artifact is working state: acceptance reads it once, and completion drops the feature's directory. What the tree keeps is the row — its finding, its figure, and the path the figure came from.
+
+**Rows cite artifacts by their full path.** `/tmp/zforge/artifacts/creator-platform/05_10_e2e-full.01.json`, whether the workspace is a single repository or several. That path is what acceptance opens.
 
 ## Creation timeline
 
@@ -91,7 +93,7 @@ Authoritative and the only copy. The spawn message points at it and does not res
 
 Each row is written **when its command runs, from the artifact that command wrote** — not at session end and not from console scrollback. Every figure presented as a measurement appears verbatim in that artifact, or the row says it cannot.
 
-Artifacts are written to `.zforge/artifacts/{feature}/` at the root of the repo whose code the command exercised, named `{phase}_{what-it-is}.{NN}.{ext}` so a second run cannot overwrite the file an earlier row quotes, and cited by a path relative to the workspace root. The directory is gitignored and dropped at completion — see **Where artifacts live**.
+Artifacts are written to `/tmp/zforge/artifacts/{feature}/`, named `{phase}_{what-it-is}.{NN}.{ext}` so a second run cannot overwrite the file an earlier row quotes, and cited by their full path. The directory is dropped at completion — see **Where artifacts live**.
 
 ### `## Environment Assumptions`
 `Assumed by plan | Actual here | Substitution | What it defers`. A substitution with no deferral stated is one nobody will remember to undo.

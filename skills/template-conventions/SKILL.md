@@ -67,7 +67,7 @@ The short version: `02_plan.md`'s Verification Matrix declares the classes per p
 
 **Rows are written when their commands run, from the artifact each command wrote**, with artifacts named per run so a re-run cannot overwrite the file an earlier row quotes. A figure presented as a measurement appears verbatim in its artifact or the row says it cannot. This is what makes the cheap half of acceptance possible at all.
 
-Artifacts live in `.zforge/artifacts/{feature}/`, at the root of the repo whose code the command exercised — outside the docs tree, untracked, and dropped when the feature closes. A row cites one by a path relative to the workspace root. The docs tree carries the finding and the path; the file itself is working state that acceptance reads once.
+Artifacts live in `/tmp/zforge/artifacts/{feature}/` — outside every repository, and dropped when the feature closes. A row cites one by its full path. The docs tree carries the finding and the path; the file itself is working state that acceptance reads once.
 
 Where achieved falls short of required, the gap is settled by materiality: a **material** shortfall becomes a standing flag in the overview and the feature is not complete while one is open, and an **immaterial** one is accepted with the reasoning recorded. Two shortfalls are never immaterial — a command that selected nothing and exited 0, and a user-reachable surface nothing reached. The achieved class is recorded as reached either way.
 
