@@ -36,9 +36,10 @@ Phase  Name                 Status      Checklist  Evidence      Last Activity
 
 * claimed, not re-run — Phase 2 is REPORTED
 
-### Standing Flags (2 open)
-- SF1 (Phase 5): E4 unmet across all UI phases — closes when a browser-executed run passes
-- SF3 (Phase 7): live vendor calls deferred to a mock adapter — closes when a token exists
+### Standing Flags (3 open)
+- SF1 · inward (Phase 5): E4 unmet across all UI phases — closes when a browser-executed run passes
+- SF3 · inward (Phase 7): live vendor calls deferred to a mock adapter — closes when a token exists
+- SF4 · OUTWARD (Phase 9): no control creates a project, and no decision chose that — closes when it is written into a document this project's planners read, with the path cited
 
 ### Decisions awaiting review: 14 🟡
 - Most recent: P7.1 — tri-state run status supersedes P2.8

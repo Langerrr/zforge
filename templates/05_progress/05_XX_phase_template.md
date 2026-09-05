@@ -51,6 +51,11 @@
      end of the phase and not from console scrollback. Every figure presented as a
      measurement appears verbatim in that artifact, or the row says it cannot.
 
+     An absence you record names what chose it, or says that nothing did. "There is no
+     endpoint" carries no finding. "There is no endpoint, and decision A120 is why" and
+     "there is no endpoint and no decision names one" are opposite findings, and only the
+     second is owed to anyone.
+
      Artifacts go to /tmp/zforge/artifacts/{feature}/ — outside every repository, never into
      this docs tree. Name them {phase}_{what-it-is}.{NN}.{ext} so a second run cannot overwrite
      the file an earlier row quotes, and cite each by its full path:
