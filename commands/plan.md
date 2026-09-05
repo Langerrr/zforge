@@ -101,6 +101,10 @@ A6 does not surface on its own. These questions arrive from writing the behaviou
 | C5 | Invariants *(if any span phases)* | Each has an owner phase and a re-check phase | Propose |
 | C6 | Async state design *(if async data flows)* | Data-flow map, init order, concurrent timeline trace, persistence boundaries | Propose. This is design work, not a question |
 
+**Before C2 is filled, think `UNOWNED`: what does a user need here that no feature owns — including this one?**
+
+Features close by writing their unowned absences into the document this project's planners read, so this is where those arrive. Reaching none of them is itself a reading — either nothing is owed, or an earlier feature answered `WHERE` with a document nobody opens. Say which, rather than leaving it silent. A surface no layer's build claims is the class that survives every other check, because there is no code for a review to be wrong about.
+
 ### D — Handoff · gates the phase files
 
 | # | Item | Filled when | Attempt |
