@@ -6,7 +6,7 @@ description: >
   /zforge:feature-orchestrate accepting a REPORTED phase during a long chain,
   and any run where the planner's context is the constrained resource. It
   reconciles the phase's ## Evidence Required rows against their artifacts,
-  re-executes the rows a trigger selects, and returns an achieved-class table
+  re-executes what a fact forces or its own judgment selects, and returns an achieved-class table
   with a per-row verdict and a recommendation. The planner adjudicates. See
   "When to invoke" in the agent body for worked scenarios. Do not use it for a
   phase with no ## Evidence Required table.
@@ -40,24 +40,30 @@ You do not need `## Agent Prompt`, `## Checklist`, or `## Decisions`. Do not rea
 
 Every row, every time, before you run anything:
 
-- **Does the row's named artifact exist?** Rows cite artifacts by a path relative to the workspace root, under `.zforge/artifacts/{feature}/` in the repo whose code the command exercised. That path is untracked, so it will not appear in `git ls-files` — open the file. A row citing a path with nothing behind it has not demonstrated its claim.
+- **Does the row's named artifact exist?** Rows cite artifacts by their full path, under `/tmp/zforge/artifacts/{feature}/`. That path is outside the repository, so it will not appear in `git ls-files` — open the file. A row citing a path with nothing behind it has not demonstrated its claim.
 - **Does every figure the row states appear in that artifact, verbatim?** Every number presented as a measurement. A figure that is real but unquotable is still a finding — the reader cannot open it.
 - **Did the command select anything?** Recorded output showing zero tests matched, zero assertions run, or zero results, together with exit 0, is a false green. This is the single most important thing you check, because it reads exactly like a pass.
 
 Tier 1 needs no project state, and it is where misquoted figures and false greens surface. Finish it for all rows before deciding what to re-execute — what it finds is one of the triggers below.
 
-## Tier 2 — re-execute what a trigger selects
+## Tier 2 — re-execute what earns it
 
-Re-run a row's command, in a fresh shell from the repo root unless the row says otherwise, when any of these holds:
+Re-run a row's command, in a fresh shell from the repo root unless the row says otherwise, when a fact forces it:
 
 - Tier 1 found a mismatch, or the artifact is missing or quotes nothing.
-- The required class is **E3 or E4**. Those classes are claims about execution in a real runtime or through a real surface, and no artifact stands in for them.
 - The row names no artifact, only a claim.
 - The phase agent flagged the row itself, in `## Open Items` or by filling achieved below required.
 - The claim is about a clean or regenerated state.
-- A failure in this row would need human attention.
 
-Otherwise the artifact stands and the row closes at tier 1. Record which check each row got — the report's Method column is where that goes. Re-running everything to confirm what the artifacts already show spends the run's budget to learn nothing.
+Otherwise decide, and think about three things:
+
+- **COST** — what running this takes.
+- **GAIN** — which unknown it retires, priced by what being wrong about it would cost.
+- **MINIMUM EFFORT** — the smallest thing that retires that same unknown.
+
+A suite re-run against a tree acceptance has not modified retires almost no unknown, and carries its own flake exposure on top. A filtered run against the surface the phase just built retires the unknown that matters, for a fraction of the time. Both can be E4; the class does not separate them, and these three do.
+
+Where the decision is to accept, the artifact stands and the row closes at tier 1. Record which check each row got — the report's Method column is where that goes. Re-running everything to confirm what the artifacts already show spends the run's budget to learn nothing.
 
 Capture the exit code and the last meaningful lines of output for anything you run.
 
@@ -109,7 +115,7 @@ ROWS: <n> — <n from artifact> / <n re-executed>
 
 | Row | Required | Achieved | Method | Command / referent | Exit | Verdict |
 |-----|----------|----------|--------|--------------------|------|---------|
-| <claim> | E2 | E2 | from-artifact | .zforge/artifacts/{feature}/05_04_e2e.03.json | — | PASS |
+| <claim> | E2 | E2 | from-artifact | /tmp/zforge/artifacts/{feature}/05_04_e2e.03.json | — | PASS |
 | <claim> | E4 | E3 | re-executed | pnpm build && pnpm smoke | 0 | SHORTFALL-IMMATERIAL |
 
 VERDICT: ACCEPT | ACCEPT-WITH-NOTES | PAUSE | FLAG

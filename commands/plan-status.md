@@ -31,7 +31,7 @@ Feature Plans in {current_directory}:
 
 **A feature with every phase complete and an open standing flag is not Complete.** Show it as `Flagged` with the flag count — the whole point of tracking flags is that they survive the run ending.
 
-4. List open standing flags below the table, with the phase that opened each and what closes it.
+4. List open standing flags below the table, with the phase that opened each, its kind, and what closes it. Name the `OUTWARD` ones first: an inward flag is a gap this feature can still close, and an `OUTWARD` one is an obligation waiting on a planner who has not read the feature that found it.
 
 5. If no `05_progress_overview.md` files are found, report: "No feature plans found under {current_directory}."
 

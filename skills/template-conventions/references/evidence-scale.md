@@ -58,7 +58,7 @@ A class is claimed by a row and held by an artifact. Three rules keep the two at
 
 The row carries the finding and the artifact path. How the number was obtained belongs in the artifact.
 
-Artifacts are written outside the documentation tree, to `.zforge/artifacts/{feature}/` at the root of the repo whose code the command exercised, and cited by a path relative to the workspace root. The directory is untracked and is dropped when the feature closes: an artifact exists to be read at acceptance, which is also the moment a figure with nothing behind it is caught. After that the row is the record. `full-template.md` §Where artifacts live has the naming and the paths.
+Artifacts are written outside every repository, to `/tmp/zforge/artifacts/{feature}/`, and cited by their full path. The directory is dropped when the feature closes: an artifact exists to be read at acceptance, which is also the moment a figure with nothing behind it is caught. After that the row is the record. `full-template.md` §Where artifacts live has the naming and the paths.
 
 ## What is not on either scale
 
@@ -85,7 +85,7 @@ A feature with a user-facing surface whose matrix has an empty E4 column has a k
 
 ## The gap between required and achieved
 
-At acceptance every row is reconciled against its artifact, and the rows a trigger selects are re-executed. A J row is re-checked the way an E row is: the method is on the page, so another party can walk it. `feature-execution` §Acceptance carries the tiers and the triggers.
+At acceptance every row is reconciled against its artifact, and what a fact forces or judgment selects is re-executed. A J row is re-checked the way an E row is: the method is on the page, so another party can walk it. `feature-execution` §Acceptance carries the tiers and what decides between them.
 
 | | |
 |---|---|

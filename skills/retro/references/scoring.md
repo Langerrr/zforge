@@ -88,7 +88,7 @@ A fluent model fills any form fluently, so form-satisfaction rises with model ca
 
 **Look for:**
 - Did each phase's `## Evidence Required` name commands and artifacts a third party could re-run, or restate a claim?
-- Were rows written as their commands ran, from the artifacts, or batched at the end from console output? Does every figure presented as a measurement appear verbatim in its artifact, and did the artifacts land in `.zforge/artifacts/{feature}/` rather than in the documentation tree?
+- Were rows written as their commands ran, from the artifacts, or batched at the end from console output? Does every figure presented as a measurement appear verbatim in its artifact, and did the artifacts land in `/tmp/zforge/artifacts/{feature}/` rather than in the documentation tree?
 - Did artifacts survive to be checked, or did a re-run overwrite the file a row quotes?
 - Did the planner verify at acceptance, or accept the agent's account? Does each row record whether it was reconciled from its artifact or re-executed?
 - Did achieved classes match required classes — and where they didn't, did the gap get a standing flag or recorded reasoning for why it was immaterial? A shortfall with neither was absorbed.

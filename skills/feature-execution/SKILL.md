@@ -162,7 +162,7 @@ An agent's green report is a claim. Acceptance is the planner's independent conf
 
 1. Read the phase's `## Evidence Required` table, its `## Environment Assumptions`, and `07_harness_conventions.md` if the feature has one.
 2. **Reconcile every row against its artifact** (tier 1, below).
-3. **Re-execute the rows a trigger selects** (tier 2, below). A J row is re-checked by walking the method the row names.
+3. **Re-execute what tier 2 selects** (below). A J row is re-checked by walking the method the row names.
 4. Compare achieved class against required class for every row, **within its axis**, and settle each shortfall by materiality:
 
 | Result | Response |
@@ -177,6 +177,11 @@ An agent's green report is a claim. Acceptance is the planner's independent conf
 7. **Promote any harness fact** the phase learned into `07_harness_conventions.md`, so the next phase reads it instead of paying for it again.
 8. Roll any material unmet class up to the overview's Standing Flags.
 9. Set `> Status:` to COMPLETED and update `05_progress_overview.md`.
+10. **Commit the accepted phase.** Stage the phase's source changes and its phase file, and commit as `zforge({feature}): phase {NN} {name}`.
+
+Commit at acceptance rather than at report, so every commit in the history is accepted work: a phase that is rejected or re-run leaves none to unwind. A phase can be hours of work, and it gets its own commit rather than a share of a ten-phase diff.
+
+Make the commit with `git` directly, **never by invoking a commit skill or command**. A delegated commit hands this moment to another workflow, and what runs next tends to arrive with its own review and repair loop — which is how an accepted, green feature gets reopened with nobody present to decide.
 
 The achieved class is recorded as reached. A row that reached E3 against an E4 requirement reads E3 whichever outcome it takes — accepting a gap and hiding it are different acts.
 
@@ -186,24 +191,30 @@ A phase whose evidence table is entirely E0 and J0 has demonstrated nothing, reg
 
 Every row, every time, without running anything:
 
-- Does the row's named artifact exist? Rows cite artifacts by a path relative to the workspace root, under `.zforge/artifacts/{feature}/` in the repo whose code the command exercised. That path is untracked by design — open the file rather than looking for it in the tree.
+- Does the row's named artifact exist? Rows cite artifacts by their full path, under `/tmp/zforge/artifacts/{feature}/` — open the file rather than looking for it in the tree.
 - Does every figure the row states appear in that artifact verbatim?
 - Does the recorded output show a command that **selected nothing** — zero tests matched, zero assertions run, zero results — and exited 0?
 
 This tier is cheap, it needs no project state, and it is where misquoted figures and false greens surface. Run it before deciding what to re-execute, because what it finds is one of the triggers.
 
-### Tier 2 — re-execute what a trigger selects
+### Tier 2 — re-execute what earns it
 
-Re-run a row when any of these holds:
+Re-run a row when a fact forces it:
 
 - Tier 1 found a mismatch, or the artifact is missing or quotes nothing.
-- The required class is **E3 or E4**. Those classes are claims about execution in a real runtime or through a real surface, and no artifact stands in for them.
 - The row names no artifact, only a claim.
 - The agent flagged the row itself, in `## Open Items` or by filling achieved below required.
 - The claim is about a clean or regenerated state.
-- A failure in this row would need human attention.
 
-Otherwise the artifact stands and the row closes at tier 1.
+Otherwise decide, and think about three things:
+
+- **COST** — what running this takes.
+- **GAIN** — which unknown it retires, priced by what being wrong about it would cost.
+- **MINIMUM EFFORT** — the smallest thing that retires that same unknown.
+
+A suite re-run against a tree acceptance has not modified retires almost no unknown, and carries its own flake exposure on top. A filtered run against the surface the phase just built retires the unknown that matters, for a fraction of the time. Both can be E4; the class does not separate them, and these three do.
+
+Where the decision is to accept, the artifact stands and the row closes at tier 1.
 
 **Record which check each row got** — `from-artifact` or `re-executed`. A row accepted from its artifact is honestly accepted; a row written up as though a command ran is not.
 
@@ -236,7 +247,7 @@ The agent returns a per-row verdict and an overall recommendation with its ratio
 
 Steps 4 through 9 stay with the planner. Adjudicating materiality, writing `## Acceptance`, and deciding what gets promoted are the parts that need the run.
 
-A tier-1-only pass — reconciliation with no re-execution triggered — is arithmetic against committed files and runs well on a cheaper model. A pass that will re-execute E3 or E4 rows needs one that can read a failing runtime.
+A tier-1-only pass — reconciliation with no re-execution triggered — is arithmetic against committed files and runs well on a cheaper model. A pass that will re-execute anything needs one that can read a failing runtime.
 
 ## Completion bookkeeping
 
@@ -246,9 +257,20 @@ On completion:
 
 1. Final status for all phases in `05_progress_overview.md`.
 2. Fill the current session's row in `session_log.md` — phases touched, summary, and any usage-limit interruptions.
-3. **Graduate the harness conventions.** Where `07_harness_conventions.md` exists, write the facts still true, in their simplest final form, into the project's conventions document — its `CLAUDE.md`, or the nearest doc phases actually read. A fact a later phase made obsolete does not graduate, and neither does the account of how one was learned. The feature file accumulates what the run learned; the project file states what is true of the harness now. These facts outlive the feature that paid for them.
-4. **Drop the feature's artifact directory.** `.zforge/artifacts/{feature}/` in each repo the phases touched has done its work: every row was reconciled against it at acceptance, and what the run needs to keep is in the rows. Anything a standing flag still depends on is quoted in `05_progress_overview.md` before the directory goes.
-5. Report to the user: phases completed, evidence classes achieved against those planned, rows accepted below their class and why, open 🟡 decisions awaiting review, and any flag that had to be carried.
-6. Suggest `$zforge:review` for feature `{name}` to check the implementation against the ledger.
+3. **Graduate the unowned absences.** Read what this feature recorded about surfaces nothing reaches, and think about three things for each:
+
+   - **CHOSEN** — which decision chose this absence? If none did, it is a gap rather than a design.
+   - **OWNED** — what downstream owns building it? If nothing does, it is `UNOWNED`.
+   - **WHERE** — where will the next planner look for this, and is it there?
+
+   An `UNOWNED` absence becomes a standing flag of kind `OUTWARD` in `05_progress_overview.md`. It closes when it has been written into the document this project's planners actually read — a `CLAUDE.md`, a domain index, whatever they open when cutting the next feature — with that path cited as the closing evidence. zforge names the obligation and asks for a landing site; the destination belongs to the project.
+
+   A phase that walks a journey finds these, states them well, and states them in a file no planner opens. The writing is rarely the problem; the routing is, and this is the moment to do it.
+
+4. **Graduate the harness conventions.** Where `07_harness_conventions.md` exists, write the facts still true, in their simplest final form, into the project's conventions document — its `CLAUDE.md`, or the nearest doc phases actually read. A fact a later phase made obsolete does not graduate, and neither does the account of how one was learned. The feature file accumulates what the run learned; the project file states what is true of the harness now. These facts outlive the feature that paid for them.
+5. **Drop the feature's artifact directory.** `/tmp/zforge/artifacts/{feature}/` has done its work: every row was reconciled against it at acceptance, and what the run needs to keep is in the rows. Anything a standing flag still depends on is quoted in `05_progress_overview.md` before the directory goes.
+6. Report to the user: phases completed, evidence classes achieved against those planned, rows accepted below their class and why, open 🟡 decisions awaiting review, any flag that had to be carried with its kind, and what the run cost — wall-clock, the command time re-executed at acceptance, and how many phases took a second pass. A run whose cost is never stated is a run nobody can decide to change.
+7. **Commit the close.** Code landed per phase, so this commit carries the bookkeeping: the final overview status, the `session_log.md` row, the graduated absences, the graduated harness facts. Commit it as `zforge({feature}): close`. It is small, and it is unmistakably the end of the feature — which is what makes any later review or fix commit separable from it.
+8. **Name what is available next, with its cost.** The closing commit is **not pushed**. A push gate can be a suite of many minutes, and a red gate reopens the feature with nobody present to decide. Name the push and `$zforge:review` for feature `{name}` as what is available, each with what it would take and what it could reopen. Both are the user's decisions, not consequences of closing.
 
 If flags remain open, say so plainly and name them. A feature with an open flag is not finished; it is finished-except-for-a-named-gap, and the difference is the entire point of tracking them.
