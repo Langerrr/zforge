@@ -1,6 +1,6 @@
 {
   "name": "zforge",
-  "version": "4.2.0",
+  "version": "4.3.0+codex.20260908203550",
   "description": "Durable state, contract and evidence layer for multi-session feature work: contract-bounded planning, autonomous phase orchestration with evidence-based acceptance, and ledger-versus-implementation review.",
   "author": {
     "name": "lan"
