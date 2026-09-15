@@ -21,12 +21,13 @@ Load the `feature-execution` skill. It owns phase state, the spawn contract, rec
 
 ## Pre-flight
 
-1. Convert the feature name to snake_case and resolve `docs/{feature_name}/`. If the directory is missing, report it and suggest `/zforge:plan`.
+1. Convert the feature name to snake_case and resolve `docs/{feature_name}/`. Where that is absent, search `docs/**/{feature_name}/` for a directory of exactly that name: a unique match is the feature, and the run reports the resolved path and uses it from here on; two matches is an error naming both. If nothing matches, report it and suggest `/zforge:plan`.
 2. Read `05_progress_overview.md`, `01_context.md`, `02_plan.md`, and the Doc Map in `01_context.md` for anything else binding.
 3. Read `decision_review.md`. If it does not exist, create it from `${CLAUDE_PLUGIN_ROOT}/templates/decision_review.md`.
 4. Read `session_log.md`, creating it from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md` if absent, and append a row for this session.
 5. Note any open standing flags in the overview. A flag opened by an earlier session is inherited by this one.
 6. Read `07_harness_conventions.md` if the feature has one. It says how this project is run and observed, and it is what keeps the run from re-learning a fact an earlier phase already paid for.
+7. **Ask which models to spawn.** One `AskUserQuestion`, two answers: the model that implements and the model that accepts. Propose the session's own model for implementation and a cheaper one for acceptance, and where `session_log.md` has a previous row, propose its pair. Record the answer in this session's row. Every spawn and every acceptance delegation carries it.
 
 **If the feature predates v3** — phase files with no `## Evidence Required` table — say so once, treat every phase's evidence as E0, and offer to backfill the Verification Matrix in `02_plan.md` before executing. Executing without it is allowed; it just means acceptance can only check that commands run, not that they were the right class.
 
@@ -36,8 +37,8 @@ Load the `feature-execution` skill. It owns phase state, the spawn contract, rec
 
 1. Classify every phase. Pick what to run using the skill's scheduling rules — sequential unless dependencies, collision surfaces and token budget all permit otherwise.
 2. Spawn READY phases per the skill's spawn contract.
-3. Handle each report by its status. Completion arrives natively; do not poll. **On arrival, set the phase to REPORTED and log the report before running anything** — that checkpoint is what survives a planner that dies mid-acceptance.
-4. Accept REPORTED phases per the skill's acceptance procedure — reconcile every evidence row against its artifact, re-execute what a fact forces or COST, GAIN and MINIMUM EFFORT select, settle each shortfall by materiality, and commit the accepted phase as `zforge({feature}): phase {NN} {name}` with `git` directly. On a long chain, delegate the verification to `zforge:acceptance-agent` and adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
+3. Handle each report by its status. Completion arrives natively; do not poll. The agent set REPORTED and logged its report before reporting; where a DONE report arrives with the header still RUNNING, set it now, before running anything.
+4. Accept REPORTED phases per the skill's acceptance procedure — reconcile every evidence row against its artifact, re-execute what a fact forces or COST, GAIN and MINIMUM EFFORT select, settle each shortfall by materiality, paste the report into `## Acceptance` with its adjudication and promoted lines, and commit the accepted phase as `zforge({feature}): phase {NN} {name}` with `git` directly. On a long chain, delegate the verification to `zforge:acceptance-agent` on the acceptance model chosen at pre-flight and adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
 5. Repeat until no phase is READY.
 
 ## Autonomy boundary

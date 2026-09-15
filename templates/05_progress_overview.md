@@ -9,7 +9,7 @@
 ## Phase Summary
 
 Status is one of PENDING · READY · WAITING · RUNNING · REPORTED · PAUSED · INTERRUPTED · FAILED · COMPLETED.
-A phase reaches COMPLETED only through acceptance — the planner re-running its evidence commands. REPORTED is the state in between: an agent reported DONE and the evidence has not been re-run.
+A phase reaches COMPLETED only through acceptance. REPORTED is the state in between, set by the agent as it reports DONE: the work is on disk and the evidence has not been verified.
 
 | Phase | Name | Status | Evidence achieved | Progress File |
 |-------|------|--------|-------------------|---------------|
@@ -42,20 +42,6 @@ Declared-but-undischarged verification, rolled up at each acceptance and visible
 | Running | 0 |
 | Open standing flags | 0 |
 | 🟡 decisions awaiting review | 0 |
-
----
-
-## Session Log (All Phases)
-
-| Date | Session | Phase | Summary |
-|------|---------|-------|---------|
-
----
-
-## Files Modified (All Phases)
-
-| File | Phase | Status |
-|------|-------|--------|
 
 ---
 

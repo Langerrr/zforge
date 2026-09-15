@@ -103,11 +103,13 @@ class PluginSurfaceTests(unittest.TestCase):
 
         for clause in (
             "## Tier 1 — reconcile every row",
-            "## Tier 2 — re-execute what a trigger selects",
+            "## Tier 2 — re-execute what earns it",
             "SHORTFALL-MATERIAL",
             "SHORTFALL-IMMATERIAL",
             "Never accept or reject unilaterally",
             "07_harness_conventions.md",
+            "UNVERIFIABLE` is for a command that none of these resolves",
+            "The one file you write is `07_harness_conventions.md`",
         ):
             self.assertIn(clause, claude, f"missing from Claude agent: {clause}")
             self.assertIn(clause, codex, f"missing from Codex skill: {clause}")
@@ -131,7 +133,7 @@ class PluginSurfaceTests(unittest.TestCase):
         """Every surface that writes or opens an artifact names one location.
 
         The location went unstated through v4.1.0, and agents improvised it into
-        the documentation tree. A surface that tells an agent to write an artifact
+        the documentation tree; since v4.3.0 it is outside every repository. A surface that tells an agent to write an artifact
         without saying where re-opens exactly that gap.
         """
         for relative in (
@@ -151,7 +153,7 @@ class PluginSurfaceTests(unittest.TestCase):
             "skills/retro/references/scoring.md",
         ):
             text = (REPO_ROOT / relative).read_text()
-            self.assertIn(".zforge/artifacts/", text, relative)
+            self.assertIn("/tmp/zforge/artifacts/", text, relative)
 
     def test_artifact_path_rule_stated_on_both_hosts(self) -> None:
         """The writer and the reader agree on how a row cites an artifact.
@@ -169,7 +171,51 @@ class PluginSurfaceTests(unittest.TestCase):
         for claude_path, codex_path in pairs:
             for relative in (claude_path, codex_path):
                 text = (REPO_ROOT / relative).read_text()
-                self.assertIn("relative to the workspace root", text, relative)
+                self.assertIn("full path", text, relative)
+
+    def test_phase_contract_stated_on_both_hosts(self) -> None:
+        """The Claude agent and the Codex skill state one phase-agent contract.
+
+        The agent sets its own reporting state, marks each decision's reach, writes
+        harness facts itself, and keeps artifacts to files. A host missing any of
+        these produces phases the other host's planner reads differently.
+        """
+        claude = (REPO_ROOT / "agents" / "phase-agent.md").read_text()
+        codex = (REPO_ROOT / "codex" / "skills" / "phase-agent" / "SKILL.md").read_text()
+        for clause in (
+            "Never COMPLETED",
+            "`Reach` column",
+            "append it to the feature's `07_harness_conventions.md`",
+            "never a directory",
+            "DECISIONS: <count> (<n> outward)",
+        ):
+            self.assertIn(clause, claude, f"missing from Claude agent: {clause}")
+            self.assertIn(clause, codex, f"missing from Codex skill: {clause}")
+
+    def test_acceptance_section_shape_stated_wherever_it_is_written(self) -> None:
+        """Every surface that writes ## Acceptance names the same two closing lines.
+
+        The section is the acceptance report plus an adjudication line and a
+        promoted line. A surface describing it as prose reopens the rewrite this
+        shape removed.
+        """
+        for relative in (
+            "skills/feature-execution/SKILL.md",
+            "templates/05_progress/05_XX_phase_template.md",
+            "skills/template-conventions/references/full-template.md",
+        ):
+            text = (REPO_ROOT / relative).read_text()
+            self.assertIn("ADJUDICATED:", text, relative)
+            self.assertIn("PROMOTED:", text, relative)
+            self.assertIn("RE-ACCEPTED:", text, relative)
+
+    def test_no_surface_promotes_harness_facts_through_the_planner(self) -> None:
+        """Harness facts are written by whoever learns them, not copied at acceptance."""
+        for directory in ("agents", "commands", "skills", "templates", "codex"):
+            for path in (REPO_ROOT / directory).rglob("*.md"):
+                self.assertNotIn(
+                    "kind: harness", path.read_text(), str(path.relative_to(REPO_ROOT))
+                )
 
     def test_no_surface_requires_a_committed_artifact(self) -> None:
         """Artifacts are untracked, so no surface may still demand a commit.

@@ -15,12 +15,14 @@ Load `$zforge:feature-execution`. It owns phase state, the spawn contract, recov
 
 ## Pre-flight
 
-1. Convert the feature name to snake_case and resolve `docs/{feature_name}/`. If the directory is missing, report it and suggest `$zforge:plan`.
+1. Convert the feature name to snake_case and resolve `docs/{feature_name}/`. Where that is absent, search `docs/**/{feature_name}/` for a directory of exactly that name: a unique match is the feature, and the run reports the resolved path and uses it from here on; two matches is an error naming both. If nothing matches, report it and suggest `$zforge:plan`.
 2. Read `05_progress_overview.md`, `01_context.md`, `02_plan.md`, and the Doc Map in `01_context.md` for anything else binding.
 3. Read `decision_review.md`. If it does not exist, create it from `../../../templates/decision_review.md`, resolved relative to this `SKILL.md`.
 4. Read `session_log.md`, creating it from `../../../templates/session_log.md`, resolved relative to this `SKILL.md`, if absent, and append a row for this session.
 5. Note any open standing flags in the overview. A flag opened by an earlier session is inherited by this one.
 6. Read `07_harness_conventions.md` if the feature has one. It says how this project is run and observed, and it is what keeps the run from re-learning a fact an earlier phase already paid for.
+7. **Ask which models to spawn.** One question, two answers: the model that implements and the model that accepts. Propose the session's own model for implementation and a cheaper one for acceptance, and where `session_log.md` has a previous row, propose its pair. Record the answer in this session's row. Every subagent spawn and every acceptance delegation carries it.
+8. **Read the plan's harness instruction references as this host's.** Where a phase's `## Required Context` names `CLAUDE.md` as the harness instruction file, read `AGENTS.md` at the same path. Where it names a product artifact that happens to be called `CLAUDE.md`, read that file as written. Rename neither.
 
 ## Codex goal bridge
 
@@ -40,9 +42,9 @@ The bridge owns no second progress ledger: `/goal` answers whether Codex should 
 ## Run loop
 
 1. Classify every phase. If this run adopted a goal, call `get_goal` now before acceptance or delegation. If the same goal is no longer active, or the runtime reports no remaining capacity, checkpoint any delivered report and yield without starting more work.
-2. Accept REPORTED phases before scheduling implementation — reconcile every evidence row against its artifact, re-execute what a fact forces or COST, GAIN and MINIMUM EFFORT select, settle each shortfall by materiality, and commit the accepted phase as `zforge({feature}): phase {NN} {name}` with `git` directly. Below 15% goal budget, if a REPORTED phase exists, accept exactly one, skip implementation for this wave and return to classification to re-check the goal; if none exists, continue to the skill's single bounded action for this wave. Outside that band, accept every REPORTED phase. On a long chain, delegate the verification to a Codex subagent instructed to use `$zforge:acceptance-agent`, then adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
+2. Accept REPORTED phases before scheduling implementation — reconcile every evidence row against its artifact, re-execute what a fact forces or COST, GAIN and MINIMUM EFFORT select, settle each shortfall by materiality, paste the report into `## Acceptance` with its adjudication and promoted lines, and commit the accepted phase as `zforge({feature}): phase {NN} {name}` with `git` directly. Below 15% goal budget, if a REPORTED phase exists, accept exactly one, skip implementation for this wave and return to classification to re-check the goal; if none exists, continue to the skill's single bounded action for this wave. Outside that band, accept every REPORTED phase. On a long chain, delegate the verification to a Codex subagent on the acceptance model chosen at pre-flight, instructed to use `$zforge:acceptance-agent`, then adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
 3. Pick what to run using the skill's scheduling rules — sequential unless dependencies, collision surfaces and token budget all permit otherwise. If this run adopted a goal, immediately before spawning, re-check that the same goal is active and that the runtime has not reported exhausted capacity; otherwise yield at the durable checkpoint. Then spawn READY phases per the skill's contract.
-4. Handle each report by its status. Completion arrives natively; do not poll. **On arrival, set the phase to REPORTED and log the report before running anything** — that checkpoint is what survives a planner that dies mid-acceptance.
+4. Handle each report by its status. Completion arrives natively; do not poll. The agent set REPORTED and logged its report before reporting; where a DONE report arrives with the header still RUNNING, set it now, before running anything.
 5. Return to classification. Exit to Completion when every phase is COMPLETED and no standing flag is open. If all phases are COMPLETED but a standing flag remains, stop and surface it. If incomplete phases remain but none can run, stop and surface their WAITING, PAUSED or INTERRUPTED conditions. Otherwise begin the next wave. A scheduling wave is one pass from this classification boundary through the bounded acceptance or implementation work selected there.
 
 ## Autonomy boundary

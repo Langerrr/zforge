@@ -1,7 +1,7 @@
 # Harness Conventions — {Feature Name}
 
 > Last updated: {DATE}
-> Owner: Planner — promoted from phase `## Decisions` rows marked `kind: harness`
+> Owner: whoever learns the fact — the phase agent or the acceptance agent appends a row at the moment of learning; the planner graduates the file at feature close
 
 How this project's code is **run and observed**. Facts about the harness, not about the product:
 which commands interact, which tear down state, which defaults bound nothing, and which ways an
@@ -11,8 +11,8 @@ Bound into `## Required Context` for every phase whose `## Evidence Required` ta
 Read by the planner before writing the Verification Matrix, and by the acceptance agent before it
 re-runs anything.
 
-Each row states what is true and what to do about it. A row arrives when a phase pays for it once,
-and it is here so no later phase pays for it again.
+Each row states what is true and what to do about it. A row arrives when a phase or an acceptance
+pays for it once, written by the agent that paid, and it is here so no later phase pays for it again.
 
 ---
 

@@ -39,6 +39,14 @@ Phase state is read from the phase file's `> Status:` header and its contents. T
 
 REPORTED is the state acceptance runs *in*. Nobody holds the phase and nothing has been accepted; the work is on disk and the verification is missing.
 
+## Models
+
+Pre-flight asks the user, once per run, which model implements and which model accepts, and records both in this session's `session_log.md` row. A resumed run reads the previous row and proposes the same pair; the user confirms or changes it.
+
+The question comes with a proposal. Implementation proposes the session's own model. Acceptance proposes a cheaper one: tier 1 is arithmetic against files, and a pass that re-executes needs a model that can read a failing runtime, not the strongest one available. Where the harness offers no model choice for subagents, say so and move on.
+
+The spawn and the acceptance delegation carry the chosen model — the `model` parameter on the Agent tool in Claude Code, the subagent's model setting in Codex. Neither agent definition pins one.
+
 ## Spawning
 
 One worker per phase. In Codex, spawn a subagent and instruct it to load `$zforge:phase-agent`; applicable skill instructions are allowed to request this delegation. In Claude Code, use the plugin's `zforge:phase-agent` agent type. Both routes use the same phase contract below.
@@ -52,7 +60,7 @@ A spawn message contains only:
 3. The report contract below.
 4. The budget-stop clause below.
 
-Set the phase's `> Status:` to RUNNING before spawning.
+Set the phase's `> Status:` to RUNNING before spawning, and spawn on the implementation model chosen at pre-flight.
 
 ### The budget-stop clause
 
@@ -70,12 +78,14 @@ The agent's final report is the transient channel; the phase file is the durable
 STATUS: DONE | PAUSED | FAILED
 REASON: <only when PAUSED — the trigger that fired, or USAGE_LIMIT_95>
 EVIDENCE: <one line per Evidence Required row — claim, class achieved, artifact>
-DECISIONS: <count recorded in ## Decisions>
+DECISIONS: <count recorded in ## Decisions> (<n> outward)
 FILES: <count created/modified>
 OPEN: <count of unresolved ## Open Items>
 ```
 
 Anything longer belongs in the phase file, where it survives the session.
+
+Before it reports, the agent writes its one `## Session Log` row and sets `> Status:` to the state it is reporting — REPORTED with DONE, PAUSED with PAUSED, FAILED with FAILED. Both are on disk before the report leaves the agent, so a planner that never receives it finds a phase that says what is true of it. COMPLETED is set by acceptance and by nothing else; an agent that sets it has claimed its own acceptance, and the planner resets the header to REPORTED and records the claim as plan drift.
 
 ## Recovery
 
@@ -114,7 +124,9 @@ Record usage-limit deaths distinctly in `session_log.md`. They are a budgeting s
 2. **Collision surfaces are disjoint** — generated files, route trees, lockfiles, package installs, migrations. Two agents regenerating the same file will silently clobber each other. Where surfaces overlap, keep the phases serial unless the planner explicitly provisions separate Git worktrees before spawning; after merging isolated results, re-run the combined evidence.
 3. **The token budget supports it** — concurrent long-running agents drain one shared budget, and each concurrent agent multiplies the odds of a mid-phase usage-limit death. After any INTERRUPTED phase in this run, treat the budget as constrained.
 
-Dependency edges say what *can* run in parallel. These three say what *should*. When parallelizing, state the reason in `session_log.md`.
+Dependency edges say what *can* run in parallel. These three say what *should*. When parallelizing, state the reason in `session_log.md`, and name `07_harness_conventions.md` as a shared surface: under a parallel schedule two agents may append to it.
+
+**The CPU is a collision surface too.** A broad verification gate run while a heavy implementation agent is active shares the machine with it, and a timing-sensitive test fails under that load with nothing wrong. Run broad gates from a quiet state, and re-run a timing-shaped failure from one before classifying it.
 
 ### Goal-budget overlay
 
@@ -135,7 +147,7 @@ If the goal runtime reports no remaining capacity or refuses further work, launc
 
 ### The planner's budget is the one that cannot be reset
 
-An agent's cost is per-phase and bounded: it reads a phase file, works, reports five lines, and its context dies with it. The planner's cost is **cumulative across the whole run** — it holds the plan, reads every report, verifies every evidence row, writes every acceptance section, promotes decisions, updates the overview and session log, and commits. Serialising agents makes the agent side cheaper and does nothing about the planner.
+An agent's cost is per-phase and bounded: it reads a phase file, works, reports five lines, and its context dies with it. The planner's cost is **cumulative across the whole run** — it holds the plan, reads every report, adjudicates every acceptance, updates the overview, and commits. Serialising agents makes the agent side cheaper and does nothing about the planner.
 
 A long chain is therefore a planner-budget question before it is an agent-budget question, and two things follow. Delegate the evidence verification once the chain is long. Checkpoint on REPORTED rather than after acceptance, because a planner that dies mid-acceptance otherwise leaves a phase whose evidence has been claimed and not checked, with nothing on disk saying so.
 
@@ -158,7 +170,7 @@ What the pairing buys is a planner that can die cheaply: `--resume` restores the
 
 An agent's green report is a claim. Acceptance is the planner's independent confirmation, and it is what closes a phase.
 
-**Checkpoint first.** The moment a report arrives, set `> Status:` to REPORTED and append the report's lines to the phase's `## Session Log`. That is one edit, and it is what makes the rest of this procedure recoverable.
+**The checkpoint is already on disk.** The agent set `> Status:` to REPORTED and wrote its report into `## Session Log` before reporting. Where a DONE report arrives and the header still reads RUNNING, set REPORTED now; that is the only edit before verification.
 
 1. Read the phase's `## Evidence Required` table, its `## Environment Assumptions`, and `07_harness_conventions.md` if the feature has one.
 2. **Reconcile every row against its artifact** (tier 1, below).
@@ -172,11 +184,18 @@ An agent's green report is a claim. Acceptance is the planner's independent conf
 | achieved < required, **material** | PAUSE the phase back to the agent, or open a standing flag in `05_progress_overview.md` with a stated *closes when* |
 | achieved < required, **immaterial** | Accept the row, recording the gap, why the postcondition does not depend on it, and what would make it matter |
 
-5. Write `## Acceptance` in the phase file: which rows were reconciled and which re-executed, the result, achieved-versus-required per row, and the reasoning behind any row accepted below its class. This section is planner-owned; the agent never writes it.
-6. **Promote the load-bearing decisions** into `decision_review.md` §C as 🟡, by the criterion below. Name in `## Acceptance` which rows went up and why.
-7. **Promote any harness fact** the phase learned into `07_harness_conventions.md`, so the next phase reads it instead of paying for it again.
+5. Write `## Acceptance` in the phase file: the acceptance report, verbatim, then two lines —
+
+   ```
+   ADJUDICATED: ACCEPT | ACCEPT-WITH-NOTES | PAUSE | FLAG — {date} — <one sentence, only where the planner departs from the recommendation, and why>
+   PROMOTED: D3, D7 | none
+   ```
+
+   Nothing else. The report's RATIONALE is where the reasoning behind a row accepted below its class lives, written once by the party that watched the check run. Where the planner verified in-session rather than delegating, it writes the same report shape — the shape is the contract, whoever fills it. This section is planner-owned; the agent never writes it.
+6. **Promote the `outward` decisions** into `decision_review.md` §C as 🟡. The agent marked them; the planner does not read the `feature` rows.
+7. Read the report's HARNESS line. The rows it names are already in `07_harness_conventions.md`, written by whoever learned them; there is nothing to copy.
 8. Roll any material unmet class up to the overview's Standing Flags.
-9. Set `> Status:` to COMPLETED and update `05_progress_overview.md`.
+9. Set `> Status:` to COMPLETED and update `05_progress_overview.md` — the phase's status row and the Quick Status counts, and Standing Flags only where one opened or closed.
 10. **Commit the accepted phase.** Stage the phase's source changes and its phase file, and commit as `zforge({feature}): phase {NN} {name}`.
 
 Commit at acceptance rather than at report, so every commit in the history is accepted work: a phase that is rejected or re-run leaves none to unwind. A phase can be hours of work, and it gets its own commit rather than a share of a ten-phase diff.
@@ -186,6 +205,16 @@ Make the commit with `git` directly, **never by invoking a commit skill or comma
 The achieved class is recorded as reached. A row that reached E3 against an E4 requirement reads E3 whichever outcome it takes — accepting a gap and hiding it are different acts.
 
 A phase whose evidence table is entirely E0 and J0 has demonstrated nothing, regardless of how complete its checklist looks.
+
+### Re-acceptance is a delta
+
+A phase reopened after acceptance — a review finding, a fix, a rejected decision — is re-accepted for the rows the change touched. The acceptance agent takes the list of touched rows in its spawn message and verifies those. The record is one line under the existing report:
+
+```
+RE-ACCEPTED: {date} — rows 1, 3 re-verified from /tmp/zforge/artifacts/{feature}/05_01_e1.04.xml and 05_01_e4.04.xml; row 2 unchanged
+```
+
+A change that touches every row, or that the planner cannot bound to rows, is a new acceptance and gets a new report beneath the old one.
 
 ### Tier 1 — reconcile every row
 
@@ -218,6 +247,8 @@ Where the decision is to accept, the artifact stands and the row closes at tier 
 
 **Record which check each row got** — `from-artifact` or `re-executed`. A row accepted from its artifact is honestly accepted; a row written up as though a command ran is not.
 
+**A command not on the PATH is resolved before it is called unverifiable.** The repository's instructions — `AGENTS.md`, and `CLAUDE.md` where present — name the interpreter; a `.venv/bin/` in the project and then one in its parent directory are the next two places to look. A row is `UNVERIFIABLE` only when none of these resolves its command.
+
 **Side effects bound what may be re-run.** A command that tears down state other rows depend on — a teardown that removes volumes, a fixture reset, anything `07_harness_conventions.md` names as destructive — is verified from its artifact with the reason stated. Re-running a clean form needs an isolated worktree the planner has provisioned first.
 
 ### Materiality, and the floor beneath it
@@ -233,7 +264,9 @@ Every other row is judged by impact rather than by category, rows touching auth,
 
 ### Which decisions get promoted
 
-**A decision is promoted only when it reaches beyond this feature's implementation** — it contradicts or extends a design document, asserts something the domain model does not define, or hands an obligation to a later band. A decision that only binds later phases stays in the phase file, where phase agents already read it.
+`## Decisions` carries a `Reach` column the agent fills as it records each row: `feature` by default, `outward` for a decision that reaches beyond this feature's implementation. **A decision reaches outward when it contradicts or extends a design document, asserts something the domain model does not define, or hands an obligation to a later band.** A decision that only binds later phases is `feature`, and stays in the phase file, where phase agents already read it.
+
+At acceptance the planner promotes the `outward` rows and names them on the `PROMOTED:` line. Where a promoted row turns out to bind only this feature, that is one line in the ledger's adjudication, not a reason to read every decision on every phase.
 
 The ledger is an adjudication queue the user drains asynchronously. A phase routinely records ten or more decisions and most are implementation conventions — which package call, which transport, which pinned version. Promoting all of them makes the ledger a second copy of the progress folder and hands the triage to the user, which is the work the planner was there to do.
 
@@ -241,11 +274,11 @@ The line that settles borderline rows: **a question the user must answer** belon
 
 ### Delegating the verification
 
-Steps 2 and 3 are the largest recurring cost on the planner and need the least of the planner's context — a phase file and a shell. Where the chain is long or the budget is tight, delegate to the specialized acceptance role: in Codex, instruct a subagent to use `$zforge:acceptance-agent`; in Claude Code, use the plugin's `zforge:acceptance-agent` agent type.
+Steps 2 and 3 are the largest recurring cost on the planner and need the least of the planner's context — a phase file and a shell. Where the chain is long or the budget is tight, delegate to the specialized acceptance role, on the acceptance model chosen at pre-flight: in Codex, instruct a subagent to use `$zforge:acceptance-agent`; in Claude Code, use the plugin's `zforge:acceptance-agent` agent type. For a re-acceptance, the spawn message names the rows the change touched.
 
 The agent returns a per-row verdict and an overall recommendation with its rationale. Read the rationale: it comes from the party that watched the commands run, and re-deriving it from the table alone spends planner context to reach a worse-informed version of the same conclusion. Where the recommendation is sound, adopt it and say so. Where it is not, the disagreement is worth stating in `## Acceptance`.
 
-Steps 4 through 9 stay with the planner. Adjudicating materiality, writing `## Acceptance`, and deciding what gets promoted are the parts that need the run.
+Steps 4 through 9 stay with the planner, and they are short: the report is pasted, the adjudication is one line, the promotion is a lookup. Adjudicating materiality where the planner disagrees with the recommendation is the one part that needs the run.
 
 A tier-1-only pass — reconciliation with no re-execution triggered — is arithmetic against committed files and runs well on a cheaper model. A pass that will re-execute anything needs one that can read a failing runtime.
 
@@ -256,7 +289,7 @@ A feature is complete when every phase is COMPLETED **and no standing flag is op
 On completion:
 
 1. Final status for all phases in `05_progress_overview.md`.
-2. Fill the current session's row in `session_log.md` — phases touched, summary, and any usage-limit interruptions.
+2. Fill the current session's row in `session_log.md` — phases touched, the models used, summary, and any usage-limit interruptions. One row per session; milestones, pauses and adjudications are not rows, and each already has a home in the phase file.
 3. **Graduate the unowned absences.** Read what this feature recorded about surfaces nothing reaches, and think about three things for each:
 
    - **CHOSEN** — which decision chose this absence? If none did, it is a gap rather than a design.

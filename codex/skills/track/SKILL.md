@@ -13,7 +13,7 @@ Show where a feature stands, including what it owes.
 
 ## Process
 
-1. Convert the feature name to snake_case and locate `docs/{feature_name}/05_progress_overview.md`, falling back to `{feature_name}/05_progress_overview.md`.
+1. Convert the feature name to snake_case and locate `docs/{feature_name}/05_progress_overview.md`, then `docs/**/{feature_name}/05_progress_overview.md` on a unique directory match, then `{feature_name}/05_progress_overview.md`.
 2. If not found: "No plan found for '{feature_name}'. Run `$zforge:plan {name}` to create one."
 3. Read the overview, every phase file, and `decision_review.md`.
 

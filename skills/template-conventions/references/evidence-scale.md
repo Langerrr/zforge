@@ -50,11 +50,12 @@ Where a claim is both — a surface that must work *and* must read correctly to 
 
 ## The artifact is what carries the class
 
-A class is claimed by a row and held by an artifact. Three rules keep the two attached:
+A class is claimed by a row and held by an artifact. Four rules keep the two attached:
 
 - **Write the row when the command runs, from the artifact the command wrote.** Not at session end, and not from console output. Console output is gone by the time anyone checks, and a row written from memory at the end of a long context is a claim about a claim.
 - **Name artifacts per run.** A second run that overwrites the file a row quotes leaves the row quoting a measurement nobody can open. Where a command is run twice, the two artifacts have two names.
 - **A figure presented as a measurement appears verbatim in its artifact**, or the row says it cannot. This is the check acceptance runs first, and it is the cheapest one available.
+- **An artifact is the smallest file that carries the row's figures.** One file per row per run, never a directory. State the command produced — a data directory, a database, a trace archive, a test runner's base-temp tree — stays where it was produced and is cited in place. The row quotes the count, the exit code, the duration, the one figure the claim rests on; that is what keeps the first check cheap.
 
 The row carries the finding and the artifact path. How the number was obtained belongs in the artifact.
 
