@@ -21,7 +21,7 @@ docs/{feature_name}/
 ├── 03_integration_summary.md      # API types → frontend mapping (when the plan spans both)
 ├── 04_integration_plan.md         # Frontend integration steps
 ├── 06_post_deployment.md          # Smoke checks, deferred items, rollback
-├── 07_harness_conventions.md      # How the project is run and observed (planner writes, phases read)
+├── 07_harness_conventions.md      # How the project is run and observed (whoever learns a fact writes it, every phase reads)
 ├── 08_configuration.md            # Env vars, feature flags, external services
 ├── 09_troubleshooting.md          # Issues, solutions, debug commands
 ├── 10_refactor_spec.md            # [Refactoring] Requirements, goals, scope
@@ -50,6 +50,8 @@ Evidence artifacts are command output, and they live outside every repository. A
 
 **The root is the same for every repo a feature touches**, so there is one path to construct and one to open however many repositories the phases exercise. Nothing is written inside a repository, so nothing has to be kept out of a commit. Retention belongs to the operating system.
 
+An artifact is the smallest file that carries every figure its row quotes — the runner's log or XML, the JSON a script printed, the screenshot a surface check took. One file per row per run, and never a directory. What a command *produced* — a data directory, a database, a HAR, a trace archive, a test runner's base-temp tree — stays where the command put it, or goes to a scratch path outside this directory, and a row that needs a reader to see it cites its path in place.
+
 An artifact is working state: acceptance reads it once, and completion drops the feature's directory. What the tree keeps is the row — its finding, its figure, and the path the figure came from.
 
 **Rows cite artifacts by their full path.** `/tmp/zforge/artifacts/creator-platform/05_10_e2e-full.01.json`, whether the workspace is a single repository or several. That path is what acceptance opens.
@@ -60,7 +62,7 @@ An artifact is working state: acceptance reads it once, and completion drops the
 
 The plan workflow writes each of these as its contract group fills, so a blocked item stops the tree at a group boundary rather than blocking everything.
 
-**During implementation, when needed:** the core patterns doc (before the first phase that depends on it — usually written at plan time), `03`/`04` when frontend work begins, `05_progress/review.md` when the zforge review runs, `06` at completion, `07` at the first acceptance that promotes a harness fact, `08` and `09` as config and gotchas emerge.
+**During implementation, when needed:** the core patterns doc (before the first phase that depends on it — usually written at plan time), `03`/`04` when frontend work begins, `05_progress/review.md` when the zforge review runs, `06` at completion, `07` when the first phase or acceptance learns a harness fact, `08` and `09` as config and gotchas emerge.
 
 ## Ownership matrix
 
@@ -73,11 +75,11 @@ The plan workflow writes each of these as its contract group fills, so a blocked
 | `decision_review.md` | All | Planner appends · user adjudicates | Agents never write it directly |
 | `05_progress_overview.md` | All | **Planner only** | Prevents contested writes |
 | `05_XX_*.md` | Assigned agent | Assigned agent | One agent per file |
-| `05_XX_*.md` → `## Acceptance` | All | **Planner only** | The agent's file, the planner's section |
+| `05_XX_*.md` → `## Acceptance` | All | **Planner only** | The agent's file, the planner's section: the acceptance report verbatim, plus adjudication and promoted lines |
 | `05_progress/review.md` | All | zforge review | Findings citing both document and code |
 | `session_log.md` | All | Planner | Includes how each session ended |
 | `06`, `08`, `09` | All | Planner | Extracted from phase findings |
-| `07_harness_conventions.md` | All | Planner | Promoted from phase `kind: harness` decisions; graduated to the project doc at completion |
+| `07_harness_conventions.md` | All | Phase agent, acceptance agent (append) · planner graduates | Written at the moment a fact is learned; graduated to the project doc at completion |
 | `.zforge-retro/*.md` | All | zforge retro | Created on demand |
 
 ## Phase file sections
@@ -102,9 +104,9 @@ Artifacts are written to `/tmp/zforge/artifacts/{feature}/`, named `{phase}_{wha
 Actionable items. Marked as they complete.
 
 ### `## Decisions`
-`Kind | Decision | Why | Alternative rejected | Impact`. Recorded as made. Rationale states why, never who — `not stated` where no reason was given.
+`Reach | Decision | Why | Alternative rejected | Impact`. Recorded as made. Rationale states why, never who — `not stated` where no reason was given.
 
-Kind is `design` or `harness`. At acceptance the planner promotes `design` rows reaching beyond the feature to `decision_review.md` §C, and `harness` rows — facts about how the project is run and observed — to `07_harness_conventions.md`.
+Reach is `feature` or `outward`, filled by the agent as it records the row. At acceptance the planner promotes the `outward` rows to `decision_review.md` §C and does not read the rest. A fact about how the project is run and observed is not a decision: it goes straight into `07_harness_conventions.md`.
 
 ### `## Open Items`
 `Kind | What | Raised at | Status / Resolution`. One home for questions, errors, blockers and evidence gaps. Resolved items stay with their resolution.
@@ -113,15 +115,15 @@ Kind is `design` or `harness`. At acceptance the planner promotes `design` rows 
 `File | Step | Action`.
 
 ### `## Session Log`
-`Date | Session | Steps | Summary`. One agent execution is one session; several per phase is normal.
+`Date | Session | Steps | Summary`. One row when the agent stops — its report lines — and one when the planner accepts. Several runs per phase is normal; a milestone within a run is not a row.
 
 ### `## Resume Point`
 Written by the agent only when it stops before the phase is finished — a pause trigger, or the budget-stop clause at ~95% of usage. What is done, what is half-done, the next concrete action. The resuming agent verifies it against the tree and deletes it once past the point it names. A phase that closes with one still in it did not finish.
 
 ### `## Acceptance`
-Planner-owned. Which rows were reconciled against their artifacts and which were re-executed, the result, and achieved-versus-required per evidence row.
+Planner-owned. The acceptance report, verbatim — the per-row table with its Method column, the verdict, the rationale, floor, plan drift, unverifiable rows, missing files, harness rows appended — followed by an `ADJUDICATED:` line and a `PROMOTED:` line. Nothing else.
 
-A row accepted below its required class carries the reasoning that settled it: what the missing class would have ruled out, why the postcondition does not depend on it, and what would make it matter. Also names which `## Decisions` rows were promoted to the ledger and which stayed, which harness facts went to `07_harness_conventions.md`, and any drift between what the phase file specified and what was implemented.
+The report's rationale is where a row accepted below its required class carries the reasoning that settled it: what the missing class would have ruled out, why the postcondition does not depend on it, and what would make it matter. A phase reopened after acceptance gets one `RE-ACCEPTED:` line under the report, naming the rows re-verified and their artifacts.
 
 ## Phase state
 
@@ -129,7 +131,7 @@ Read from the phase file's `> Status:` header:
 
 `PENDING` · `READY` · `WAITING` · `RUNNING` · `REPORTED` · `PAUSED` · `INTERRUPTED` · `FAILED` · `COMPLETED`
 
-`REPORTED` — an agent has reported DONE and the planner has not re-run the evidence — is the state acceptance runs in. Its recovery rule is its own: **re-run the evidence, do not resume the agent.** The work is on disk; only the verification is missing.
+`REPORTED` — set by the agent as it reports DONE, before the planner has verified the evidence — is the state acceptance runs in. Its recovery rule is its own: **re-run the evidence, do not resume the agent.** The work is on disk; only the verification is missing.
 
 `INTERRUPTED` — an agent killed mid-phase by a usage limit, API error or session end — resumes in the same reachable subagent thread with a mandatory re-orientation against disk, never re-spawned while that thread remains available. `COMPLETED` is only reached through acceptance.
 
@@ -150,13 +152,13 @@ Read from the phase file's `> Status:` header:
 | Reasoning behind a design choice | `discussion.md` | Planner, during the conversation |
 | Architecture decision | `01_context.md` | Planner |
 | Decision made mid-run without blocking | phase `## Decisions` | Agent |
-| Decision reaching beyond the feature's implementation | phase `## Decisions` → `decision_review.md` §C | Agent, then planner at acceptance |
+| Decision reaching beyond the feature's implementation | phase `## Decisions` (`outward`) → `decision_review.md` §C | Agent marks it, planner promotes at acceptance |
 | Agent stopped before the phase finished | phase `## Resume Point` | Agent |
 | Scope change | `01_context.md` + `02_plan.md` | Planner |
 | Step completed | own `05_XX_*.md` | Agent |
 | Evidence fell short of its class, materially | phase `## Open Items` → overview Standing Flags | Agent, then planner |
 | Evidence fell short of its class, immaterially | phase `## Acceptance`, with the reasoning | Agent records the class, planner settles it |
-| A fact about how the project is run and observed | phase `## Decisions` (`kind: harness`) → `07_harness_conventions.md` | Agent, then planner at acceptance |
+| A fact about how the project is run and observed | `07_harness_conventions.md` | The agent that learned it, at the moment |
 | Harness facts still true at completion | `07_harness_conventions.md` → the project's conventions doc | Planner, trimmed |
 | Phase accepted | `## Acceptance` + `05_progress_overview.md` | Planner |
 | Ledger contradicted by code | `05_progress/review.md` | zforge review |

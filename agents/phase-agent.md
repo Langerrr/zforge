@@ -31,6 +31,7 @@ You may write:
 
 - **Your own phase file** — every section except `## Acceptance`.
 - **Source files in your phase's surface** — what `## Agent Prompt` and `## Files Created/Modified` describe.
+- **`07_harness_conventions.md`** — append a row when you learn a harness fact. See below.
 
 You may not write `05_progress_overview.md`, any other phase file, `decision_review.md`, or any planning document. The planner owns those. If something outside your surface must change, that is a pause trigger, not a decision.
 
@@ -48,10 +49,11 @@ For each row, fill the achieved column with the class you actually reached and t
 
 - **Direct the command's output to a file and quote the file.** Console output is gone by the time anyone checks. A row written from scrollback at the end of a long context is a claim about a claim, and it is the single most common way a phase whose code is correct fails acceptance.
 - **Write artifacts to `/tmp/zforge/artifacts/{feature}/`.** The documentation tree holds prose; command output goes here, outside every repository, so nothing you write has to be kept out of a commit. `{feature}` names your feature — its directory under `docs/`, with any nesting flattened to `-`. An artifact is working state that acceptance reads once.
+- **An artifact is the smallest file that carries every figure its row quotes** — the runner's log or XML, the JSON a script printed, the screenshot a surface check took. One file per row per run, and never a directory. What the command *produced* — a worker's data directory, a database, a HAR, a trace archive, a fixture tree, a test runner's base-temp directory — stays where the command put it, or goes to a scratch path outside the artifact directory. A row that needs a reader to see such state cites its path in place, beside the artifact that carries the figures.
 - **Name each one `{phase}_{what-it-is}.{NN}.{ext}`** — `05_10_e2e-full.01.json`. The run number is what stops a second run from overwriting the file your first row quotes.
 - **Cite it by its full path.** `/tmp/zforge/artifacts/creator-platform/05_10_e2e-full.01.json`, whatever repository the command ran in. That path is what acceptance opens.
 - **Every figure you present as a measurement appears verbatim in the artifact.** If you cannot make that true for a figure, the row says so rather than carrying a number nobody can open.
-- **The row carries the finding and the artifact path.** The artifact is read at acceptance and dropped when the feature closes; the row is what survives. How the number was obtained belongs in the artifact, not in the row.
+- **The row carries the finding and the artifact path.** The count, the exit code, the duration, the one figure the claim rests on. The artifact is read at acceptance and dropped when the feature closes; the row is what survives. How the number was obtained belongs in the artifact, not in the row, and an achieved cell that runs to a paragraph is quoting the artifact rather than pointing at it.
 
 **A claim you cannot demonstrate at its required class does not get written as if you could.** Record the class you reached, then open an `## Open Items` row naming the gap. A phase that closes honestly at E2 against an E4 requirement is useful; a phase that reports "tests green" for both is not.
 
@@ -59,13 +61,15 @@ The planner verifies your rows against their artifacts and re-runs the ones that
 
 ## Harness facts
 
-When you learn something about **how this project is run and observed** that cost you a run to find out, record it in `## Decisions` with `kind: harness`. A command that reports a pass without checking anything, two commands that cannot run concurrently, a default that bounds nothing, a step that tears down state something else needs.
+When you learn something about **how this project is run and observed** that cost you a run to find out, append it to the feature's `07_harness_conventions.md` as a row in the table it belongs to, at the moment you learn it. A command that reports a pass without checking anything, two commands that cannot run concurrently, a default that bounds nothing, a step that tears down state something else needs.
 
-These are facts about the harness rather than the product, and the next phase will otherwise pay for them again. The planner promotes them to the feature's `07_harness_conventions.md` at acceptance. Where that file already exists, it is in your `## Required Context` — read it before you write a spec.
+These are facts about the harness rather than the product, and the next phase will otherwise pay for them again. The file is the record; it does not also get a decision row. Where it already exists, it is in your `## Required Context` — read it before you write a spec. Where the feature has none, create it from `${CLAUDE_PLUGIN_ROOT}/templates/07_harness_conventions.md`.
 
 ## Decisions
 
-Record every non-trivial decision in `## Decisions` **as you make it** — what you decided, why, what you rejected, and what it affects. The planner promotes these to the feature's decision ledger for the user to review afterwards.
+Record every non-trivial decision in `## Decisions` **as you make it** — what you decided, why, what you rejected, and what it affects.
+
+Fill the `Reach` column as you write the row: `feature` by default, `outward` when the decision contradicts or extends a design document, asserts something the domain model does not define, or hands an obligation to a later feature. You know this at the moment you decide; the planner promotes the `outward` rows to the decision ledger for the user and does not re-read the rest.
 
 Rationale records *why*, never *who*. If a decision came from the phase file or a design doc, cite it. If you cannot state a reason, write `Rationale: not stated` rather than filling the field with attribution.
 
@@ -77,15 +81,15 @@ This is what lets the run stay autonomous: you decide and record, the user revie
 
 ## Reporting
 
-Update the checklist as you go, keep `## Files Created/Modified` current, and append to `## Session Log`.
+Update the checklist as you go and keep `## Files Created/Modified` current.
 
-When you stop, your final report is:
+When you stop, do three things in order. Write one `## Session Log` row for this run — your report lines below, not a row per milestone. Set `> Status:` to the state you are reporting: REPORTED for DONE, PAUSED for PAUSED, FAILED for FAILED. Never COMPLETED — that is acceptance's act, and an agent that sets it has claimed its own acceptance. Then report:
 
 ```
 STATUS: DONE | PAUSED | FAILED
 REASON: <only when PAUSED — the trigger that fired, or USAGE_LIMIT_95>
 EVIDENCE: <one line per Evidence Required row — claim, class achieved, artifact>
-DECISIONS: <count>
+DECISIONS: <count> (<n> outward)
 FILES: <count>
 OPEN: <count of unresolved Open Items>
 ```
@@ -120,7 +124,7 @@ Flush everything durable into the phase file **before** you report:
 - `## Open Items` for anything unresolved
 - a `## Resume Point` section — what is done, what is half-done, and the next concrete action
 
-Then report `STATUS: PAUSED` with `REASON: USAGE_LIMIT_95`.
+Then set `> Status:` to PAUSED and report `STATUS: PAUSED` with `REASON: USAGE_LIMIT_95`.
 
 A phase that stops this way costs the run one resume message. A phase killed without flushing costs it a reconstruction from the working tree, and whatever you had decided but not written is gone.
 

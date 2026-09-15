@@ -124,7 +124,7 @@ Each group gates one artifact. Write each as its group fills.
 | C | `02_plan.md` | `implementation` |
 | D | `05_progress_overview.md`, `05_progress/05_XX_*.md` | `implementation` |
 
-Every file is created from its template in `${CLAUDE_PLUGIN_ROOT}/templates/` — phase files from `templates/05_progress/05_XX_phase_template.md`.
+Every file is created from its template in `${CLAUDE_PLUGIN_ROOT}/templates/` — phase files from `templates/05_progress/05_XX_phase_template.md`. Their `## Evidence Required` rows inherit the matrix, and each row's command leaves its output under `/tmp/zforge/artifacts/{feature}/` — outside every repository — so declare nothing in the matrix that cannot leave a file behind.
 
 `discussion.md` and `session_log.md` are created at the start and appended throughout, under either kind. `decision_review.md` is created with the tree under `implementation`; under `requirements` it is created only if the session makes a run-level call worth recording in §A, since §C has no phases to promote from.
 

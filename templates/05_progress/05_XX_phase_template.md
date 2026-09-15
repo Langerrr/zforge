@@ -6,9 +6,9 @@
 > Overview: `../05_progress_overview.md`
 
 <!-- Status is one of: PENDING · READY · WAITING · RUNNING · REPORTED · PAUSED ·
-     INTERRUPTED · FAILED · COMPLETED. REPORTED means an agent reported DONE and the
-     planner has not re-run the evidence yet — the work is on disk, the verification
-     is not. COMPLETED is only reached through acceptance. -->
+     INTERRUPTED · FAILED · COMPLETED. The agent sets REPORTED, PAUSED or FAILED as its
+     last act before it reports — the work is on disk, the verification is not.
+     COMPLETED is set by acceptance and by nothing else. -->
 
 ---
 
@@ -57,9 +57,15 @@
      second is owed to anyone.
 
      Artifacts go to /tmp/zforge/artifacts/{feature}/ — outside every repository, never into
-     this docs tree. Name them {phase}_{what-it-is}.{NN}.{ext} so a second run cannot overwrite
-     the file an earlier row quotes, and cite each by its full path:
-     /tmp/zforge/artifacts/creator-platform/05_04_e2e.01.json -->
+     this docs tree. An artifact is the smallest file that carries the figures its row quotes —
+     a log, an XML report, a JSON, a screenshot — one per row per run and never a directory.
+     State the command produced stays where the command put it and is cited in place.
+     Name artifacts {phase}_{what-it-is}.{NN}.{ext} so a second run cannot overwrite the file
+     an earlier row quotes, and cite each by its full path:
+     /tmp/zforge/artifacts/creator-platform/05_04_e2e.01.json
+
+     The achieved cell carries the count, the exit code, the duration, the one figure the claim
+     rests on — not a paragraph. -->
 
 | Claim | Required | Command / method | Achieved | Artifact |
 |-------|----------|------------------|----------|----------|
@@ -88,13 +94,16 @@
 <!-- Recorded as they are made, not reconstructed at the end.
      Rationale states why, never who. If no reason was stated, write "not stated".
 
-     Kind is `design` by default, or `harness` for a fact about how this project is run and
-     observed — a command that passes without checking, two commands that cannot run
-     concurrently, a step that tears down shared state. The planner promotes `harness` rows
-     to 07_harness_conventions.md at acceptance so the next phase reads them. -->
+     Reach is `feature` by default, or `outward` for a decision that contradicts or extends a
+     design document, asserts something the domain model does not define, or hands an
+     obligation to a later feature. The planner promotes the `outward` rows to
+     decision_review.md at acceptance and does not re-read the rest.
 
-| # | Kind | Decision | Why | Alternative rejected | Impact |
-|---|------|----------|-----|---------------------|--------|
+     A fact about how this project is run and observed is not a decision: it goes straight
+     into 07_harness_conventions.md, at the moment it is learned. -->
+
+| # | Reach | Decision | Why | Alternative rejected | Impact |
+|---|-------|----------|-----|---------------------|--------|
 
 ---
 
@@ -117,6 +126,10 @@
 
 ## Session Log
 
+<!-- One row per run of this phase, written when the agent stops — its report lines — and one
+     when the planner accepts. Milestones, pauses and repairs are not rows: the question is in
+     Open Items, the stopping point in Resume Point, the verdict in Acceptance. -->
+
 | Date | Session | Steps | Summary |
 |------|---------|-------|---------|
 
@@ -137,14 +150,19 @@
 ## Acceptance
 
 <!-- PLANNER-OWNED. The agent does not write here.
-     Written after independently verifying ## Evidence Required: which rows were reconciled
-     against their artifacts and which were re-executed, the result, and achieved-versus-required
-     per row.
+     The acceptance report, verbatim — PHASE, ROWS, the per-row table with its Method column,
+     VERDICT, RATIONALE, FLOOR, PLAN DRIFT, UNVERIFIABLE, MISSING FILES, HARNESS, NOTES — then
+     two lines and nothing else:
 
-     A row accepted below its required class carries the reasoning that settled it — what the
-     missing class would have ruled out, why the postcondition does not depend on it, and what
-     would make it matter. The achieved class is recorded as reached either way.
+       ADJUDICATED: ACCEPT | ACCEPT-WITH-NOTES | PAUSE | FLAG — {date} — <one sentence, only
+       where the planner departs from the recommendation, and why>
+       PROMOTED: D3, D7 | none
 
-     Also names which ## Decisions rows were promoted to decision_review.md and which stayed,
-     which harness facts went to 07_harness_conventions.md, and any drift between what the
-     phase file specified and what was implemented. -->
+     The report's RATIONALE is where a row accepted below its class carries the reasoning that
+     settled it — what the missing class would have ruled out, why the postcondition does not
+     depend on it, what would make it matter. The achieved class is recorded as reached either way.
+
+     A phase reopened after acceptance gets one line under the report, for the rows the change
+     touched:
+
+       RE-ACCEPTED: {date} — rows 1, 3 re-verified from <artifact paths>; row 2 unchanged -->
