@@ -2,7 +2,7 @@
 
 The durable state, contract and evidence layer for multi-session feature work in Claude Code and Codex.
 
-zforge carries what must be true before a phase closes, what evidence proves it, what was decided along the way, and what is still open. It does not carry methodology — discovery belongs to `superpowers:brainstorming`, test discipline to `superpowers:test-driven-development`, debugging rigour to `superpowers:systematic-debugging` and `compound-engineering:ce-debug`, and general code review to the host's code review plus `compound-engineering:ce-review`. zforge names those where they apply and owns none of them.
+zforge carries what must be true before a phase closes, what evidence proves it, what was decided along the way, and what is still open. It does not carry methodology — discovery belongs to `superpowers:brainstorming`, test discipline to `superpowers:test-driven-development`, debugging rigour to `superpowers:systematic-debugging` and `compound-engineering:ce-debug`, boundary analysis to `distributed-architect:dist-check`, and general code review to the host's code review plus `compound-engineering:ce-review`. zforge names those where they apply and owns none of them.
 
 ## Workflows
 

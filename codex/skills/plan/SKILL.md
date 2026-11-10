@@ -88,7 +88,7 @@ A6 does not surface on its own. These questions arrive from writing the behaviou
 | # | Item | Filled when | Attempt |
 |---|------|-------------|---------|
 | C1 | Concern split | Single-concern, or multi-concern with split-or-combined chosen | Propose from scope; confirm, because it changes the artifact layout |
-| C2 | Decomposition | Every phase has a boundary; dependency edges and collision surfaces stated as data | Propose |
+| C2 | Decomposition | Every phase has a boundary; dependency edges, collision surfaces and any process boundary the phase crosses stated as data | Propose |
 | C3 | Verification Matrix | Every phase declares a value in every class column on both axes, gaps included | Propose from what each phase touches. A phase carrying a claim no test runner settles declares a **J** class and names the method; never default either axis silently. Where `07_harness_conventions.md` exists, read it first — a matrix that assumes two commands are independent when the harness says otherwise declares a class the run cannot deliver |
 | C4 | Environment assumptions | Each missing dependency mapped to a substitution and what it defers | Derived from B3 |
 | C5 | Invariants *(if any span phases)* | Each has an owner phase and a re-check phase | Propose |
@@ -103,6 +103,8 @@ Features close by writing their unowned absences into the document this project'
 | # | Item | Filled when | Attempt |
 |---|------|-------------|---------|
 | D1 | Required Context per phase | Each phase names the documents and sections its agent must read, and why | Derived from C2 and the Doc Map. Never a question |
+
+**A phase that crosses a process boundary names `$distributed-architect:dist-check` in its `## Required Context`.** A crossing is a call, a message or a shared store between independently deployed processes, and C2 recorded it in the plan's `Crosses` column. The row's `Why` cell states the crossing — which components, over what — and when the check runs: against the phase's diff, before the agent reports, with any concern the agent cannot settle going to `## Open Items`. Where that plugin is not installed, the row still states the crossing.
 
 ---
 

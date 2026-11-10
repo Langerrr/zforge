@@ -69,11 +69,13 @@ src/
 
 Dependency edges are plan facts. **Scheduling is not** — whether two phases with disjoint edges actually run in parallel is a runtime call made by the orchestrator against the collision surface and the token budget.
 
-| Phase | Name | Depends on | Collision surface | Description |
-|-------|------|-----------|-------------------|-------------|
-| 1 | {Phase name} | None | {generated files, lockfiles, migrations, shared modules} | {What this phase covers} |
-| 2 | {Phase name} | 1 | | {What this phase covers} |
-| 3 | {Phase name} | 2 | | {What this phase covers} |
+| Phase | Name | Depends on | Collision surface | Crosses | Description |
+|-------|------|-----------|-------------------|---------|-------------|
+| 1 | {Phase name} | None | {generated files, lockfiles, migrations, shared modules} | {`api → worker` over a queue, or `none`} | {What this phase covers} |
+| 2 | {Phase name} | 1 | | | {What this phase covers} |
+| 3 | {Phase name} | 2 | | | {What this phase covers} |
+
+`Crosses` names any boundary between independently deployed processes that the phase's surface touches — a call, a message, a shared store — or `none`. A phase with a crossing binds `distributed-architect:dist-check` in its `## Required Context`.
 
 ---
 
