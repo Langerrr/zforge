@@ -50,16 +50,11 @@ Where a claim is both — a surface that must work *and* must read correctly to 
 
 ## The artifact is what carries the class
 
-A class is claimed by a row and held by an artifact. Four rules keep the two attached:
+A class is claimed by a row and held by an artifact: a file the row's command wrote, under `/tmp/zforge/artifacts/{feature}/` and outside every repository, in which every figure the row presents as a measurement appears verbatim.
 
-- **Write the row when the command runs, from the artifact the command wrote.** Not at session end, and not from console output. Console output is gone by the time anyone checks, and a row written from memory at the end of a long context is a claim about a claim.
-- **Name artifacts per run.** A second run that overwrites the file a row quotes leaves the row quoting a measurement nobody can open. Where a command is run twice, the two artifacts have two names.
-- **A figure presented as a measurement appears verbatim in its artifact**, or the row says it cannot. This is the check acceptance runs first, and it is the cheapest one available.
-- **An artifact is the smallest file that carries the row's figures.** One file per row per run, never a directory. State the command produced — a data directory, a database, a trace archive, a test runner's base-temp tree — stays where it was produced and is cited in place. The row quotes the count, the exit code, the duration, the one figure the claim rests on; that is what keeps the first check cheap.
+The phase contract, `../../feature-execution/references/phase-contract.md` §Write each row when its command runs, states how a row and its artifact are written. Tier 1 of the acceptance contract beside it is the check that opens them. `full-template.md` §Where artifacts live has the naming and the paths.
 
-The row carries the finding and the artifact path. How the number was obtained belongs in the artifact.
-
-Artifacts are written outside every repository, to `/tmp/zforge/artifacts/{feature}/`, and cited by their full path. The directory is dropped when the feature closes: an artifact exists to be read at acceptance, which is also the moment a figure with nothing behind it is caught. After that the row is the record. `full-template.md` §Where artifacts live has the naming and the paths.
+The directory is dropped when the feature closes: an artifact exists to be read at acceptance, which is also the moment a figure with nothing behind it is caught. After that the row is the record.
 
 ## What is not on either scale
 
@@ -86,7 +81,7 @@ A feature with a user-facing surface whose matrix has an empty E4 column has a k
 
 ## The gap between required and achieved
 
-At acceptance every row is reconciled against its artifact, and what a fact forces or judgment selects is re-executed. A J row is re-checked the way an E row is: the method is on the page, so another party can walk it. `feature-execution` §Acceptance carries the tiers and what decides between them.
+At acceptance every row is reconciled against its artifact, and what a fact forces or judgment selects is re-executed. A J row is re-checked the way an E row is: the method is on the page, so another party can walk it. The acceptance contract, `../../feature-execution/references/acceptance-contract.md`, carries the tiers and what decides between them.
 
 | | |
 |---|---|

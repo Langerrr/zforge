@@ -27,30 +27,28 @@ Load the `feature-execution` skill. It owns phase state, the spawn contract, rec
 4. Read `session_log.md`, creating it from `${CLAUDE_PLUGIN_ROOT}/templates/session_log.md` if absent, and append a row for this session.
 5. Note any open standing flags in the overview. A flag opened by an earlier session is inherited by this one.
 6. Read `07_harness_conventions.md` if the feature has one. It says how this project is run and observed, and it is what keeps the run from re-learning a fact an earlier phase already paid for.
-7. **Ask which models to spawn.** One `AskUserQuestion`, two answers: the model that implements and the model that accepts. Propose the session's own model for implementation and a cheaper one for acceptance, and where `session_log.md` has a previous row, propose its pair. Record the answer in this session's row. Every spawn and every acceptance delegation carries it.
+7. **Ask which models to spawn**, as the skill's Models section states: one `AskUserQuestion`, two answers.
 
 **If the feature predates v3** — phase files with no `## Evidence Required` table — say so once, treat every phase's evidence as E0, and offer to backfill the Verification Matrix in `02_plan.md` before executing. Executing without it is allowed; it just means acceptance can only check that commands run, not that they were the right class.
 
-**If any phase is REPORTED** — an earlier session took its report and died before verifying it — acceptance is the first work of this session. Do not resume its agent.
+**If any phase is REPORTED** — an earlier session took its report and died before verifying it — acceptance is the first work of this session.
 
 ## Run loop
 
 1. Classify every phase. Pick what to run using the skill's scheduling rules — sequential unless dependencies, collision surfaces and token budget all permit otherwise.
 2. Spawn READY phases per the skill's spawn contract.
-3. Handle each report by its status. Completion arrives natively; do not poll. The agent set REPORTED and logged its report before reporting; where a DONE report arrives with the header still RUNNING, set it now, before running anything.
-4. Accept REPORTED phases per the skill's acceptance procedure, and commit each accepted phase. On a long chain, delegate the verification to `zforge:acceptance-agent` on the acceptance model chosen at pre-flight and adjudicate the report it returns.
+3. Handle each report by its status. Completion arrives natively; do not poll.
+4. Accept REPORTED phases per the skill's acceptance procedure, delegating the verification where it says to.
 5. Repeat until no phase is READY.
 
 ## Autonomy boundary
 
 Run without stopping. Two things stop the loop:
 
-- **A pause trigger fires** — the agent hit one of the five forks in its contract and stopped. Answer it from the plan if the plan resolves it; ask the user only if it does not.
+- **A pause trigger fires** — the agent hit one of the five forks in its contract and stopped. Answer it from the plan if the plan resolves it; ask the user only if it does not. A `USAGE_LIMIT_95` pause is not a fork: the skill's failure table has its response.
 - **A phase FAILS** — stop and surface it. Do not attempt a third variation of a failing approach autonomously.
 
 Everything else is recorded and the run continues. The decisions that reach beyond this feature's implementation land in `decision_review.md` as 🟡 for the user to review whenever they choose; the rest stay in their phase files. Neither blocks a later phase.
-
-A `PAUSED` report carrying `REASON: USAGE_LIMIT_95` is not a fork and needs no answer — the agent stopped on budget and left a `## Resume Point`. Wait for capacity and resume it.
 
 ## Holding the run outside this session
 
@@ -70,4 +68,4 @@ The condition is the feature rather than a phase, because one goal is active at 
 
 ## Completion
 
-Follow the skill's completion bookkeeping through its closing commit. The closing commit is not pushed.
+Follow the skill's completion bookkeeping through its closing commit.

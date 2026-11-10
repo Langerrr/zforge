@@ -33,7 +33,7 @@ Created when the feature needs them, never as empty placeholders:
 
 | File | When |
 |------|------|
-| Core patterns doc | The feature changes data models, abstractions or architectural patterns. Without it agents follow the checklist and write structurally wrong code |
+| Core patterns doc | The feature changes data models, abstractions or architectural patterns |
 | `03_integration_summary.md`, `04_integration_plan.md` | The plan spans backend and frontend |
 | `07_harness_conventions.md` | A phase learns something about how the project is run and observed that a later phase would otherwise pay for again |
 | `05_progress/review.md` | The zforge review workflow has findings |
@@ -52,7 +52,7 @@ Running ledgers are unnumbered: `discussion.md`, `decision_review.md`, `session_
 
 1. **`05_progress_overview.md` — planner only.** Implementation agents never write it. This is what prevents contested writes.
 2. **Phase files — one agent each.** An agent reads and writes its own phase file and the source files in its declared surface.
-3. **`## Acceptance` is planner-owned** even though it lives in the agent's file. The agent fills the *achieved* and *artifact* columns of `## Evidence Required`; the planner writes `## Acceptance` after independently verifying them — the acceptance report verbatim, an adjudication line and a promoted line, nothing more.
+3. **`## Acceptance` is planner-owned** even though it lives in the agent's file. The agent fills the *achieved* and *artifact* columns of `## Evidence Required`; the planner writes `## Acceptance` after independently verifying them.
 4. **`00_design_spec.md`** is not modified by agents unless the user says so.
 5. **`decision_review.md`** — agents record every decision in their phase file's `## Decisions` and mark its reach; at acceptance the planner promotes the `outward` rows — the ones **reaching beyond the feature's implementation** — and does not read the rest, which stay in the phase file where phase agents already read them. The ledger is an adjudication queue for the user, not an index of everything decided.
 6. **`07_harness_conventions.md` — written by whoever learns the fact, read by every phase.** The phase agent or the acceptance agent appends a row at the moment it learns how this project is run and observed; the planner binds the file into later phases' `## Required Context` and, at completion, graduates the facts still true into the project's conventions document.
@@ -72,8 +72,6 @@ Legacy `<!-- AGENT_SIGNAL:... -->` comments in pre-v3 feature directories are in
 ## Phase file sections
 
 `## Agent Prompt` (authoritative) · `## Required Context` · `## Evidence Required` · `## Environment Assumptions` · `## Checklist` · `## Decisions` · `## Open Items` · `## Files Created/Modified` · `## Session Log` · `## Resume Point` (only when the agent stopped early) · `## Acceptance`
-
-`## Decisions` carries a `Reach` column: `feature` by default, `outward` for a decision that reaches beyond the feature. The planner promotes the `outward` rows to `decision_review.md`. A fact about how the project is run and observed is not a decision; it goes straight into `07_harness_conventions.md`.
 
 `## Open Items` is the single home for anything needing the planner or the user — question, error, blocker, or evidence gap — with a `kind` column distinguishing them.
 
