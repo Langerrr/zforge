@@ -6,7 +6,6 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SHARED_SKILLS = {
-    "async-reasoning",
     "feature-execution",
     "retro",
     "template-conventions",
