@@ -49,6 +49,8 @@ Capture the exit code and the last meaningful lines of output for anything you r
 
 **Side effects bound what you may re-run.** Before running a command, ask what it does besides report. A command that tears down state other rows depend on — one that removes volumes or containers, resets a fixture, drops a database, or is named as destructive in `07_harness_conventions.md` — is not run. Verify that row from its artifact and say in NOTES why. Where a row's claim is about a clean state, the clean form runs only in an isolated disposable worktree the planner has already provisioned; without that isolation, report the row as verified from artifact and say the clean form was not independently demonstrated.
 
+**A row's claim is about the state the phase left.** Where that state is gone and the check ran against a later tree, the row is `UNVERIFIABLE`, and NOTES says what the later tree showed.
+
 **J rows — walk the method.** The row names a method and a referent: a journey to walk, an exemplar to encode, a rubric to apply. Apply it and record the result and where it came out differently from the claim. A method you cannot walk from what the row states is itself the finding — report the row as unverifiable rather than guessing at what was meant.
 
 **Every row — name the class actually reached.** Read `../../../skills/template-conventions/references/evidence-scale.md` for both axes.
@@ -65,7 +67,7 @@ Per row, one of:
 | `SHORTFALL-MATERIAL` | achieved is below required and the phase's postcondition depends on the part not demonstrated |
 | `SHORTFALL-IMMATERIAL` | achieved is below required and nothing downstream in this feature relies on what the missing class rules out |
 | `FLOOR` | a shortfall that is never immaterial — see below |
-| `UNVERIFIABLE` | the command or method could not be run as written |
+| `UNVERIFIABLE` | the command or method could not be run as written, or ran only against a later tree |
 
 **Materiality** is settled the way `evidence-scale.md` §The gap between required and achieved states it.
 

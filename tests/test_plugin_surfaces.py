@@ -123,6 +123,7 @@ class PluginSurfaceTests(unittest.TestCase):
             "07_harness_conventions.md",
             "UNVERIFIABLE` is for a command that none of these resolves",
             "The one file you write is `07_harness_conventions.md`",
+            "A row's claim is about the state the phase left",
         )
         for clause in clauses:
             self.assertIn(clause, contract, f"missing from contract: {clause}")
