@@ -29,7 +29,7 @@ Load `$zforge:feature-execution`. It owns phase state, the spawn contract, recov
 When Codex exposes goal tools, make an existing `/goal` the outer run contract without copying its state into zforge's files:
 
 1. After the document pre-flight, call `get_goal`. Record whether this run adopted the active goal and retain the identity and objective fields the tool returns for later comparisons. If no goal is active on this initial check, continue normally and do not create one — invoking this skill is not permission to start or replace a goal.
-2. When the run adopted a goal, treat its objective as the outer stopping condition and zforge's feature state as the implementation truth. Re-check the same active goal at each classification boundary before acceptance or delegation, and again immediately before spawning a worker. Apply the goal-budget overlay in `$zforge:feature-execution`.
+2. When the run adopted a goal, treat its objective as the outer stopping condition and zforge's feature state as the implementation truth. Re-check the same active goal at each classification boundary before acceptance or delegation, and again immediately before spawning a worker. Apply the goal-budget overlay below.
 3. Once a run has adopted a goal, a later check that finds it paused, cleared or replaced schedules no new phase. Preserve any report already delivered using the normal REPORTED checkpoint before yielding. Only a run that never adopted a goal uses normal no-goal scheduling.
 4. Low remaining budget is a scheduling signal, never evidence that the feature is complete or blocked.
 
@@ -39,10 +39,27 @@ The bridge owns no second progress ledger: `/goal` answers whether Codex should 
 
 **If any phase is REPORTED** — an earlier session took its report and died before verifying it — acceptance is the first work of this session. Do not resume its agent.
 
+## Goal-budget overlay
+
+Apply this overlay only when Codex is running `$zforge:feature-orchestrate` under an active goal and `get_goal` exposes both the goal budget and its remainder. Re-check immediately before each scheduling wave and calculate the remaining percentage from the tool's values; when either value is absent, use the ordinary scheduling rules rather than inventing an estimate.
+
+| Remaining | Scheduling response |
+|---|---|
+| Above 60% | Apply the ordinary dependency, collision and budget gates. Parallelism is eligible, not required. |
+| `>30%` through `60%` | Run phases serially. Delegate a costly evidence re-run when doing so protects the planner's cumulative context. |
+| 15–30% | Accept REPORTED work first, then recover one INTERRUPTED phase through its next report and acceptance — resume its thread when reachable, otherwise use the disk-first fallback — then schedule at most one READY phase per wave. Delegate the evidence re-run when the acceptance role can verify it from the phase file without reconstructing planner context. Prefer the bounded action that leaves the strongest durable checkpoint. |
+| Below 15% | Do no speculative or parallel work. Accept an existing report, finish or checkpoint the held phase, or take one bounded action that materially advances the nearest acceptance condition. Do not idle solely because the budget is low. |
+
+After any usage-limit interruption in the current run, do not parallelize again during that run. Delegated acceptance reduces planner-context pressure but still consumes goal tokens; use it to preserve the scarce planner context, not as a claim that total usage must fall.
+
+The overlay changes ordering and concurrency only. It never changes phase state, lowers an evidence class, skips independent acceptance, or turns budget exhaustion into `COMPLETED`, `PAUSED` or `FAILED`.
+
+If the goal runtime reports no remaining capacity or refuses further work, launch no worker. Preserve the last durable zforge checkpoint and let the goal runtime control continuation; exhausted budget alone does not satisfy the goal's blocked condition.
+
 ## Run loop
 
 1. Classify every phase. If this run adopted a goal, call `get_goal` now before acceptance or delegation. If the same goal is no longer active, or the runtime reports no remaining capacity, checkpoint any delivered report and yield without starting more work.
-2. Accept REPORTED phases before scheduling implementation — reconcile every evidence row against its artifact, re-execute what a fact forces or COST, GAIN and MINIMUM EFFORT select, settle each shortfall by materiality, paste the report into `## Acceptance` with its adjudication and promoted lines, and commit the accepted phase as `zforge({feature}): phase {NN} {name}` with `git` directly. Below 15% goal budget, if a REPORTED phase exists, accept exactly one, skip implementation for this wave and return to classification to re-check the goal; if none exists, continue to the skill's single bounded action for this wave. Outside that band, accept every REPORTED phase. On a long chain, delegate the verification to a Codex subagent on the acceptance model chosen at pre-flight, instructed to use `$zforge:acceptance-agent`, then adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
+2. Accept REPORTED phases before scheduling implementation per the skill's acceptance procedure, and commit each accepted phase. Below 15% goal budget, if a REPORTED phase exists, accept exactly one, skip implementation for this wave and return to classification to re-check the goal; if none exists, continue to the skill's single bounded action for this wave. Outside that band, accept every REPORTED phase. On a long chain, delegate the verification to a Codex subagent on the acceptance model chosen at pre-flight, instructed to use `$zforge:acceptance-agent`, then adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
 3. Pick what to run using the skill's scheduling rules — sequential unless dependencies, collision surfaces and token budget all permit otherwise. If this run adopted a goal, immediately before spawning, re-check that the same goal is active and that the runtime has not reported exhausted capacity; otherwise yield at the durable checkpoint. Then spawn READY phases per the skill's contract.
 4. Handle each report by its status. Completion arrives natively; do not poll. The agent set REPORTED and logged its report before reporting; where a DONE report arrives with the header still RUNNING, set it now, before running anything.
 5. Return to classification. Exit to Completion when every phase is COMPLETED and no standing flag is open. If all phases are COMPLETED but a standing flag remains, stop and surface it. If incomplete phases remain but none can run, stop and surface their WAITING, PAUSED or INTERRUPTED conditions. Otherwise begin the next wave. A scheduling wave is one pass from this classification boundary through the bounded acceptance or implementation work selected there.
@@ -60,9 +77,7 @@ A `PAUSED` report carrying `REASON: USAGE_LIMIT_95` is not a fork and needs no a
 
 ## Completion
 
-Follow the skill's completion bookkeeping. Report phases completed, evidence achieved against evidence planned on both axes, any row accepted below its required class and the reasoning that settled it, the count of 🟡 decisions awaiting review, every standing flag still open with its kind, and what the run cost. The closing commit is not pushed: name the push and `$zforge:review` as what is available next, each with its cost and what it could reopen.
-
-Graduate the unowned absences into the document this project's planners read, then `07_harness_conventions.md` into the project's conventions document, trimmed to the facts still true. Both outlive the feature that paid for them.
+Follow the skill's completion bookkeeping through its closing commit. The closing commit is not pushed.
 
 When this run adopted an active Codex goal, call `get_goal` again before changing its status. Proceed only when the result confirms that the same adopted goal is still active; if it is paused, cleared, replaced or cannot be matched to the adopted contract, preserve zforge state and yield without any `update_goal` call:
 

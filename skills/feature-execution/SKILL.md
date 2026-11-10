@@ -128,43 +128,11 @@ Dependency edges say what *can* run in parallel. These three say what *should*. 
 
 **The CPU is a collision surface too.** A broad verification gate run while a heavy implementation agent is active shares the machine with it, and a timing-sensitive test fails under that load with nothing wrong. Run broad gates from a quiet state, and re-run a timing-shaped failure from one before classifying it.
 
-### Goal-budget overlay
-
-Apply this overlay only when Codex is running `$zforge:feature-orchestrate` under an active goal and `get_goal` exposes both the goal budget and its remainder. Re-check immediately before each scheduling wave and calculate the remaining percentage from the tool's values; when either value is absent, use the ordinary scheduling rules rather than inventing an estimate.
-
-| Remaining | Scheduling response |
-|---|---|
-| Above 60% | Apply the ordinary dependency, collision and budget gates. Parallelism is eligible, not required. |
-| `>30%` through `60%` | Run phases serially. Delegate a costly evidence re-run when doing so protects the planner's cumulative context. |
-| 15–30% | Accept REPORTED work first, then recover one INTERRUPTED phase through its next report and acceptance — resume its thread when reachable, otherwise use the disk-first fallback — then schedule at most one READY phase per wave. Delegate the evidence re-run when the acceptance role can verify it from the phase file without reconstructing planner context. Prefer the bounded action that leaves the strongest durable checkpoint. |
-| Below 15% | Do no speculative or parallel work. Accept an existing report, finish or checkpoint the held phase, or take one bounded action that materially advances the nearest acceptance condition. Do not idle solely because the budget is low. |
-
-After any usage-limit interruption in the current run, do not parallelize again during that run. Delegated acceptance reduces planner-context pressure but still consumes goal tokens; use it to preserve the scarce planner context, not as a claim that total usage must fall.
-
-The overlay changes ordering and concurrency only. It never changes phase state, lowers an evidence class, skips independent acceptance, or turns budget exhaustion into `COMPLETED`, `PAUSED` or `FAILED`.
-
-If the goal runtime reports no remaining capacity or refuses further work, launch no worker. Preserve the last durable zforge checkpoint and let the goal runtime control continuation; exhausted budget alone does not satisfy the goal's blocked condition.
-
 ### The planner's budget is the one that cannot be reset
 
 An agent's cost is per-phase and bounded: it reads a phase file, works, reports five lines, and its context dies with it. The planner's cost is **cumulative across the whole run** — it holds the plan, reads every report, adjudicates every acceptance, updates the overview, and commits. Serialising agents makes the agent side cheaper and does nothing about the planner.
 
 A long chain is therefore a planner-budget question before it is an agent-budget question, and two things follow. Delegate the evidence verification once the chain is long. Checkpoint on REPORTED rather than after acceptance, because a planner that dies mid-acceptance otherwise leaves a phase whose evidence has been claimed and not checked, with nothing on disk saying so.
-
-### Holding the run outside the planner's context
-
-The phase files record what happened. What is still *owed* lives only in the planner's context, and that is the part a planner death takes with it. A harness-held completion condition puts it somewhere else.
-
-In Claude Code, `/goal <condition>` sets one: a check after each turn decides whether the condition is met, and Claude keeps working until it is. The goal is restored on `claude --resume`, and `/goal clear` ends it early. One goal is active at a time, so a newly set condition replaces the current one. It needs a trusted workspace and unrestricted hooks. In Codex the equivalent is an active goal exposed through `get_goal`, which also carries a budget — see the goal-budget overlay above.
-
-Four rules govern the pairing:
-
-- **The condition is the feature, not the phase.** One goal is active at a time, so a per-phase condition is replaced at every phase and cannot survive the run.
-- **The condition names zforge's own bar** — every phase COMPLETED and no standing flag open — so the harness check and the phase files agree about what finished means.
-- **It composes rather than duplicates.** The goal answers whether to keep working; the overview, phase files and session log answer what is accepted, recoverable or open. There is no second progress ledger, and the goal's state is never copied into zforge's files.
-- **It is never set implicitly.** Invoking orchestration is not permission to set or replace a goal. Where a run would benefit from one, propose the condition and let the user set it.
-
-What the pairing buys is a planner that can die cheaply: `--resume` restores the goal, the phase files restore the state. It does not shorten acceptance, make an evidence row accurate, or keep a phase agent alive.
 
 ## Acceptance
 
@@ -173,17 +141,9 @@ An agent's green report is a claim. Acceptance is the planner's independent conf
 **The checkpoint is already on disk.** The agent set `> Status:` to REPORTED and wrote its report into `## Session Log` before reporting. Where a DONE report arrives and the header still reads RUNNING, set REPORTED now; that is the only edit before verification.
 
 1. Read the phase's `## Evidence Required` table, its `## Environment Assumptions`, and `07_harness_conventions.md` if the feature has one.
-2. **Reconcile every row against its artifact** (tier 1, below).
-3. **Re-execute what tier 2 selects** (below). A J row is re-checked by walking the method the row names.
-4. Compare achieved class against required class for every row, **within its axis**, and settle each shortfall by materiality:
-
-| Result | Response |
-|---|---|
-| achieved = required | Accept the row |
-| achieved > required | Accept, and note the surplus |
-| achieved < required, **material** | PAUSE the phase back to the agent, or open a standing flag in `05_progress_overview.md` with a stated *closes when* |
-| achieved < required, **immaterial** | Accept the row, recording the gap, why the postcondition does not depend on it, and what would make it matter |
-
+2. **Reconcile every row against its artifact** — tier 1 of the acceptance contract (below).
+3. **Re-execute what tier 2 selects.** A J row is re-checked by walking the method the row names.
+4. Compare achieved class against required class for every row, **within its axis**, and settle each shortfall by materiality (below): a material one pauses the phase back to the agent or opens a standing flag in `05_progress_overview.md` with a stated *closes when*; an immaterial one is accepted with the gap recorded.
 5. Write `## Acceptance` in the phase file: the acceptance report, verbatim, then two lines —
 
    ```
@@ -216,51 +176,17 @@ RE-ACCEPTED: {date} — rows 1, 3 re-verified from /tmp/zforge/artifacts/{featur
 
 A change that touches every row, or that the planner cannot bound to rows, is a new acceptance and gets a new report beneath the old one.
 
-### Tier 1 — reconcile every row
+**New scope is a new phase.** Work that changes what a phase must demonstrate — a new postcondition, a new evidence row, a contract added after acceptance — gets its own phase file, numbered next, whose `> Depends on:` names the phase it follows. The planner adds it to `02_plan.md` and `05_progress_overview.md` with its Verification Matrix row. The accepted phase keeps its one contract and its one acceptance. A phase file carrying a second contract is the sign this was skipped; split it at the next acceptance.
 
-Every row, every time, without running anything:
+### Verification follows the acceptance contract
 
-- Does the row's named artifact exist? Rows cite artifacts by their full path, under `/tmp/zforge/artifacts/{feature}/` — open the file rather than looking for it in the tree.
-- Does every figure the row states appear in that artifact verbatim?
-- Does the recorded output show a command that **selected nothing** — zero tests matched, zero assertions run, zero results — and exited 0?
+Steps 2 and 3 are the acceptance contract, whoever performs them — a delegated agent or the planner in-session. It has one home: `references/acceptance-contract.md`. It states tier 1 (reconcile every row against its artifact, running nothing), tier 2 (re-execute what a fact forces, or what COST, GAIN and MINIMUM EFFORT select), what side effects forbid re-running, and the report shape. Read it before verifying in-session.
 
-This tier is cheap, it needs no project state, and it is where misquoted figures and false greens surface. Run it before deciding what to re-execute, because what it finds is one of the triggers.
+### Materiality
 
-### Tier 2 — re-execute what earns it
+A shortfall is settled the way `../template-conventions/references/evidence-scale.md` §The gap between required and achieved states it: name what the missing class rules out, ask whether anything downstream in this feature relies on that being ruled out, and hold the two shortfalls it names as never immaterial.
 
-Re-run a row when a fact forces it:
-
-- Tier 1 found a mismatch, or the artifact is missing or quotes nothing.
-- The row names no artifact, only a claim.
-- The agent flagged the row itself, in `## Open Items` or by filling achieved below required.
-- The claim is about a clean or regenerated state.
-
-Otherwise decide, and think about three things:
-
-- **COST** — what running this takes.
-- **GAIN** — which unknown it retires, priced by what being wrong about it would cost.
-- **MINIMUM EFFORT** — the smallest thing that retires that same unknown.
-
-A suite re-run against a tree acceptance has not modified retires almost no unknown, and carries its own flake exposure on top. A filtered run against the surface the phase just built retires the unknown that matters, for a fraction of the time. Both can be E4; the class does not separate them, and these three do.
-
-Where the decision is to accept, the artifact stands and the row closes at tier 1.
-
-**Record which check each row got** — `from-artifact` or `re-executed`. A row accepted from its artifact is honestly accepted; a row written up as though a command ran is not.
-
-**A command not on the PATH is resolved before it is called unverifiable.** The repository's instructions — `AGENTS.md`, and `CLAUDE.md` where present — name the interpreter; a `.venv/bin/` in the project and then one in its parent directory are the next two places to look. A row is `UNVERIFIABLE` only when none of these resolves its command.
-
-**Side effects bound what may be re-run.** A command that tears down state other rows depend on — a teardown that removes volumes, a fixture reset, anything `07_harness_conventions.md` names as destructive — is verified from its artifact with the reason stated. Re-running a clean form needs an isolated worktree the planner has provisioned first.
-
-### Materiality, and the floor beneath it
-
-Name what the missing class rules out — `references/evidence-scale.md` states it per class — then ask whether anything downstream in this feature relies on that being ruled out. Nothing does, and no later phase inherits the assumption: the gap is immaterial, and it is recorded rather than flagged. A judgment that takes more than a paragraph to state is material.
-
-Two shortfalls are never immaterial:
-
-1. **A command that selected nothing and exited 0.** It is indistinguishable from a pass and it is not one.
-2. **A user-reachable surface that nothing reached the way a user reaches it.** Waiving this is how wiring and delivery defects ship.
-
-Every other row is judged by impact rather than by category, rows touching auth, data mutation and migrations included. Two obligations attach to that judgment: where the implementation drifted from the plan, `## Acceptance` records the drift whatever the impact; and where the impact needs human attention, the row pauses or flags on its own merits.
+Two obligations attach to that judgment: where the implementation drifted from the plan, `## Acceptance` records the drift whatever the impact; and where the impact needs human attention, the row pauses or flags on its own merits.
 
 ### Which decisions get promoted
 

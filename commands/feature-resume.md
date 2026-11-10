@@ -46,7 +46,7 @@ The pause triggers still apply. In this mode a trigger is a conversation rather 
 
 ## Between phases
 
-Accept the phase per the skill's acceptance procedure: reconcile every row against its artifact, re-execute what a fact forces or judgment selects, compare achieved against required within each axis, settle each shortfall by materiality, write `## Acceptance` in the report shape with its adjudication and promoted lines, promote the `outward` decisions, roll up any material unmet class as a standing flag, and commit the accepted phase as `zforge({feature}): phase {NN} {name}` with `git` directly — never through a commit skill. A harness fact learned while implementing goes into `07_harness_conventions.md` at the moment it is learned, as a spawned agent would write it.
+Accept the phase per the skill's acceptance procedure and commit it with `git` directly, never through a commit skill. A harness fact learned while implementing goes into `07_harness_conventions.md` at the moment it is learned, as a spawned agent would write it.
 
 Implementing and accepting in the same context is what this mode trades away: you are checking work you just did, and the tier-1 reconciliation is the part that survives that. Reconcile every figure against the artifact rather than against your memory of running the command — the memory and the artifact are the two things this mode cannot keep independent, and only one of them is on disk. Where a row's claim depends on a clean state, run it from one — a removed build directory, a fresh database — so the check is of the code and not of what the session left lying around.
 

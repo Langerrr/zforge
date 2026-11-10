@@ -38,7 +38,7 @@ Load the `feature-execution` skill. It owns phase state, the spawn contract, rec
 1. Classify every phase. Pick what to run using the skill's scheduling rules — sequential unless dependencies, collision surfaces and token budget all permit otherwise.
 2. Spawn READY phases per the skill's spawn contract.
 3. Handle each report by its status. Completion arrives natively; do not poll. The agent set REPORTED and logged its report before reporting; where a DONE report arrives with the header still RUNNING, set it now, before running anything.
-4. Accept REPORTED phases per the skill's acceptance procedure — reconcile every evidence row against its artifact, re-execute what a fact forces or COST, GAIN and MINIMUM EFFORT select, settle each shortfall by materiality, paste the report into `## Acceptance` with its adjudication and promoted lines, and commit the accepted phase as `zforge({feature}): phase {NN} {name}` with `git` directly. On a long chain, delegate the verification to `zforge:acceptance-agent` on the acceptance model chosen at pre-flight and adjudicate the report it returns; the run's context is the scarce resource, and checking evidence does not need it.
+4. Accept REPORTED phases per the skill's acceptance procedure, and commit each accepted phase. On a long chain, delegate the verification to `zforge:acceptance-agent` on the acceptance model chosen at pre-flight and adjudicate the report it returns.
 5. Repeat until no phase is READY.
 
 ## Autonomy boundary
@@ -70,6 +70,4 @@ The condition is the feature rather than a phase, because one goal is active at 
 
 ## Completion
 
-Follow the skill's completion bookkeeping. Report phases completed, evidence achieved against evidence planned on both axes, any row accepted below its required class and the reasoning that settled it, the count of 🟡 decisions awaiting review, every standing flag still open with its kind, and what the run cost. The closing commit is not pushed: name the push and `$zforge:review` as what is available next, each with its cost and what it could reopen.
-
-Graduate the unowned absences into the document this project's planners read, then `07_harness_conventions.md` into the project's conventions document, trimmed to the facts still true. Both outlive the feature that paid for them.
+Follow the skill's completion bookkeeping through its closing commit. The closing commit is not pushed.
