@@ -178,7 +178,7 @@ A change that touches every row, or that the planner cannot bound to rows, is a 
 
 ### Verification follows the acceptance contract
 
-Steps 2 and 3 are the acceptance contract, whoever performs them — a delegated agent or the planner in-session. It has one home: `../../agents/acceptance-agent.md` in Claude Code, `$zforge:acceptance-agent` in Codex. It states tier 1 (reconcile every row against its artifact, running nothing), tier 2 (re-execute what a fact forces, or what COST, GAIN and MINIMUM EFFORT select), what side effects forbid re-running, and the report shape. Read it before verifying in-session.
+Steps 2 and 3 are the acceptance contract, whoever performs them — a delegated agent or the planner in-session. It has one home: `references/acceptance-contract.md`. It states tier 1 (reconcile every row against its artifact, running nothing), tier 2 (re-execute what a fact forces, or what COST, GAIN and MINIMUM EFFORT select), what side effects forbid re-running, and the report shape. Read it before verifying in-session.
 
 ### Materiality
 
