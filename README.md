@@ -80,9 +80,9 @@ A phase that genuinely only needs unit tests declares E1, closes on a one-line r
 | `retro` | Scoring zforge's own workflow performance |
 | `plan`, `feature-orchestrate`, `feature-resume` | Codex-native planning and implementation entry points |
 | `review`, `track`, `plan-status`, `debug` | Codex-native review, reporting, and debugging entry points |
-| `phase-agent`, `acceptance-agent` | Specialized instructions loaded by Codex subagents |
+| `phase-agent`, `acceptance-agent` | Codex subagent entry points; each reads its shared contract |
 
-The four shared skills remain under `skills/`, where both hosts can load them. Codex-only workflow and subagent skills live under `codex/skills/`; the Codex manifest loads both roots, while Claude Code's default scan sees only the shared root. This local multi-root layout is tested with Codex CLI 0.149.1. Public Codex package assembly is deferred and recorded in [docs/public-codex-packaging.md](docs/public-codex-packaging.md).
+The three shared skills remain under `skills/`, where both hosts can load them. The phase, acceptance and planning contracts exist once, under `skills/*/references/`, and each host's `phase-agent`, `acceptance-agent` and `plan` file points to its contract. Codex-only workflow and subagent skills live under `codex/skills/`; the Codex manifest loads both roots, while Claude Code's default scan sees only the shared root. This local multi-root layout is tested with Codex CLI 0.149.1. Public Codex package assembly is deferred and recorded in [docs/public-codex-packaging.md](docs/public-codex-packaging.md).
 
 ## Specialized agents
 
