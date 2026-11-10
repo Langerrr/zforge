@@ -29,7 +29,8 @@
 <!-- Planner fills this. The agent reads these before starting the checklist — this table is
      what makes it write structurally correct code rather than merely checklist-complete code,
      so a phase that skips it tends to pass its own checklist and fail review.
-     Bind specific sections, not whole documents. -->
+     Bind specific sections, not whole documents. A skill the phase must run is a row too:
+     name it under File, and say under Why when it runs. -->
 
 | File | Sections | Why |
 |------|----------|-----|
