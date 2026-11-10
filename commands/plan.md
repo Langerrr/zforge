@@ -156,7 +156,7 @@ These bind the artifacts regardless of how the conversation went.
 
 **Multi-concern features get split.** If the work spans presentation, domain logic, data access, infrastructure and integration, mixing them in one plan produces phases with task checklists instead of design decisions. Recommend one plan per concern, developed sequentially, each constraining the next — an overall `00_design_spec.md` for the interface contracts between them, then separate trees. If the user chooses combined, structure discovery by concern so each still gets depth.
 
-**Async data flows get a designed state layer, not an implementation-time guess.** Where the feature has APIs, transactions, queues, caches, sockets or chains, `02_plan.md` states the data-flow map with write-to-read latency per path, the init order, a concurrent timeline trace of what every read path sees after a write, and what survives a restart. Load `zforge:async-reasoning` for this.
+**Async data flows get a designed state layer, not an implementation-time guess.** Where the feature has APIs, transactions, queues, caches, sockets or chains, `02_plan.md` states the data-flow map with write-to-read latency per path, the init order, a concurrent timeline trace of what every read path sees after a write, and what survives a restart. Load `distributed-architect:async-reasoning` for this, where that plugin is installed.
 
 **Surface these forks rather than silently picking a side:**
 

@@ -17,7 +17,7 @@ Investigation discipline comes before any fix, including when the cause seems ob
 **2. `$compound-engineering:ce-debug` — add when installed.**
 Its hypothesis-and-prediction gate goes *before* any code change: state what you believe is wrong and what you expect to see if you are right, then check. Without Compound Engineering, apply that same hypothesis-and-prediction gate directly. A fix applied without a failed prediction is a guess that happened to be typed confidently.
 
-**3. `$zforge:async-reasoning` — add when the failure involves timing.**
+**3. `$distributed-architect:async-reasoning` — add when that compatible plugin is installed and the failure involves timing.**
 Async state, race conditions, cache invalidation, init order, stale reads, write-then-read gaps within one component.
 
 **4. `$distributed-architect:dist-debug` — add when that compatible plugin is installed and the failure crosses a boundary.**

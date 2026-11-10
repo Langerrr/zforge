@@ -2,7 +2,7 @@
 
 The durable state, contract and evidence layer for multi-session feature work in Claude Code and Codex.
 
-zforge carries what must be true before a phase closes, what evidence proves it, what was decided along the way, and what is still open. It does not carry methodology — discovery belongs to `superpowers:brainstorming`, test discipline to `superpowers:test-driven-development`, debugging rigour to `superpowers:systematic-debugging` and `compound-engineering:ce-debug`, boundary analysis to `distributed-architect:dist-check`, and general code review to the host's code review plus `compound-engineering:ce-review`. zforge names those where they apply and owns none of them.
+zforge carries what must be true before a phase closes, what evidence proves it, what was decided along the way, and what is still open. It does not carry methodology — discovery belongs to `superpowers:brainstorming`, test discipline to `superpowers:test-driven-development`, debugging rigour to `superpowers:systematic-debugging` and `compound-engineering:ce-debug`, boundary analysis to `distributed-architect:dist-check`, async state reasoning to `distributed-architect:async-reasoning`, and general code review to the host's code review plus `compound-engineering:ce-review`. zforge names those where they apply and owns none of them.
 
 ## Workflows
 
@@ -77,7 +77,6 @@ A phase that genuinely only needs unit tests declares E1, closes on a one-line r
 |-------|---------|
 | `template-conventions` | Structure, ownership, evidence scale, naming — the source of truth |
 | `feature-execution` | Phase state, spawning, recovery, scheduling, acceptance |
-| `async-reasoning` | Designing state layers over async data flows |
 | `retro` | Scoring zforge's own workflow performance |
 | `plan`, `feature-orchestrate`, `feature-resume` | Codex-native planning and implementation entry points |
 | `review`, `track`, `plan-status`, `debug` | Codex-native review, reporting, and debugging entry points |
