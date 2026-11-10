@@ -42,7 +42,7 @@ The question is always: **"Did zforge's workflow help or get in the way?"**
 - **Do not run if `session_log.md` has no entries.** No session history means nothing to evaluate.
 - **Do not suggest zforge should make thinking decisions.** If a finding starts drifting into "zforge should have caught this design flaw" — that's out of scope. Drop it.
 - **Do not produce findings without concrete evidence.** Every finding needs specific files, sections, quotes, or examples. Vague observations are not findings.
-- **Do not aggregate across features.** Each retro evaluates one feature's experience. Cross-feature analysis is done by humans through PRs to the zforge repo.
+- **Do not aggregate across features.** Each retro evaluates one feature's experience. Cross-feature analysis is done by humans through PRs to the zforge repo. `../../tools/corpus_retro.py` gives them the numbers: it reads every feature tree under a root and reports sizes and counts per feature and per month.
 
 ## Data Sources
 
