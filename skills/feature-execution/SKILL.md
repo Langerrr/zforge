@@ -176,6 +176,8 @@ RE-ACCEPTED: {date} — rows 1, 3 re-verified from /tmp/zforge/artifacts/{featur
 
 A change that touches every row, or that the planner cannot bound to rows, is a new acceptance and gets a new report beneath the old one.
 
+**New scope is a new phase.** Work that changes what a phase must demonstrate — a new postcondition, a new evidence row, a contract added after acceptance — gets its own phase file, numbered next, whose `> Depends on:` names the phase it follows. The planner adds it to `02_plan.md` and `05_progress_overview.md` with its Verification Matrix row. The accepted phase keeps its one contract and its one acceptance. A phase file carrying a second contract is the sign this was skipped; split it at the next acceptance.
+
 ### Verification follows the acceptance contract
 
 Steps 2 and 3 are the acceptance contract, whoever performs them — a delegated agent or the planner in-session. It has one home: `references/acceptance-contract.md`. It states tier 1 (reconcile every row against its artifact, running nothing), tier 2 (re-execute what a fact forces, or what COST, GAIN and MINIMUM EFFORT select), what side effects forbid re-running, and the report shape. Read it before verifying in-session.

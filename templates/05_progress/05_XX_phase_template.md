@@ -16,7 +16,8 @@
 
 <!-- Authoritative. This is the only copy — the spawn message points here, it does not restate this.
      Written by the planner. State what this phase covers, its postcondition (what must be
-     demonstrably true when it closes), and its surface (which files it may touch). -->
+     demonstrably true when it closes), and its surface (which files it may touch).
+     One contract per phase file: scope added after acceptance goes in a new phase file that depends on this one. -->
 
 ```
 {What to build, what must be true at the end, which files are in scope}
