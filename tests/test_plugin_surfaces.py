@@ -123,6 +123,7 @@ class PluginSurfaceTests(unittest.TestCase):
             "07_harness_conventions.md",
             "UNVERIFIABLE` is for a command that none of these resolves",
             "The one file you write is `07_harness_conventions.md`",
+            "A row's claim is about the state the phase left",
         )
         for clause in clauses:
             self.assertIn(clause, contract, f"missing from contract: {clause}")
@@ -203,6 +204,55 @@ class PluginSurfaceTests(unittest.TestCase):
         for relative in (PHASE_CONTRACT, ACCEPTANCE_CONTRACT):
             text = (REPO_ROOT / relative).read_text()
             self.assertIn("full path", text, relative)
+
+    def test_row_writing_rules_have_one_home_in_the_phase_agents_load(self) -> None:
+        """A phase agent reads its contract, the evidence scale and its phase file.
+
+        How a row and its artifact are written is stated in the contract. The
+        scale and the phase template name the contract and leave the rules to it.
+        """
+        contract = (REPO_ROOT / PHASE_CONTRACT).read_text()
+        clauses = ("never a directory", "smallest file", "Console output is gone")
+        for clause in clauses:
+            self.assertIn(clause, contract, f"missing from contract: {clause}")
+        for relative in (
+            "skills/template-conventions/references/evidence-scale.md",
+            "templates/05_progress/05_XX_phase_template.md",
+        ):
+            text = (REPO_ROOT / relative).read_text()
+            self.assertIn("references/phase-contract.md", text, relative)
+            for clause in clauses:
+                self.assertNotIn(clause, text, f"{relative} still contains: {clause}")
+
+    def test_materiality_has_one_home_the_acceptance_contract_points_to(self) -> None:
+        """The scale states how a shortfall is settled; the acceptance contract links it."""
+        scale = (
+            REPO_ROOT / "skills/template-conventions/references/evidence-scale.md"
+        ).read_text()
+        contract = (REPO_ROOT / ACCEPTANCE_CONTRACT).read_text()
+        self.assertIn("more than a paragraph", scale)
+        self.assertNotIn("more than a paragraph", contract)
+        self.assertIn("§The gap between required and achieved", contract)
+        self.assertIn("## The gap between required and achieved", scale)
+
+    def test_planner_reads_each_run_rule_once(self) -> None:
+        """The orchestrate host files leave these rules to the feature-execution skill."""
+        skill = (REPO_ROOT / "skills" / "feature-execution" / "SKILL.md").read_text()
+        clauses = (
+            "Acceptance proposes a cheaper one",
+            "| PAUSED, `REASON: USAGE_LIMIT_95` |",
+            "set REPORTED now",
+            "The closing commit is **not pushed**",
+        )
+        for clause in clauses:
+            self.assertEqual(skill.count(clause), 1, clause)
+        for host in (
+            "commands/feature-orchestrate.md",
+            "codex/skills/feature-orchestrate/SKILL.md",
+        ):
+            text = (REPO_ROOT / host).read_text()
+            for phrase in ("cheaper", "header still RUNNING", "not pushed"):
+                self.assertNotIn(phrase, text, f"{host} restates: {phrase}")
 
     def test_phase_contract_has_one_home_both_hosts_point_to(self) -> None:
         """The phase-agent contract lives in one file; both host files name it.

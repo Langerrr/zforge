@@ -93,9 +93,7 @@ Authoritative and the only copy. The spawn message points at it and does not res
 ### `## Evidence Required`
 `Claim | Required | Command / method | Achieved | Artifact`. Required is inherited from the Verification Matrix before the phase runs; achieved and artifact are filled by the agent. Commands must be re-runnable by someone else.
 
-Each row is written **when its command runs, from the artifact that command wrote** — not at session end and not from console scrollback. Every figure presented as a measurement appears verbatim in that artifact, or the row says it cannot.
-
-Artifacts are written to `/tmp/zforge/artifacts/{feature}/`, named `{phase}_{what-it-is}.{NN}.{ext}` so a second run cannot overwrite the file an earlier row quotes, and cited by their full path. The directory is dropped at completion — see **Where artifacts live**.
+Each row is written when its command runs, from the artifact that command wrote — see **Where artifacts live**.
 
 ### `## Environment Assumptions`
 `Assumed by plan | Actual here | Substitution | What it defers`. A substitution with no deferral stated is one nobody will remember to undo.

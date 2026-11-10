@@ -60,7 +60,7 @@ A spawn message contains only:
 3. The report contract below.
 4. The budget-stop clause below.
 
-Set the phase's `> Status:` to RUNNING before spawning, and spawn on the implementation model chosen at pre-flight.
+Set the phase's `> Status:` to RUNNING before spawning.
 
 ### The budget-stop clause
 
@@ -108,12 +108,12 @@ Record usage-limit deaths distinctly in `session_log.md`. They are a budgeting s
 
 | Status | Response |
 |---|---|
-| REPORTED | Run acceptance (below). The agent is finished; do not resume it |
+| REPORTED | Run acceptance (below) |
 | COMPLETED | Already adjudicated. Advance |
 | PAUSED | Answer from the plan if it resolves the question; otherwise ask the user. Resume the same subagent thread with a follow-up |
 | PAUSED, `REASON: USAGE_LIMIT_95` | No question to answer. Wait for capacity, then resume the same subagent thread with a follow-up pointed at the phase's `## Resume Point` |
 | FAILED | Stop. Surface the phase's `## Open Items` to the user with full context |
-| INTERRUPTED | Wait for capacity, then resume the same reachable subagent thread. **Never re-spawn when that thread still exists** — the work is not lost, only paused |
+| INTERRUPTED | Wait for capacity, then resume per Recovery |
 | ORPHANED | The orchestrator session died. On the next session, resume from the phase file plus disk state |
 
 ## Scheduling
@@ -138,7 +138,7 @@ A long chain is therefore a planner-budget question before it is an agent-budget
 
 An agent's green report is a claim. Acceptance is the planner's independent confirmation, and it is what closes a phase.
 
-**The checkpoint is already on disk.** The agent set `> Status:` to REPORTED and wrote its report into `## Session Log` before reporting. Where a DONE report arrives and the header still reads RUNNING, set REPORTED now; that is the only edit before verification.
+**The checkpoint is already on disk**, written by the agent before it reported. Where a DONE report arrives and the header still reads RUNNING, set REPORTED now; that is the only edit before verification.
 
 1. Read the phase's `## Evidence Required` table, its `## Environment Assumptions`, and `07_harness_conventions.md` if the feature has one.
 2. **Reconcile every row against its artifact** — tier 1 of the acceptance contract (below).
@@ -154,17 +154,14 @@ An agent's green report is a claim. Acceptance is the planner's independent conf
    Nothing else. The report's RATIONALE is where the reasoning behind a row accepted below its class lives, written once by the party that watched the check run. Where the planner verified in-session rather than delegating, it writes the same report shape — the shape is the contract, whoever fills it. This section is planner-owned; the agent never writes it.
 6. **Promote the `outward` decisions** into `decision_review.md` §C as 🟡. The agent marked them; the planner does not read the `feature` rows.
 7. Read the report's HARNESS line. The rows it names are already in `07_harness_conventions.md`, written by whoever learned them; there is nothing to copy.
-8. Roll any material unmet class up to the overview's Standing Flags.
-9. Set `> Status:` to COMPLETED and update `05_progress_overview.md` — the phase's status row and the Quick Status counts, and Standing Flags only where one opened or closed.
-10. **Commit the accepted phase.** Stage the phase's source changes and its phase file, and commit as `zforge({feature}): phase {NN} {name}`.
+8. Set `> Status:` to COMPLETED and update `05_progress_overview.md` — the phase's status row and the Quick Status counts, and Standing Flags only where one opened or closed.
+9. **Commit the accepted phase.** Stage the phase's source changes and its phase file, and commit as `zforge({feature}): phase {NN} {name}`.
 
 Commit at acceptance rather than at report, so every commit in the history is accepted work: a phase that is rejected or re-run leaves none to unwind. A phase can be hours of work, and it gets its own commit rather than a share of a ten-phase diff.
 
 Make the commit with `git` directly, **never by invoking a commit skill or command**. A delegated commit hands this moment to another workflow, and what runs next tends to arrive with its own review and repair loop — which is how an accepted, green feature gets reopened with nobody present to decide.
 
 The achieved class is recorded as reached. A row that reached E3 against an E4 requirement reads E3 whichever outcome it takes — accepting a gap and hiding it are different acts.
-
-A phase whose evidence table is entirely E0 and J0 has demonstrated nothing, regardless of how complete its checklist looks.
 
 ### Re-acceptance is a delta
 
@@ -192,7 +189,7 @@ Two obligations attach to that judgment: where the implementation drifted from t
 
 `## Decisions` carries a `Reach` column the agent fills as it records each row: `feature` by default, `outward` for a decision that reaches beyond this feature's implementation. **A decision reaches outward when it contradicts or extends a design document, asserts something the domain model does not define, or hands an obligation to a later band.** A decision that only binds later phases is `feature`, and stays in the phase file, where phase agents already read it.
 
-At acceptance the planner promotes the `outward` rows and names them on the `PROMOTED:` line. Where a promoted row turns out to bind only this feature, that is one line in the ledger's adjudication, not a reason to read every decision on every phase.
+Where a promoted row turns out to bind only this feature, that is one line in the ledger's adjudication, not a reason to read every decision on every phase.
 
 The ledger is an adjudication queue the user drains asynchronously. A phase routinely records ten or more decisions and most are implementation conventions — which package call, which transport, which pinned version. Promoting all of them makes the ledger a second copy of the progress folder and hands the triage to the user, which is the work the planner was there to do.
 
@@ -200,13 +197,11 @@ The line that settles borderline rows: **a question the user must answer** belon
 
 ### Delegating the verification
 
-Steps 2 and 3 are the largest recurring cost on the planner and need the least of the planner's context — a phase file and a shell. Where the chain is long or the budget is tight, delegate to the specialized acceptance role, on the acceptance model chosen at pre-flight: in Codex, instruct a subagent to use `$zforge:acceptance-agent`; in Claude Code, use the plugin's `zforge:acceptance-agent` agent type. For a re-acceptance, the spawn message names the rows the change touched.
+Steps 2 and 3 are the largest recurring cost on the planner and need the least of the planner's context — a phase file and a shell. Where the chain is long or the budget is tight, delegate to the specialized acceptance role, on the acceptance model chosen at pre-flight: in Codex, instruct a subagent to use `$zforge:acceptance-agent`; in Claude Code, use the plugin's `zforge:acceptance-agent` agent type.
 
 The agent returns a per-row verdict and an overall recommendation with its rationale. Read the rationale: it comes from the party that watched the commands run, and re-deriving it from the table alone spends planner context to reach a worse-informed version of the same conclusion. Where the recommendation is sound, adopt it and say so. Where it is not, the disagreement is worth stating in `## Acceptance`.
 
 Steps 4 through 9 stay with the planner, and they are short: the report is pasted, the adjudication is one line, the promotion is a lookup. Adjudicating materiality where the planner disagrees with the recommendation is the one part that needs the run.
-
-A tier-1-only pass — reconciliation with no re-execution triggered — is arithmetic against committed files and runs well on a cheaper model. A pass that will re-execute anything needs one that can read a failing runtime.
 
 ## Completion bookkeeping
 

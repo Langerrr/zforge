@@ -48,8 +48,6 @@ Reaching rung 4 for something rung 1 would have answered spends the most expensi
 
 **Only the groups the output kind selects are on the contract.** Under `requirements` that is A and B; C and D are not on it at all. A schema question is a group-C question, so under `requirements` it does not get asked — not deferred, not asked politely, not asked.
 
-Never re-ask something already answered. Checking the session and the docs is part of the attempt.
-
 ### A — Intent · gates `00_design_spec.md`
 
 | # | Item | Filled when | Attempt |

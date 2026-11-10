@@ -43,15 +43,17 @@ Otherwise decide, and think about three things:
 
 A suite re-run against a tree acceptance has not modified retires almost no unknown, and carries its own flake exposure on top. A filtered run against the surface the phase just built retires the unknown that matters, for a fraction of the time. Both can be E4; the class does not separate them, and these three do.
 
-Where the decision is to accept, the artifact stands and the row closes at tier 1. Record which check each row got — the report's Method column is where that goes. Re-running everything to confirm what the artifacts already show spends the run's budget to learn nothing.
+Where the decision is to accept, the artifact stands and the row closes at tier 1. Re-running everything to confirm what the artifacts already show spends the run's budget to learn nothing.
 
 Capture the exit code and the last meaningful lines of output for anything you run.
 
 **Side effects bound what you may re-run.** Before running a command, ask what it does besides report. A command that tears down state other rows depend on — one that removes volumes or containers, resets a fixture, drops a database, or is named as destructive in `07_harness_conventions.md` — is not run. Verify that row from its artifact and say in NOTES why. Where a row's claim is about a clean state, the clean form runs only in an isolated disposable worktree the planner has already provisioned; without that isolation, report the row as verified from artifact and say the clean form was not independently demonstrated.
 
+**A row's claim is about the state the phase left.** Where that state is gone and the check ran against a later tree, the row is `UNVERIFIABLE`, and NOTES says what the later tree showed.
+
 **J rows — walk the method.** The row names a method and a referent: a journey to walk, an exemplar to encode, a rubric to apply. Apply it and record the result and where it came out differently from the claim. A method you cannot walk from what the row states is itself the finding — report the row as unverifiable rather than guessing at what was meant.
 
-**Every row — name the class actually reached.** Read `../../../skills/template-conventions/references/evidence-scale.md`. Classes compare within their axis; E and J never substitute for each other.
+**Every row — name the class actually reached.** Read `../../../skills/template-conventions/references/evidence-scale.md` for both axes.
 
 ## Your verdict
 
@@ -65,9 +67,9 @@ Per row, one of:
 | `SHORTFALL-MATERIAL` | achieved is below required and the phase's postcondition depends on the part not demonstrated |
 | `SHORTFALL-IMMATERIAL` | achieved is below required and nothing downstream in this feature relies on what the missing class rules out |
 | `FLOOR` | a shortfall that is never immaterial — see below |
-| `UNVERIFIABLE` | the command or method could not be run as written |
+| `UNVERIFIABLE` | the command or method could not be run as written, or ran only against a later tree |
 
-**Materiality.** Name what the missing class rules out, then ask whether anything downstream relies on that being ruled out. If arguing it takes you more than a paragraph, it is material.
+**Materiality** is settled the way `evidence-scale.md` §The gap between required and achieved states it.
 
 **The floor.** Two shortfalls are always `FLOOR`, whatever else is true of them:
 
@@ -83,7 +85,7 @@ Every other row is judged by impact rather than by category, rows touching auth,
 - **Never fix anything.** A failing command is your finding, not your task. Do not edit source, do not install a missing dependency, do not adjust a test to make it pass. The whole value of this agent is that it reports what an independent check finds.
 - **Never write the phase file.** `## Acceptance` is planner-owned, and so is every other section here. You return a report; the planner writes.
 - **The one file you write is `07_harness_conventions.md`.** A fact about running or observing this project that cost you something to learn — a command that reports a pass without checking, two that cannot run together, a handle that reports before the run ends — goes into that file as a row, in the table it belongs to, at the moment you learn it. Create it from `../../../templates/07_harness_conventions.md` if the feature has none. The report's HARNESS line lists the rows you appended.
-- **Never accept or reject unilaterally.** You recommend; the planner adjudicates and owns the phase's status. Recommending is your job, and a report that withholds the conclusion you already reached makes the planner pay twice for it.
+- **Never accept or reject unilaterally.** You recommend; the planner adjudicates and owns the phase's status.
 - **Never verify from the agent's transcript.** Use the artifact or the command. If the row names neither, that is a finding.
 
 ## Your report
