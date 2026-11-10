@@ -113,17 +113,36 @@ class PluginSurfaceTests(unittest.TestCase):
             self.assertIn(clause, claude, f"missing from Claude agent: {clause}")
             self.assertIn(clause, codex, f"missing from Codex skill: {clause}")
 
-    def test_evidence_floor_is_stated_wherever_shortfalls_are_settled(self) -> None:
-        """Every surface that settles a shortfall names the two unwaivable ones."""
+    def test_evidence_floor_has_one_home_and_the_planner_points_to_it(self) -> None:
+        """The evidence scale states the two unwaivable shortfalls; the planner links it.
+
+        The acceptance contract names them too, because it has to label a row
+        ``FLOOR``. The planner's skill settles shortfalls by reference.
+        """
         for relative in (
+            "skills/template-conventions/references/evidence-scale.md",
             "agents/acceptance-agent.md",
             "codex/skills/acceptance-agent/SKILL.md",
-            "skills/feature-execution/SKILL.md",
-            "skills/template-conventions/references/evidence-scale.md",
         ):
             text = (REPO_ROOT / relative).read_text()
             self.assertIn("selected nothing and exited 0", text, relative)
             self.assertIn("user-reachable surface", text, relative)
+
+        planner = (REPO_ROOT / "skills" / "feature-execution" / "SKILL.md").read_text()
+        self.assertIn("references/evidence-scale.md", planner)
+        self.assertNotIn("selected nothing and exited 0", planner)
+
+    def test_host_specific_run_control_lives_in_the_host_file(self) -> None:
+        """Each host's goal mechanics sit in that host's orchestrate surface only."""
+        shared = (REPO_ROOT / "skills" / "feature-execution" / "SKILL.md").read_text()
+        codex = (
+            REPO_ROOT / "codex" / "skills" / "feature-orchestrate" / "SKILL.md"
+        ).read_text()
+        claude = (REPO_ROOT / "commands" / "feature-orchestrate.md").read_text()
+        self.assertNotIn("get_goal", shared)
+        self.assertNotIn("/goal", shared)
+        self.assertIn("## Goal-budget overlay", codex)
+        self.assertIn("/goal", claude)
 
 
     def test_artifact_location_stated_wherever_artifacts_are_written_or_read(

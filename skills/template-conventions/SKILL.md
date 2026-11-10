@@ -59,32 +59,13 @@ Running ledgers are unnumbered: `discussion.md`, `decision_review.md`, `session_
 
 ## Evidence
 
-Phases declare what class of evidence closes them, and the planner confirms it. See `references/evidence-scale.md` for the classes, how to choose one at plan time, and what happens when achieved falls short of required.
+Phases declare what class of evidence closes them, and the planner confirms it. `references/evidence-scale.md` is the home for all of it: the two axes — **E0–E4** for what was executed, **J0–J2** for what was judged — how to choose a class at plan time, how a row and its artifact stay attached, and how a shortfall is settled.
 
-Two axes. **E0–E4** for what was executed, ranked by what each rules out — algorithm errors, integration mismatches, runtime divergence, wiring defects. **J0–J2** for what was judged: a claim no test runner settles, checked by a stated method against a named referent. Classes rank within an axis only; neither substitutes for the other.
-
-The short version: `02_plan.md`'s Verification Matrix declares the classes per phase before work starts, each phase's `## Evidence Required` inherits its row, and acceptance verifies rather than reads — every row reconciled against the artifact it names, and what a fact forces or judgment selects re-executed.
-
-**Rows are written when their commands run, from the artifact each command wrote**, with artifacts named per run so a re-run cannot overwrite the file an earlier row quotes. A figure presented as a measurement appears verbatim in its artifact or the row says it cannot. This is what makes the cheap half of acceptance possible at all.
-
-Artifacts live in `/tmp/zforge/artifacts/{feature}/` — outside every repository, and dropped when the feature closes. An artifact is the smallest file that carries the figures its row quotes, one per row per run and never a directory; state a command produced stays where it was produced and is cited in place. A row cites an artifact by its full path. The docs tree carries the finding and the path; the file itself is working state that acceptance reads once.
-
-Where achieved falls short of required, the gap is settled by materiality: a **material** shortfall becomes a standing flag in the overview and the feature is not complete while one is open, and an **immaterial** one is accepted with the reasoning recorded. Two shortfalls are never immaterial — a command that selected nothing and exited 0, and a user-reachable surface nothing reached. The achieved class is recorded as reached either way.
+`02_plan.md`'s Verification Matrix declares the classes per phase, each phase's `## Evidence Required` inherits its row, and acceptance verifies every row against the artifact it names. Artifacts live in `/tmp/zforge/artifacts/{feature}/`, outside every repository, and are dropped when the feature closes.
 
 ## Reporting
 
-There is no signal protocol. Phase state is the `> Status:` header in the phase file; completion is delivered by the harness. An agent's final report is:
-
-```
-STATUS: DONE | PAUSED | FAILED
-REASON: <only when PAUSED — the trigger that fired, or USAGE_LIMIT_95>
-EVIDENCE: <one line per Evidence Required row>
-DECISIONS: <count> (<n> outward)
-FILES: <count>
-OPEN: <count of unresolved Open Items>
-```
-
-Everything else belongs in the phase file, which is what survives the session. Before reporting, the agent writes its session-log row and sets `> Status:` to the state it reports; COMPLETED is set only by acceptance.
+There is no signal protocol. Phase state is the `> Status:` header in the phase file; completion is delivered by the harness. The agent's final report is six lines — STATUS, REASON, EVIDENCE, DECISIONS, FILES, OPEN — in the shape the phase-agent contract states, and everything else belongs in the phase file. The agent sets `> Status:` to the state it reports; COMPLETED is set only by acceptance.
 
 Legacy `<!-- AGENT_SIGNAL:... -->` comments in pre-v3 feature directories are inert history.
 

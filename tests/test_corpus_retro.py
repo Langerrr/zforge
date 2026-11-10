@@ -1,3 +1,5 @@
+import contextlib
+import io
 import sys
 import tempfile
 import unittest
@@ -87,9 +89,11 @@ class CorpusRetroTests(unittest.TestCase):
         self.assertEqual(summary["phases_with_extra_sections"], 1)
 
     def test_main_reports_and_fails_on_an_empty_root(self) -> None:
-        self.assertEqual(corpus_retro.main([self.root.name, "--since", "2000-01-01"]), 0)
-        with tempfile.TemporaryDirectory() as empty:
-            self.assertEqual(corpus_retro.main([empty]), 1)
+        with contextlib.redirect_stdout(io.StringIO()) as out, contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(corpus_retro.main([self.root.name, "--since", "2000-01-01"]), 0)
+            with tempfile.TemporaryDirectory() as empty:
+                self.assertEqual(corpus_retro.main([empty]), 1)
+        self.assertIn("docs/demo", out.getvalue())
 
 
 if __name__ == "__main__":
